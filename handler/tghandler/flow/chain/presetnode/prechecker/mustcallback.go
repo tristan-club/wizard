@@ -1,11 +1,11 @@
 package prechecker
 
 import (
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 func MustBeCallback(ctx *tcontext.Context, node *chain.Node) error {

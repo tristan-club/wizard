@@ -5,20 +5,20 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/config"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/controller_pb"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/dcontext"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmdhandler"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
-	"github.com/tristan-club/bot-wizard/pconst"
-	"github.com/tristan-club/bot-wizard/pkg/cluster/rpc/grpc_client"
-	"github.com/tristan-club/bot-wizard/pkg/dingding"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
-	"github.com/tristan-club/bot-wizard/pkg/tstore"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/config"
+	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmdhandler"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/userstate"
+	"github.com/tristan-club/wizard/pconst"
+	"github.com/tristan-club/wizard/pkg/cluster/rpc/grpc_client"
+	"github.com/tristan-club/wizard/pkg/dingding"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/tstore"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 	"os"
@@ -288,6 +288,23 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 	} else {
 		requester.RequesterUserNo = getUserResp.Data.UserNo
 		requester.RequesterDefaultAddress = getUserResp.Data.DefaultAccountAddr
+
+		if getUserResp.Data.OpenUsername != ctx.GetUserName() {
+			updateUserReq := &controller_pb.UpdateUserReq{
+				UserNo:     getUserResp.Data.UserNo,
+				OpenId:     "",
+				OpenType:   0,
+				IsOpenInit: false,
+				Username:   ctx.GetUserName(),
+				Nickname:   "",
+			}
+			updateUserResp, err := t.controllerMgr.UpdateUser(ctx.Context, updateUserReq)
+			if err != nil {
+				log.Error().Fields(map[string]interface{}{"action": "call controller error", "error": err.Error(), "req": updateUserReq}).Send()
+			} else if updateUserResp.CommonResponse.Code != he.Success {
+				log.Error().Fields(map[string]interface{}{"action": "update user error", "error": updateUserResp, "req": updateUserReq}).Send()
+			}
+		}
 	}
 
 	return pcr.handler.Handler(ctx)

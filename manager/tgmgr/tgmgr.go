@@ -5,21 +5,21 @@ import (
 	"encoding/base64"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/config"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/controller_pb"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmdhandler"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/inline_keybord"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
-	"github.com/tristan-club/bot-wizard/pconst"
-	"github.com/tristan-club/bot-wizard/pkg/cluster/rpc/grpc_client"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
-	"github.com/tristan-club/bot-wizard/pkg/tstore"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/config"
+	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/flow"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmdhandler"
+	"github.com/tristan-club/wizard/handler/tghandler/inline_keybord"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/userstate"
+	"github.com/tristan-club/wizard/pconst"
+	"github.com/tristan-club/wizard/pkg/cluster/rpc/grpc_client"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/tstore"
+	"github.com/tristan-club/wizard/pkg/util"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 	"net/http"
@@ -483,6 +483,24 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		} else {
 			requester.RequesterUserNo = getUserResp.Data.UserNo
 			requester.RequesterDefaultAddress = getUserResp.Data.DefaultAccountAddr
+
+			if getUserResp.Data.OpenNickname != ctx.GetNickname() || getUserResp.Data.OpenUsername != ctx.GetUserName() {
+				updateUserReq := &controller_pb.UpdateUserReq{
+					UserNo:     getUserResp.Data.UserNo,
+					OpenId:     "",
+					OpenType:   0,
+					IsOpenInit: false,
+					Username:   ctx.GetUserName(),
+					Nickname:   ctx.GetNickname(),
+				}
+				updateUserResp, err := t.controllerMgr.UpdateUser(ctx.Context, updateUserReq)
+				if err != nil {
+					log.Error().Fields(map[string]interface{}{"action": "call controller error", "error": err.Error(), "req": updateUserReq}).Send()
+				} else if updateUserResp.CommonResponse.Code != he.Success {
+					log.Error().Fields(map[string]interface{}{"action": "update user error", "error": updateUserResp, "req": updateUserReq}).Send()
+				}
+			}
+
 		}
 
 		if herr := userstate.InitState(userId, cmdId, getUserResp.Data.UserNo, getUserResp.Data.DefaultAccountAddr); herr != nil {

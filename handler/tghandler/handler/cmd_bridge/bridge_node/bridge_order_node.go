@@ -2,13 +2,13 @@ package bridge_node
 
 import (
 	"fmt"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain/presetnode/prechecker"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/inline_keybord"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
-	"github.com/tristan-club/bot-wizard/pconst"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
+	"github.com/tristan-club/wizard/handler/tghandler/inline_keybord"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/userstate"
+	"github.com/tristan-club/wizard/pconst"
 	"strconv"
 )
 

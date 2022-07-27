@@ -3,11 +3,11 @@ package cmd_get_account
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/dcontext"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/text"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
 )
 
 var Handler = &handler.DiscordCmdHandler{

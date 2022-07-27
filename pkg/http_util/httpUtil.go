@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/rs/zerolog/log"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	"github.com/tristan-club/wizard/pkg/util"
 	"io/ioutil"
 	"net/http"
 	"net/url"

@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/config"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmdhandler"
-	"github.com/tristan-club/bot-wizard/manager/dcmgr"
-	"github.com/tristan-club/bot-wizard/pkg/dingding"
-	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/config"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmdhandler"
+	"github.com/tristan-club/wizard/manager/dcmgr"
+	"github.com/tristan-club/wizard/pkg/dingding"
+	"github.com/tristan-club/wizard/pkg/log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -48,6 +48,8 @@ func main() {
 			}
 		}
 	}
+
+	log.Info().Fields(map[string]interface{}{"action": "discord bot open session success", "botName": b.State.User.Username}).Send()
 
 	dcMgr, err := dcmgr.NewMgr(os.Getenv("CONTROLLER_SERVICE"), os.Getenv("TSTORE_SERVICE"), cmd.GetCmdList())
 	if err != nil {

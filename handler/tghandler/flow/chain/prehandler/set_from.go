@@ -1,8 +1,8 @@
 package prehandler
 
 import (
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/userstate"
 )
 
 func SetFrom(ctx *tcontext.Context) error {

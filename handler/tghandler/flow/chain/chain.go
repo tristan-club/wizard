@@ -2,12 +2,12 @@ package chain
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext/expire_message"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext/expire_message"
+	"github.com/tristan-club/wizard/handler/userstate"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 type ChainHandler struct {

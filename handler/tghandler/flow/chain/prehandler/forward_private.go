@@ -1,10 +1,10 @@
 package prehandler
 
 import (
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/inline_keybord"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/inline_keybord"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/pkg/log"
 )
 
 func ForwardPrivate(ctx *tcontext.Context) error {

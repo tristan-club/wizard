@@ -1,16 +1,16 @@
 package cmd_change_pin_code
 
 import (
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/controller_pb"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain/prehandler"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain/presetnode"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain/presetnode/prechecker"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/prehandler"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/userstate"
+	he "github.com/tristan-club/wizard/pkg/error"
 )
 
 type ChangePinCodePayload struct {

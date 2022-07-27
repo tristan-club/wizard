@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/manager/tgmgr"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/manager/tgmgr"
 	"os"
 	"time"
 )

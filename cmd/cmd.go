@@ -1,6 +1,6 @@
 package cmd
 
-import "github.com/tristan-club/bot-wizard/config"
+import "github.com/tristan-club/wizard/config"
 
 const (
 	CmdStart           = "start"

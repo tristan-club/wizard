@@ -1,9 +1,9 @@
 package expire_message
 
 import (
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/userstate/expiremessage_state"
-	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
+	"github.com/tristan-club/wizard/pkg/log"
 )
 
 func ClearPreviousStepExpireMessage(ctx *tcontext.Context) {

@@ -1,22 +1,22 @@
 package cmdhandler
 
 import (
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_add_token"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_airdrop"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_balance"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_bridge"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_change_pin_code"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_create_envelope"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_get_account"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_issue_token"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_menu"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_my_wallet"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_open_envelope"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_start"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_swap"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/handler/cmd_transfer"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/handler/tghandler/flow"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_add_token"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_airdrop"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_balance"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_bridge"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_change_pin_code"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_create_envelope"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_get_account"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_issue_token"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_menu"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_my_wallet"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_open_envelope"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_start"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_swap"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_transfer"
 )
 
 var handlerMap map[string]flow.TGFlowHandler

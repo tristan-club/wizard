@@ -3,9 +3,9 @@ package expiremessage_state
 import (
 	"encoding/json"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
-	"github.com/tristan-club/bot-wizard/pkg/log"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	"github.com/tristan-club/wizard/handler/userstate"
+	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 const (

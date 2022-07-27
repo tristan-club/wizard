@@ -3,14 +3,14 @@ package cmd_my_wallet
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/controller_pb"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain/prehandler"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/pconst"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/prehandler"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/pconst"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
 )
 
 var Handler *chain.ChainHandler

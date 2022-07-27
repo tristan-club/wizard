@@ -2,16 +2,16 @@ package cmdhandler
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/cmd"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_add_token"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_balance"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_change_pincode"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_get_account"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_menu"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_my_wallet"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_start"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler/cmd_transfer"
+	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_add_token"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_balance"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_change_pincode"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_get_account"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_menu"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_my_wallet"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_start"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_transfer"
 )
 
 var handlerMap map[string]*handler.DiscordCmdHandler

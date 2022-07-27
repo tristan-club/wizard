@@ -3,9 +3,9 @@ package tstore
 import (
 	"context"
 	"errors"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/tstore_pb"
-	"github.com/tristan-club/bot-wizard/pkg/cluster/rpc/grpc_client"
-	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/wizard/entity/entity_pb/tstore_pb"
+	"github.com/tristan-club/wizard/pkg/cluster/rpc/grpc_client"
+	"github.com/tristan-club/wizard/pkg/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 	"time"

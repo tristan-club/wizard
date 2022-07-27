@@ -2,13 +2,13 @@ package presetnode
 
 import (
 	"fmt"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain/presetnode/prechecker"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
-	"github.com/tristan-club/bot-wizard/handler/userstate/expiremessage_state"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/userstate"
+	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
+	he "github.com/tristan-club/wizard/pkg/error"
 	"strconv"
 )
 

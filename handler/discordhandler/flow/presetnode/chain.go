@@ -2,7 +2,7 @@ package presetnode
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/pconst"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 func GetChainOption() *discordgo.ApplicationCommandOption {

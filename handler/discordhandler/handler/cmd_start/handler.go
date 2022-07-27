@@ -3,15 +3,15 @@ package cmd_start
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/controller_pb"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/dcontext"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/pconst"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/pconst"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 var Handler = &handler.DiscordCmdHandler{

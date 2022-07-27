@@ -3,10 +3,10 @@ package userstate
 import (
 	"encoding/json"
 	"fmt"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
-	"github.com/tristan-club/bot-wizard/pkg/tstore"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/tstore"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 const (

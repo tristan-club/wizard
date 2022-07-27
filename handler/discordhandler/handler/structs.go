@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/dcontext"
+	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 )
 
 type DiscordCmdHandler struct {

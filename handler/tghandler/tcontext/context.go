@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/controller_pb"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/mdparse"
+	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/mdparse"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
 )

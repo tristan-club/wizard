@@ -1,12 +1,12 @@
 package swap_node
 
 import (
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/flow/chain/presetnode/prechecker"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/inline_keybord"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	"github.com/tristan-club/bot-wizard/handler/userstate"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
+	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
+	"github.com/tristan-club/wizard/handler/tghandler/inline_keybord"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/handler/userstate"
 	"strconv"
 )
 

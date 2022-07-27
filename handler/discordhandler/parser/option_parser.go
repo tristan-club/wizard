@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/pkg/util"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 func ParseOption(ic *discordgo.Interaction, input interface{}) error {

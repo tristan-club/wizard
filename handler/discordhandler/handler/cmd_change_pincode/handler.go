@@ -2,15 +2,15 @@ package cmd_change_pincode
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/tristan-club/bot-wizard/entity/entity_pb/controller_pb"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/dcontext"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/flow/presetnode"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/handler"
-	"github.com/tristan-club/bot-wizard/handler/discordhandler/parser"
-	"github.com/tristan-club/bot-wizard/handler/text"
-	"github.com/tristan-club/bot-wizard/handler/tghandler/tcontext"
-	he "github.com/tristan-club/bot-wizard/pkg/error"
-	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
+	"github.com/tristan-club/wizard/handler/discordhandler/flow/presetnode"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/discordhandler/parser"
+	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pkg/log"
 )
 
 var Handler = &handler.DiscordCmdHandler{

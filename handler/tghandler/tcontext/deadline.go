@@ -1,7 +1,7 @@
 package tcontext
 
 import (
-	"github.com/tristan-club/bot-wizard/handler/userstate"
+	"github.com/tristan-club/wizard/handler/userstate"
 	"time"
 )
 
