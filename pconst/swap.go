@@ -2,7 +2,7 @@ package pconst
 
 import (
 	"github.com/tristan-club/bot-wizard/config"
-	"github.com/tristan-club/bot-wizard/pkg/chain_info"
+	"github.com/tristan-club/kit/chain_info"
 )
 
 const (

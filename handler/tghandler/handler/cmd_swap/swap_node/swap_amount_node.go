@@ -11,9 +11,9 @@ import (
 	"github.com/tristan-club/bot-wizard/handler/userstate"
 	"github.com/tristan-club/bot-wizard/pconst"
 	"github.com/tristan-club/bot-wizard/pkg/bignum"
-	"github.com/tristan-club/bot-wizard/pkg/chain_info"
 	he "github.com/tristan-club/bot-wizard/pkg/error"
 	"github.com/tristan-club/bot-wizard/pkg/log"
+	"github.com/tristan-club/kit/chain_info"
 	"math/big"
 	"strings"
 )
