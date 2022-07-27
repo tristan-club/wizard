@@ -16,7 +16,7 @@ require (
 	github.com/rs/zerolog v1.25.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.7.0
-	github.com/tristan-club/kit v0.0.1
+	github.com/tristan-club/kit v0.0.0-20220727082038-26f086812c90
 	github.com/trustwallet/go-primitives v0.0.35
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20220418201149-a630d4f3e7a2
@@ -30,4 +30,4 @@ require (
 
 replace github.com/ethereum/go-ethereum v1.10.4 => github.com/ethereum/go-ethereum v1.9.21
 
-replace github.com/tristan-club/kit v0.0.1 => ../kit
+//replace github.com/tristan-club/kit v0.0.1 => ../kit
