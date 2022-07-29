@@ -73,5 +73,6 @@ const (
 	OperationSuccess    = "Operation Success!"
 	OperationProcessing = "Operation Processing..."
 
-	GetPrivateSuccess = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
+	GetPrivateSuccess              = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
+	GetPrivateSuccessNeedDeleteMsg = "Your private key is:\n`%s`\nPlease keep it safe\nIn order to protect your private key security\nPlease delete this message in time"
 )

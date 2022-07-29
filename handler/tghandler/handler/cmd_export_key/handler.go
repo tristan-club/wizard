@@ -46,7 +46,7 @@ func ExportKeySendHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(accountResp.CommonResponse)
 	}
 
-	_, herr = ctx.Send(ctx.U.SentFrom().ID, fmt.Sprintf(text.GetPrivateSuccess, accountResp.Data.PrivateKey), nil, true, false)
+	_, herr = ctx.Send(ctx.U.SentFrom().ID, fmt.Sprintf(text.GetPrivateSuccessNeedDeleteMsg, accountResp.Data.PrivateKey), nil, true, false)
 	if herr != nil {
 		return herr
 	}
