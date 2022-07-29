@@ -503,7 +503,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 
 		}
 
-		if herr := userstate.InitState(userId, cmdId, getUserResp.Data.UserNo, getUserResp.Data.DefaultAccountAddr); herr != nil {
+		if herr := userstate.InitState(userId, cmdId, requester.RequesterUserNo, requester.RequesterDefaultAddress); herr != nil {
 			return herr
 		}
 		ctx.CurrentState = userstate.StateNone
