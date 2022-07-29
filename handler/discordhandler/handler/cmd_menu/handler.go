@@ -33,7 +33,7 @@ func menuSendHandler(ctx *dcontext.Context) error {
 	content += "\n"
 	content += cmdDesc
 	content += "\n"
-	if err := ctx.Reply(content); err != nil {
+	if err := ctx.Reply(content, false); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}

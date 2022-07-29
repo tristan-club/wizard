@@ -44,7 +44,7 @@ var Handler = &handler.DiscordCmdHandler{
 
 func transferSendHandler(ctx *dcontext.Context) error {
 
-	if err := ctx.Reply(text.OperationProcessing); err != nil {
+	if err := ctx.Reply(text.OperationProcessing, false); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}

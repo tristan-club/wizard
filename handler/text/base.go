@@ -27,6 +27,7 @@ const (
 	EnterBool              = "✳️ Select"
 	EnterMintable          = "✳️ Choose whether your tokens can be mint later "
 	EnterBridgeAsset       = "✳️ *Choose an asset on BNB to swap for METIS*"
+	EnterPrivateWithDelete = "✳️ Enter your private\n\n*Note*:\nTo keep your private key safe\nWe recommend that you delete the private key message after the operation is complete"
 
 	ChosenChain  = "You have chosen the %s."
 	ChosenAsset  = "Your have chosen asset %s."
@@ -71,4 +72,7 @@ const (
 
 	OperationSuccess    = "Operation Success!"
 	OperationProcessing = "Operation Processing..."
+
+	GetPrivateSuccess   = "Your private key is:\n`%s`\nPlease keep it safe"
+	DMGetPrivateSuccess = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
 )

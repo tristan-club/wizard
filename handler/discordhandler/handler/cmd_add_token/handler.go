@@ -42,7 +42,7 @@ func addTokenSendHandler(ctx *dcontext.Context) error {
 		return he.NewServerError(he.CodeInvalidPayload, "", err)
 	}
 
-	err = ctx.Reply(text.OperationProcessing)
+	err = ctx.Reply(text.OperationProcessing, false)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

@@ -86,7 +86,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 		walletContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
 	}
 
-	err = ctx.Reply(walletContent)
+	err = ctx.Reply(walletContent, false)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send mst", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

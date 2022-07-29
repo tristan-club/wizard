@@ -1,11 +1,13 @@
-package cmd_change_pincode
+package cmd_export_key
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/flow/presetnode"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/discordhandler/msgcleaner"
 	"github.com/tristan-club/wizard/handler/discordhandler/parser"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
@@ -17,48 +19,51 @@ var Handler = &handler.DiscordCmdHandler{
 	ApplicationCommand: &discordgo.ApplicationCommand{
 		ApplicationID: "",
 		Options: []*discordgo.ApplicationCommandOption{
-			presetnode.GetPinCodeOption("old_pin_code", "Enter your old pin code"),
-			presetnode.GetPinCodeOption("new_pin_code", "Enter your new pin code"),
+			presetnode.GetPinCodeOption("", ""),
 		},
 		Version: "1",
 	},
-	Handler: ChangePinCodeSendHandler,
+	Handler: ImportKeyHandler,
 }
 
-type ChangePinCodePayload struct {
-	OldPinCode string `json:"old_pin_code"`
-	NewPinCode string `json:"new_pin_code"`
+type ImportKeyPayload struct {
+	PinCode string `json:"pin_code"`
 }
 
-func ChangePinCodeSendHandler(ctx *dcontext.Context) error {
+func ImportKeyHandler(ctx *dcontext.Context) error {
 
-	var payload = &ChangePinCodePayload{}
+	var payload = &ImportKeyPayload{}
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "parse param", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeInvalidPayload, "", err)
 	}
 
-	if payload.OldPinCode == payload.NewPinCode {
-		return he.NewBusinessError(he.CodeSamePinCode, "", nil)
-	}
-
-	accountResp, err := ctx.CM.ChangeAccountPinCode(ctx.Context, &controller_pb.ChangeAccountPinCodeReq{
-		Address:    ctx.Requester.RequesterDefaultAddress,
-		OldPinCode: payload.OldPinCode,
-		NewPinCode: payload.NewPinCode,
+	resp, err := ctx.CM.GetAccount(ctx.Context, &controller_pb.GetAccountReq{
+		UserNo:  ctx.Requester.RequesterUserNo,
+		PinCode: payload.PinCode,
 	})
 	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "request controller error", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeWalletRequestError, "", err)
-	} else if accountResp.CommonResponse.Code != he.Success {
-		return tcontext.RespToError(accountResp.CommonResponse)
+	} else if resp.CommonResponse.Code != he.Success {
+		log.Error().Fields(map[string]interface{}{"action": "controller get account error", "error": resp}).Send()
+		return tcontext.RespToError(resp.CommonResponse)
 	}
 
-	err = ctx.Reply(text.ChangePinCodeSuccess, false)
+	content := text.GetPrivateSuccess
+	if ctx.IsPrivate() {
+		content = text.DMGetPrivateSuccess
+	}
+	content = fmt.Sprintf(content, resp.Data.PrivateKey)
+
+	err = ctx.Reply(content, true)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}
+
+	msgcleaner.AddCleanJob(ctx.IC.Interaction)
 
 	return nil
 }

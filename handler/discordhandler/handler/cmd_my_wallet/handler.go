@@ -39,7 +39,7 @@ func myWalletHandler(ctx *dcontext.Context) error {
 		}
 	}
 
-	if err := ctx.Reply(fmt.Sprintf("%s\n%s", myWalletContent, currUri)); err != nil {
+	if err := ctx.Reply(fmt.Sprintf("%s\n%s", myWalletContent, currUri), false); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}

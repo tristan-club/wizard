@@ -7,7 +7,9 @@ import (
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_add_token"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_balance"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_change_pincode"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_export_key"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_get_account"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_import_key"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_menu"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_my_wallet"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_start"
@@ -31,7 +33,9 @@ func init() {
 		//cmd.CmdAirdrop:         cmd_airdrop.Handler,
 		//cmd.CmdSwap:            cmd_swap.Handler,
 		//cmd.CmdBridge:          cmd_bridge.Handler,
-		cmd.CmdMyWallet: cmd_my_wallet.Handler,
+		cmd.CmdMyWallet:      cmd_my_wallet.Handler,
+		cmd.CmdImportPirvate: cmd_import_key.Handler,
+		cmd.CmdExportPrivate: cmd_export_key.Handler,
 	}
 
 	for k, _ := range handlerMap {

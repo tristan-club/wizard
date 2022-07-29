@@ -59,7 +59,6 @@ func main() {
 	if err = dcMgr.InjectBotApi(b, b.State.User.Username); err != nil {
 		panic(err)
 	}
-
 	b.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		pcr, err := dcMgr.CheckShouldHandle(i)
 		if err != nil {

@@ -17,11 +17,13 @@ const (
 	CmdBridge          = "bridge"
 	CmdMenu            = "menu"
 	CmdMyWallet        = "my_wallet"
+	CmdExportPrivate   = "export_private"
+	CmdImportPirvate   = "import_private"
 )
 
 var cmdList = []string{
 	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdAddTokenBalance, CmdIssueToken,
-	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet,
+	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdImportPirvate,
 }
 var betaCmdList = []string{}
 
@@ -50,6 +52,8 @@ var desc = map[string]string{
 	CmdBridge:          "bridge asset",
 	CmdMenu:            "Read the menu",
 	CmdMyWallet:        "Your wallet tristan uri",
+	CmdImportPirvate:   "Import a new private key to replace the system-generated private key.",
+	CmdExportPrivate:   "Export private key",
 }
 
 func GetCmdDescMap() map[string]string {

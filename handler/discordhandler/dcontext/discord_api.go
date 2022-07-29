@@ -15,24 +15,15 @@ func (ctx *Context) DM(content string) error {
 	return err
 }
 
-func (ctx *Context) Reply(content string) error {
-	//var channelId string
-	//if ctx.IsPrivate() {
-	//	channel, err := ctx.Session.UserChannelCreate(ctx.IC.Member.User.ID)
-	//	if err != nil {
-	//		return err
-	//	}
-	//	channelId = channel.ID
-	//} else {
-	//	channelId = ctx.IC.ChannelID
-	//}
+func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
+
 	resp := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: content,
 		}}
 
-	if !ctx.IsPrivate() {
+	if !ctx.IsPrivate() || ephemeralMsg {
 		resp.Data.Flags = uint64(discordgo.MessageFlagsEphemeral)
 	}
 
