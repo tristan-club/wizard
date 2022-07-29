@@ -73,6 +73,5 @@ const (
 	OperationSuccess    = "Operation Success!"
 	OperationProcessing = "Operation Processing..."
 
-	GetPrivateSuccess   = "Your private key is:\n`%s`\nPlease keep it safe"
-	DMGetPrivateSuccess = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
+	GetPrivateSuccess = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
 )

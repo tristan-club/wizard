@@ -7,7 +7,6 @@ import (
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/flow/presetnode"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
-	"github.com/tristan-club/wizard/handler/discordhandler/msgcleaner"
 	"github.com/tristan-club/wizard/handler/discordhandler/parser"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
@@ -52,9 +51,6 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 	}
 
 	content := text.GetPrivateSuccess
-	if ctx.IsPrivate() {
-		content = text.DMGetPrivateSuccess
-	}
 	content = fmt.Sprintf(content, resp.Data.PrivateKey)
 
 	err = ctx.Reply(content, true)
@@ -62,8 +58,6 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}
-
-	msgcleaner.AddCleanJob(ctx.IC.Interaction)
 
 	return nil
 }

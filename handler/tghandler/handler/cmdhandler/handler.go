@@ -40,7 +40,7 @@ func init() {
 		cmd.CmdBridge:          cmd_bridge.Handler,
 		cmd.CmdMyWallet:        cmd_my_wallet.Handler,
 		cmd.CmdExportPrivate:   cmd_export_key.Handler,
-		cmd.CmdImportPirvate:   cmd_import_key.Handler,
+		cmd.CmdReplacePrivate:  cmd_import_key.Handler,
 	}
 }
 

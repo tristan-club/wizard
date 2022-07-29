@@ -33,9 +33,9 @@ func init() {
 		//cmd.CmdAirdrop:         cmd_airdrop.Handler,
 		//cmd.CmdSwap:            cmd_swap.Handler,
 		//cmd.CmdBridge:          cmd_bridge.Handler,
-		cmd.CmdMyWallet:      cmd_my_wallet.Handler,
-		cmd.CmdImportPirvate: cmd_import_key.Handler,
-		cmd.CmdExportPrivate: cmd_export_key.Handler,
+		cmd.CmdMyWallet:       cmd_my_wallet.Handler,
+		cmd.CmdReplacePrivate: cmd_import_key.Handler,
+		cmd.CmdExportPrivate:  cmd_export_key.Handler,
 	}
 
 	for k, _ := range handlerMap {

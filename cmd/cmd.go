@@ -18,12 +18,12 @@ const (
 	CmdMenu            = "menu"
 	CmdMyWallet        = "my_wallet"
 	CmdExportPrivate   = "export_private"
-	CmdImportPirvate   = "import_private"
+	CmdReplacePrivate  = "replace_private"
 )
 
 var cmdList = []string{
 	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdAddTokenBalance, CmdIssueToken,
-	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdImportPirvate,
+	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate,
 }
 var betaCmdList = []string{}
 
@@ -47,12 +47,12 @@ var desc = map[string]string{
 	CmdOpenEnvelope:    "Open Red Packet shared with the community . Please specify the serial number",
 	CmdAddTokenBalance: "Add specific token to display under \"/balance\" command",
 	CmdIssueToken:      "Issue token with MetaWallet.",
-	CmdAirdrop:         "Airdrop tokens to all community members with MetaWallet address.",
-	CmdSwap:            "swap and bridge asset.",
-	CmdBridge:          "bridge asset",
+	CmdAirdrop:         "Airdrop tokens to all community members with MetaWallet address",
+	CmdSwap:            "Swap and bridge asset",
+	CmdBridge:          "Bridge asset",
 	CmdMenu:            "Read the menu",
 	CmdMyWallet:        "Your wallet tristan uri",
-	CmdImportPirvate:   "Import a new private key to replace the system-generated private key.",
+	CmdReplacePrivate:  "Import a new private key to REPLACE the old key, the old key WILL NOT be recovered!",
 	CmdExportPrivate:   "Export private key",
 }
 

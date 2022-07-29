@@ -53,7 +53,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 		log.Error().Fields(map[string]interface{}{"action": "request controller error", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeWalletRequestError, "", err)
 	} else if resp.CommonResponse.Code != he.Success {
-		log.Error().Fields(map[string]interface{}{"action": "controller error", "error": err.Error()}).Send()
+		log.Error().Fields(map[string]interface{}{"action": "controller error", "error": resp}).Send()
 		return tcontext.RespToError(resp.CommonResponse)
 	}
 
