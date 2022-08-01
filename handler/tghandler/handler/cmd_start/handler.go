@@ -12,6 +12,7 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/wizard/pkg/mdparse"
 	"github.com/tristan-club/wizard/pkg/util"
 	"time"
 )
@@ -124,7 +125,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 		//	return herr
 		//}
 
-		if _, herr := ctx.Send(ctx.U.SentFrom().ID, walletContent, nil, true, false); herr != nil {
+		if _, herr := ctx.Send(ctx.U.SentFrom().ID, mdparse.ParseV2(walletContent), nil, true, false); herr != nil {
 			return herr
 		}
 	} else {
@@ -142,7 +143,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 			inlineKeyboard, deadlineTime = inline_keybord.NewForwardPrivateKeyBoard(ctx)
 		}
 
-		replyMsg, herr := ctx.Reply(ctx.U.FromChat().ID, groupContent, inlineKeyboard, true)
+		replyMsg, herr := ctx.Reply(ctx.U.FromChat().ID, mdparse.ParseV2(groupContent), inlineKeyboard, true)
 		if herr != nil {
 			return herr
 		}
