@@ -143,7 +143,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 			inlineKeyboard, deadlineTime = inline_keybord.NewForwardPrivateKeyBoard(ctx)
 		}
 
-		replyMsg, herr := ctx.Reply(ctx.U.FromChat().ID, mdparse.ParseV2(groupContent), inlineKeyboard, true)
+		replyMsg, herr := ctx.Reply(ctx.U.FromChat().ID, mdparse.ParseV2(groupContent), inlineKeyboard, false)
 		if herr != nil {
 			return herr
 		}
