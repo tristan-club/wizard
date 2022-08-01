@@ -33,7 +33,7 @@ const (
 	Introduce = "\U0001F973🙌 Welcome! Tristan MetaWallet is the first-ever web 3.0 crypto wallet for Telegram users and communities\nWith MetaWallet you can:\n🔗 Create your 1st crypto wallet with your telegram account    \n💸 Receive or transfer of your crypto asset and NFTs\n🚀 Issue tokens\n💵 Send or receive Red Envelopes with your social contacts\n🎁 Airdrop tokens to your community \n🎮 Launch 3rd party dApps and Games by one click, welcome to join @tristanmetawallet for more discussion."
 
 	CreateAccountSuccess = "Congratulations\\! Your Meta wallet has been created \\. \n\nThe wallet address is\\: `%s`\\.\nPin Code is `%s`\\.\nYour Wallet Pin Code is the only way to access your crypto asset in MetaWallet and CAN NOT be recovered if lost\\."
-	GetAccountSuccess    = "Your MetaWallet address is: `%s` \\."
+	GetAccountSuccess    = "Your MetaWallet address is\\: `%s` \\."
 	CheckDm              = "We have forwarded you the details. Please lookout for DM from \"MetaWalletBot\" "
 	UserNoInit           = "%s \\,you have not created an account yet\\, please forward to private chat with bot to initialize your account\\."
 	//UserNoInitInPrivate = "You have not created an account yet, \"/start\" to initialize your account."
