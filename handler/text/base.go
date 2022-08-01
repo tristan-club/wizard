@@ -63,7 +63,7 @@ const (
 	BusinessError = "%s used %s failed (%s)"
 	ServerError   = "Ops, something went wrong"
 
-	SwitchPrivate      = "✳️ Please forward to private chat with bot for detail."
+	SwitchPrivate      = "✳️ Please forward to private chat with bot for detail\\."
 	NoAssetToOperation = "Ops, you don't have a token to proceed to the next step."
 	ClickStart         = "✳️ Please use /start command to initialize your wallet."
 
