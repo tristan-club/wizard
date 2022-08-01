@@ -23,7 +23,12 @@ var Handler = &handler.DiscordCmdHandler{
 func menuSendHandler(ctx *dcontext.Context) error {
 
 	cmdDesc := "⚙️ Commands\n"
-	for _, v := range cmd.GetCmdList() {
+
+	cmdList := cmd.GetUseWizardCmdList()
+	if len(cmdList) == 0 {
+		cmdList = cmd.GetCmdList()
+	}
+	for _, v := range cmdList {
 		cmdDesc += fmt.Sprintf("/%s %s\n", v, cmd.GetCmdDesc(v))
 	}
 	content := "ℹ️ User Guide\n"

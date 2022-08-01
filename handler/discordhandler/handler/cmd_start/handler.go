@@ -86,6 +86,11 @@ func startSendHandler(ctx *dcontext.Context) error {
 		walletContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
 	}
 
+	if text.CustomStartMenu != "" {
+		walletContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, walletContent)
+
+	}
+
 	err = ctx.Reply(walletContent, false)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send mst", "error": err.Error()}).Send()

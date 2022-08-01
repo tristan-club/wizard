@@ -116,6 +116,10 @@ func startSendHandler(ctx *tcontext.Context) error {
 			walletContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
 		}
 
+		if text.CustomStartMenu != "" {
+			walletContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, walletContent)
+		}
+
 		//if _, herr := ctx.Send(ctx.U.SentFrom().ID, content, nil, false); herr != nil {
 		//	return herr
 		//}
@@ -125,6 +129,11 @@ func startSendHandler(ctx *tcontext.Context) error {
 		}
 	} else {
 		groupContent := text.SwitchPrivate
+
+		if text.CustomStartMenu != "" {
+			groupContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, text.SwitchPrivate)
+		}
+
 		var inlineKeyboard *tgbotapi.InlineKeyboardMarkup
 		var deadlineTime time.Duration
 		if user == nil {
@@ -133,7 +142,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 			inlineKeyboard, deadlineTime = inline_keybord.NewForwardPrivateKeyBoard(ctx)
 		}
 
-		replyMsg, herr := ctx.Reply(ctx.U.FromChat().ID, groupContent, inlineKeyboard, false)
+		replyMsg, herr := ctx.Reply(ctx.U.FromChat().ID, groupContent, inlineKeyboard, true)
 		if herr != nil {
 			return herr
 		}

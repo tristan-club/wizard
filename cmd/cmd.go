@@ -37,13 +37,23 @@ func GetCmdList() []string {
 	return cmdList
 }
 
+var useWizardCmdList = []string{}
+
+func GetUseWizardCmdList() []string {
+	return useWizardCmdList
+}
+
+func SetUseWizardCmdList(cmdList []string) {
+	useWizardCmdList = cmdList
+}
+
 var desc = map[string]string{
 	CmdStart:           "Create your MetaWallet and get the user guide.",
 	CmdChangePinCode:   "Change pin code of your MetaWallet address.",
 	CmdGetAccount:      "Check your MetaWallet address.",
 	CmdBalance:         "Get details of your MetaWallet balance for following assets: Crypto and NFTs",
-	CmdTransfer:        "Transfer assets to certain address.",
 	CmdCreateEnvelope:  "Create Red Envelopes to share with your community\n\U0001F9E7People who clicks open button can open the Red Envelope and receive tokens.",
+	CmdTransfer:        "Transfer assets to certain address.",
 	CmdOpenEnvelope:    "Open Red Packet shared with the community . Please specify the serial number",
 	CmdAddTokenBalance: "Add specific token to display under \"/balance\" command",
 	CmdIssueToken:      "Issue token with MetaWallet.",
