@@ -20,8 +20,6 @@ var Handler = &handler.DiscordCmdHandler{
 }
 
 func getWalletAddressSendHandler(ctx *dcontext.Context) error {
-	//_, herr := ctx.ReplyDmWithGroupForward(ctx.U.SentFrom().ID, fmt.Sprintf(text.GetAccountSuccess, ctx.Requester.RequesterDefaultAddress), nil, true, false)
-	//return herr
 
 	if err := ctx.Reply(fmt.Sprintf(text.GetAccountSuccess, ctx.Requester.RequesterDefaultAddress), false); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()

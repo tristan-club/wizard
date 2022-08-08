@@ -64,7 +64,7 @@ func main() {
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "parse ic error", "error": err.Error()}).Send()
 		} else if !pcr.ShouldHandle() {
-			log.Error().Fields(map[string]interface{}{"action": "get unknown message", "i": i.ApplicationCommandData()}).Send()
+			log.Info().Fields(map[string]interface{}{"action": "get unknown message", "i": i}).Send()
 		} else {
 			dcMgr.Handle(i, pcr)
 		}

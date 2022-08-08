@@ -21,10 +21,11 @@ func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: content,
-		}}
+		},
+	}
 
 	if !ctx.IsPrivate() || ephemeralMsg {
-		resp.Data.Flags = uint64(discordgo.MessageFlagsEphemeral)
+		resp.Data.Flags = discordgo.MessageFlagsEphemeral
 	}
 
 	err := ctx.Session.InteractionRespond(ctx.IC.Interaction, resp)
@@ -39,7 +40,7 @@ func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
 
 func (ctx *Context) EditReply(content string) (*discordgo.Message, error) {
 	return ctx.Session.InteractionResponseEdit(ctx.IC.Interaction, &discordgo.WebhookEdit{
-		Content:         content,
+		Content:         &content,
 		Components:      nil,
 		Embeds:          nil,
 		Files:           nil,

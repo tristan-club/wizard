@@ -3,7 +3,7 @@ module github.com/tristan-club/wizard
 go 1.16
 
 require (
-	github.com/bwmarrin/discordgo v0.25.0
+	github.com/bwmarrin/discordgo v0.25.1-0.20220804185119-c0803d021f34
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/golang/protobuf v1.5.2

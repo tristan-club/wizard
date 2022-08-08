@@ -188,7 +188,7 @@ func (t *Manager) handleTGUpdate(i *discordgo.InteractionCreate, pcr *PreCheckRe
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: content,
-				Flags:   uint64(discordgo.MessageFlagsEphemeral),
+				Flags:   discordgo.MessageFlagsEphemeral,
 			}})
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": err.Error(), "content": content}).Send()
@@ -196,7 +196,7 @@ func (t *Manager) handleTGUpdate(i *discordgo.InteractionCreate, pcr *PreCheckRe
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: text.ServerError,
-					Flags:   uint64(discordgo.MessageFlagsEphemeral),
+					Flags:   discordgo.MessageFlagsEphemeral,
 				}})
 
 			if err != nil {
