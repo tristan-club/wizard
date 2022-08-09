@@ -22,7 +22,18 @@ func init() {
 	for _, chainType := range chainTypeList {
 		ikb = append(ikb, tgbotapi.NewInlineKeyboardButtonData(pconst.GetChainName(uint32(chainType)), strconv.Itoa(int(chainType))))
 	}
-	ChainKeyboard = tgbotapi.NewInlineKeyboardMarkup(ikb)
+	if len(ikb) <= 3 {
+		ChainKeyboard = tgbotapi.NewInlineKeyboardMarkup(ikb)
+	} else {
+		ikbArray := make([][]tgbotapi.InlineKeyboardButton, 0)
+		for len(ikb) > 3 {
+			ikbArray = append(ikbArray, ikb[:3])
+			ikb = ikb[3:]
+		}
+		ikbArray = append(ikbArray, ikb)
+		ChainKeyboard = tgbotapi.NewInlineKeyboardMarkup(ikbArray...)
+	}
+
 }
 
 var EnvelopeTypeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
