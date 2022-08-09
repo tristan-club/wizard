@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmdhandler"
 	"github.com/tristan-club/wizard/manager/dcmgr"
 	"github.com/tristan-club/wizard/pkg/dingding"
-	"github.com/tristan-club/wizard/pkg/log"
 	"os"
 	"os/signal"
 	"syscall"

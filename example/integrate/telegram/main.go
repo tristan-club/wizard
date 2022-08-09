@@ -2,9 +2,9 @@ package main
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/manager/tgmgr"
-	"github.com/tristan-club/wizard/pkg/log"
 	"os"
 	"time"
 )

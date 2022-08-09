@@ -3,6 +3,7 @@ package presetnode
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
@@ -10,7 +11,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pkg/bignum"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 )
 
 const (

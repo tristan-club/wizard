@@ -1,6 +1,7 @@
 package presetnode
 
 import (
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
@@ -9,7 +10,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 	"strings"
 )
 

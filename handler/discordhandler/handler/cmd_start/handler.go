@@ -3,6 +3,7 @@ package cmd_start
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
@@ -10,7 +11,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 	"github.com/tristan-club/wizard/pkg/util"
 )
 
@@ -82,6 +82,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 	walletContent := "⚡️ Wallet\n"
 	if isCreateAccount {
 		walletContent += fmt.Sprintf(text.CreateAccountSuccess, user.DefaultAccountAddr, pinCode)
+		walletContent = fmt.Sprintf("%s\n%s", walletContent, text.MessageDisappearSoon)
 	} else {
 		walletContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
 	}
@@ -91,7 +92,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 
 	}
 
-	err = ctx.Reply(walletContent, false)
+	err = ctx.FollowUpReply(walletContent)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send mst", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

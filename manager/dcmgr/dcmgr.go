@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -17,7 +18,6 @@ import (
 	"github.com/tristan-club/wizard/pkg/cluster/rpc/grpc_client"
 	"github.com/tristan-club/wizard/pkg/dingding"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
@@ -90,13 +90,15 @@ func (t *Manager) SetCmd(handler *handler.DiscordCmdHandler) {
 }
 
 func (t *Manager) RegisterCmd() error {
-	if len(t.cmdHandler) > 0 && os.Getenv("RESET_DISCORD_CMD") != "1" {
+	if len(t.cmdHandler) > 0 && os.Getenv("RESET_DISCORD_CMD") == "1" {
+		var handleList []*discordgo.ApplicationCommand
+
 		for _, cmdHandler := range t.cmdHandler {
-			_, err := t.s.ApplicationCommandCreate(t.s.State.User.ID, "", cmdHandler.ApplicationCommand)
-			log.Info().Fields(map[string]interface{}{"action": "register cmd", "cmdId": cmdHandler.ApplicationCommand.Name}).Send()
-			if err != nil {
-				log.Error().Fields(map[string]interface{}{"action": "register cmd error", "error": err.Error()}).Send()
-			}
+			handleList = append(handleList, cmdHandler.ApplicationCommand)
+		}
+		_, err := t.s.ApplicationCommandBulkOverwrite(t.s.State.User.ID, "", handleList)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -157,10 +159,38 @@ func (t *Manager) ListenDCInteraction(botToken string) error {
 }
 
 func (t *Manager) Handle(i *discordgo.InteractionCreate, result *PreCheckResult) {
-	go t.handleTGUpdate(i, result)
+	go t.handleUpdate(i, result)
 }
 
-func (t *Manager) handleTGUpdate(i *discordgo.InteractionCreate, pcr *PreCheckResult) (shouldHandle bool) {
+func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreCheckResult, err error) {
+
+	pcr = &PreCheckResult{}
+
+	if i.Type != discordgo.InteractionApplicationCommand {
+		return
+	}
+
+	cmdHandler := t.cmdHandler[i.ApplicationCommandData().Name]
+	if cmdHandler == nil {
+		return pcr, nil
+	}
+
+	return &PreCheckResult{
+		shouldHandle: true,
+		cmdId:        i.ApplicationCommandData().Name,
+		isCmd:        true,
+		handler:      cmdHandler,
+	}, nil
+}
+
+func (t *Manager) handleUpdate(i *discordgo.InteractionCreate, pcr *PreCheckResult) {
+
+	ctx := dcontext.DefaultContext(t.s, i)
+	if err := ctx.AckMsg(true); err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "ack msg error", "error": err.Error(), "i": i}).Send()
+		return
+	}
+
 	err := t.handle(i, pcr)
 	if err != nil {
 		var isBusinessError bool
@@ -184,49 +214,14 @@ func (t *Manager) handleTGUpdate(i *discordgo.InteractionCreate, pcr *PreCheckRe
 			log.Error().Fields(map[string]interface{}{"action": "got Server error", "detail": content}).Send()
 		}
 
-		err = t.s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: content,
-				Flags:   discordgo.MessageFlagsEphemeral,
-			}})
+		err = ctx.FollowUpReply(content)
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": err.Error(), "content": content}).Send()
-			err = t.s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: text.ServerError,
-					Flags:   discordgo.MessageFlagsEphemeral,
-				}})
-
-			if err != nil {
-				log.Error().Fields(map[string]interface{}{"action": "send server error", "error": err.Error()}).Send()
-			}
+			err = ctx.FollowUpReply(text.ServerError)
 		}
 
 	}
-	return shouldHandle
-}
-
-func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreCheckResult, err error) {
-
-	pcr = &PreCheckResult{}
-
-	if i.Type != discordgo.InteractionApplicationCommand {
-		return
-	}
-
-	cmdHandler := t.cmdHandler[i.ApplicationCommandData().Name]
-	if cmdHandler == nil {
-		return pcr, nil
-	}
-
-	return &PreCheckResult{
-		shouldHandle: true,
-		cmdId:        i.ApplicationCommandData().Name,
-		isCmd:        true,
-		handler:      cmdHandler,
-	}, nil
+	return
 }
 
 func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (err error) {

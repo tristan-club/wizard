@@ -3,8 +3,8 @@ package userstate
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/tristan-club/kit/log"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
 )

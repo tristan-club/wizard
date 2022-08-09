@@ -2,6 +2,7 @@ package cmd_import_key
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/flow/presetnode"
@@ -10,7 +11,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -57,7 +57,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(resp.CommonResponse)
 	}
 
-	err = ctx.Reply(text.OperationSuccess, false)
+	err = ctx.FollowUpReply(text.OperationSuccess)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

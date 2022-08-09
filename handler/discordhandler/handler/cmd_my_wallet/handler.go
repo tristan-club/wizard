@@ -3,12 +3,12 @@ package cmd_my_wallet
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -26,6 +26,7 @@ const (
 )
 
 func myWalletHandler(ctx *dcontext.Context) error {
+
 	var currUri string
 	if resp, err := ctx.CM.InitAccessToken(ctx.Context, &controller_pb.InitAccessTokenReq{UserId: ctx.Requester.RequesterUserNo}); err != nil {
 		log.Error().Msgf("init accessToken error:%s", err)
@@ -39,7 +40,7 @@ func myWalletHandler(ctx *dcontext.Context) error {
 		}
 	}
 
-	if err := ctx.Reply(fmt.Sprintf("%s\n%s", myWalletContent, currUri), false); err != nil {
+	if err := ctx.FollowUpReply(fmt.Sprintf("%s\n%s", myWalletContent, currUri)); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}

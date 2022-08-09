@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/flow/presetnode"
@@ -13,7 +14,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 	"github.com/tristan-club/wizard/pkg/mdparse"
 )
 
@@ -44,7 +44,7 @@ var Handler = &handler.DiscordCmdHandler{
 
 func transferSendHandler(ctx *dcontext.Context) error {
 
-	if err := ctx.Reply(text.OperationProcessing, false); err != nil {
+	if err := ctx.FollowUpReply(text.OperationProcessing); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}

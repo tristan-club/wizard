@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/tristan-club/kit/chain_info"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
@@ -13,7 +14,6 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/bignum"
 	he "github.com/tristan-club/wizard/pkg/error"
-	"github.com/tristan-club/wizard/pkg/log"
 	"math/big"
 	"strings"
 )

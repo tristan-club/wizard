@@ -6,7 +6,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/tristan-club/wizard/pkg/log"
+	"github.com/tristan-club/kit/log"
 	"golang.org/x/crypto/sha3"
 	"math"
 	"reflect"

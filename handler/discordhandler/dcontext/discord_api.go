@@ -2,6 +2,7 @@ package dcontext
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/wizard/handler/text"
 )
 
 func (ctx *Context) DM(content string) error {
@@ -15,10 +16,49 @@ func (ctx *Context) DM(content string) error {
 	return err
 }
 
+func (ctx *Context) AckMsg(ephemeralMsgInPrivate bool) error {
+	resp := &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: text.OperationProcessing,
+		},
+	}
+
+	if !ctx.IsPrivate() || ephemeralMsgInPrivate {
+		resp.Data.Flags = discordgo.MessageFlagsEphemeral
+	}
+
+	err := ctx.Session.InteractionRespond(ctx.IC.Interaction, resp)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ctx *Context) FollowUpReply(content string) error {
+
+	resp := &discordgo.WebhookParams{
+		Content: content,
+	}
+
+	_, err := ctx.Session.FollowupMessageCreate(ctx.IC.Interaction, false, resp)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
 
+	var icRespType uint8
+	if icRespType == 0 {
+		icRespType = uint8(discordgo.InteractionResponseChannelMessageWithSource)
+	}
+
 	resp := &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Type: discordgo.InteractionResponseType(icRespType),
 		Data: &discordgo.InteractionResponseData{
 			Content: content,
 		},
@@ -32,8 +72,6 @@ func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
 	if err != nil {
 		return err
 	}
-
-	ctx.IsICResponded = true
 
 	return nil
 }

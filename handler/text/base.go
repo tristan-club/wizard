@@ -39,6 +39,8 @@ const (
 	//UserNoInitInPrivate = "You have not created an account yet, \"/start\" to initialize your account."
 	BalanceSuccess = "Your balance is"
 
+	MessageDisappearSoon = "*NOTE*\\: This message will be clear shortly"
+
 	TransactionProcessing           = "*Your transaction is processing*\n*TXN URL*: [click to view](%s)"
 	TransactionProcessingNoMarkDown = "Your transaction is processing, you can view it on %s"
 	EnvelopePreparing               = "The red envelope account is created and the recharge operation is in progress\n*TXN URL: [click to view](%s)*"

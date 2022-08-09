@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"github.com/bwmarrin/discordgo"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/pconst"
 	he "github.com/tristan-club/wizard/pkg/error"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -25,14 +26,39 @@ func NewWalletBot(walletConn *grpc.ClientConn) (*WalletBot, error) {
 }
 
 type Context struct {
-	CmdId         string
-	Context       context.Context
-	IC            *discordgo.InteractionCreate
-	CM            controller_pb.ControllerServiceClient
-	Session       *discordgo.Session
-	BotName       string
-	Requester     *controller_pb.Requester
-	IsICResponded bool
+	CmdId     string
+	Context   context.Context
+	IC        *discordgo.InteractionCreate
+	CM        controller_pb.ControllerServiceClient
+	Session   *discordgo.Session
+	BotName   string
+	Requester *controller_pb.Requester
+}
+
+func DefaultContext(s *discordgo.Session, i *discordgo.InteractionCreate) *Context {
+	return &Context{Session: s, IC: i}
+}
+
+// GetContext todo not support user_no and default_address
+func GetContext(cc controller_pb.ControllerServiceClient, s *discordgo.Session, i *discordgo.InteractionCreate) *Context {
+	ctx := &Context{
+		//CmdId:     ,
+		Context: context.Background(),
+		IC:      i,
+		CM:      cc,
+		Session: s,
+		BotName: "",
+	}
+	ctx.Requester = &controller_pb.Requester{
+		//RequesterUserNo: ,
+		RequesterOpenId:         ctx.GetFromId(),
+		RequesterOpenType:       int32(pconst.PlatformDiscord),
+		RequesterOpenNickname:   ctx.GetNickname(),
+		RequesterOpenUserName:   ctx.GetUserName(),
+		RequesterChannelId:      ctx.GetGroupChannelId(),
+		RequesterDefaultAddress: "",
+	}
+	return ctx
 }
 
 func (ctx *Context) GetFromId() string {
