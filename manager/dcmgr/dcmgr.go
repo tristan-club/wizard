@@ -77,6 +77,7 @@ func NewMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string) (*Manager
 	}
 	return mgr, nil
 }
+
 func (t *Manager) SetCmd(handler *handler.DiscordCmdHandler) {
 	if handler == nil {
 		log.Error().Fields(map[string]interface{}{"action": "empty handler set"}).Send()
@@ -87,6 +88,17 @@ func (t *Manager) SetCmd(handler *handler.DiscordCmdHandler) {
 	t.cmdDesc[handler.ApplicationCommand.Name] = handler.ApplicationCommand.Description
 	t.cmdHandler[handler.ApplicationCommand.Name] = handler
 
+}
+
+func (t *Manager) GetCmdList() []*discordgo.ApplicationCommand {
+	if t.cmdHandler == nil {
+		return nil
+	}
+	var resp []*discordgo.ApplicationCommand
+	for _, v := range t.cmdList {
+		resp = append(resp, t.cmdHandler[v].ApplicationCommand)
+	}
+	return resp
 }
 
 func (t *Manager) RegisterCmd() error {
