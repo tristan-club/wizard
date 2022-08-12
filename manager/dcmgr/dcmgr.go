@@ -198,7 +198,7 @@ func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreChe
 func (t *Manager) handleUpdate(i *discordgo.InteractionCreate, pcr *PreCheckResult) {
 
 	ctx := dcontext.DefaultContext(t.s, i)
-	if err := ctx.AckMsg(true); err != nil {
+	if err := ctx.AckMsg(false); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "ack msg error", "error": err.Error(), "i": i}).Send()
 		return
 	}
@@ -293,14 +293,15 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 			return he.NewServerError(int(getUserResp.CommonResponse.Code), "", fmt.Errorf(getUserResp.CommonResponse.Message))
 		}
 	} else {
+
 		requester.RequesterUserNo = getUserResp.Data.UserNo
 		requester.RequesterDefaultAddress = getUserResp.Data.DefaultAccountAddr
 
 		if getUserResp.Data.OpenUsername != ctx.GetUserName() {
 			updateUserReq := &controller_pb.UpdateUserReq{
 				UserNo:     getUserResp.Data.UserNo,
-				OpenId:     "",
-				OpenType:   0,
+				OpenId:     ctx.GetFromId(),
+				OpenType:   pconst.PlatformDiscord,
 				IsOpenInit: false,
 				Username:   ctx.GetUserName(),
 				Nickname:   "",

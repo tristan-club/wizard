@@ -79,23 +79,35 @@ func startSendHandler(ctx *dcontext.Context) error {
 		}
 	}
 
-	walletContent := "⚡️ Wallet\n"
+	var dmContent string
+	respContent := "⚡️ Wallet\n"
 	if isCreateAccount {
-		walletContent += fmt.Sprintf(text.CreateAccountSuccess, user.DefaultAccountAddr, pinCode)
-		walletContent = fmt.Sprintf("%s\n%s", walletContent, text.MessageDisappearSoon)
+		respContent += fmt.Sprintf(text.CreateAccountSuccess, user.DefaultAccountAddr, pinCode)
+
+		if !ctx.IsPrivate() {
+			dmContent = respContent
+			respContent = fmt.Sprintf("%s\n%s", respContent, text.MessageDisappearSoon)
+		}
+
 	} else {
-		walletContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
+		respContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
 	}
 
 	if text.CustomStartMenu != "" {
-		walletContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, walletContent)
-
+		respContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, respContent)
 	}
 
-	err = ctx.FollowUpReply(walletContent)
+	err = ctx.FollowUpReply(respContent)
 	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "bot send mst", "error": err.Error()}).Send()
+		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+	}
+
+	if dmContent != "" {
+		err = ctx.DM(dmContent)
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "bot send msg error", "error": err.Error()}).Send()
+		}
 	}
 
 	return nil

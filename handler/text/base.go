@@ -39,7 +39,7 @@ const (
 	//UserNoInitInPrivate = "You have not created an account yet, \"/start\" to initialize your account."
 	BalanceSuccess = "Your balance is"
 
-	MessageDisappearSoon = "*NOTE*\\: This message will be clear shortly"
+	MessageDisappearSoon = "*NOTE*\\: This message will be clear shortly\nPlease save your pincode in time or use the `/change_pin_code` command to change your pincode"
 
 	TransactionProcessing           = "*Your transaction is processing*\n*TXN URL*: [click to view](%s)"
 	TransactionProcessingNoMarkDown = "Your transaction is processing, you can view it on %s"
