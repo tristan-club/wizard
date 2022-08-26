@@ -57,7 +57,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(resp.CommonResponse)
 	}
 
-	err = ctx.FollowUpReply(text.OperationSuccess)
+	_, err = ctx.FollowUpReply(text.OperationSuccess)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

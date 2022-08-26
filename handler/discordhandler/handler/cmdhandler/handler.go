@@ -7,6 +7,7 @@ import (
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_add_token"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_balance"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_change_pincode"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_envelope"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_export_key"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_get_account"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_import_key"
@@ -20,14 +21,14 @@ var handlerMap map[string]*handler.DiscordCmdHandler
 
 func init() {
 	handlerMap = map[string]*handler.DiscordCmdHandler{
-		cmd.CmdMenu:          cmd_menu.Handler,
-		cmd.CmdStart:         cmd_start.Handler,
-		cmd.CmdGetAccount:    cmd_get_account.Handler,
-		cmd.CmdChangePinCode: cmd_change_pincode.Handler,
-		cmd.CmdBalance:       cmd_balance.Handler,
-		cmd.CmdTransfer:      cmd_transfer.Handler,
-		//cmd.CmdCreateEnvelope:  cmd_create_envelope.Handler,
-		//cmd.CmdOpenEnvelope:    cmd_open_envelope.Handler,
+		cmd.CmdMenu:            cmd_menu.Handler,
+		cmd.CmdStart:           cmd_start.Handler,
+		cmd.CmdGetAccount:      cmd_get_account.Handler,
+		cmd.CmdChangePinCode:   cmd_change_pincode.Handler,
+		cmd.CmdBalance:         cmd_balance.Handler,
+		cmd.CmdTransfer:        cmd_transfer.Handler,
+		cmd.CmdCreateEnvelope:  cmd_envelope.CreateEnvelopeHandler,
+		cmd.CmdOpenEnvelope:    cmd_envelope.OpenEnvelopeHandler,
 		cmd.CmdAddTokenBalance: cmd_add_token.Handler,
 		//cmd.CmdIssueToken:      cmd_issue_token.Handler,
 		//cmd.CmdAirdrop:         cmd_airdrop.Handler,

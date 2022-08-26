@@ -60,14 +60,17 @@ func main() {
 		panic(err)
 	}
 	b.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		pcr, err := dcMgr.CheckShouldHandle(i)
-		if err != nil {
-			log.Error().Fields(map[string]interface{}{"action": "parse ic error", "error": err.Error()}).Send()
-		} else if !pcr.ShouldHandle() {
-			log.Info().Fields(map[string]interface{}{"action": "get unknown message", "i": i}).Send()
-		} else {
-			dcMgr.Handle(i, pcr)
-		}
+		go func() {
+			i := i
+			pcr, err := dcMgr.CheckShouldHandle(i)
+			if err != nil {
+				log.Error().Fields(map[string]interface{}{"action": "parse ic error", "error": err.Error()}).Send()
+			} else if !pcr.ShouldHandle() {
+				log.Info().Fields(map[string]interface{}{"action": "get unknown message", "i": i}).Send()
+			} else {
+				dcMgr.Handle(i, pcr)
+			}
+		}()
 
 	})
 	for _, v := range cmd.GetCmdList() {

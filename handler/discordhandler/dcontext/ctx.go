@@ -3,7 +3,9 @@ package dcontext
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/customid"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/pconst"
 	he "github.com/tristan-club/wizard/pkg/error"
@@ -27,6 +29,7 @@ func NewWalletBot(walletConn *grpc.ClientConn) (*WalletBot, error) {
 
 type Context struct {
 	CmdId     string
+	Cid       *customid.CustomId
 	Context   context.Context
 	IC        *discordgo.InteractionCreate
 	CM        controller_pb.ControllerServiceClient
@@ -113,11 +116,8 @@ func (ctx *Context) GetAvailableName() string {
 }
 
 func (ctx *Context) GetNickNameMDV2() string {
-	name := ctx.GetNickname()
-	if name == "" {
-		name = ctx.GetUserName()
-	}
-	return "@" + name
+
+	return fmt.Sprintf("<@%s>", ctx.GetFromId())
 }
 
 func (ctx *Context) CopyRequester() (context.Context, context.CancelFunc, he.Error) {

@@ -22,7 +22,7 @@ const (
 )
 
 var cmdList = []string{
-	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdAddTokenBalance, CmdIssueToken,
+	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdOpenEnvelope, CmdAddTokenBalance, CmdIssueToken,
 	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate,
 }
 var betaCmdList = []string{}

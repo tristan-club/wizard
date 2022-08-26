@@ -97,7 +97,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 		respContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, respContent)
 	}
 
-	err = ctx.FollowUpReply(respContent)
+	_, err = ctx.FollowUpReply(respContent)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

@@ -25,7 +25,7 @@ var Handler = &handler.DiscordCmdHandler{
 		ApplicationID: "",
 		Options: []*discordgo.ApplicationCommandOption{
 			presetnode.GetChainOption(),
-			presetnode.GetAddressOption(&presetnode.OptionAddressPayload{Name: "contract_address"}),
+			presetnode.GetAddressOption(&presetnode.OptionAddressPayload{Name: "contract_address", Required: true}),
 		},
 		Version: "1",
 	},
@@ -42,7 +42,7 @@ func addTokenSendHandler(ctx *dcontext.Context) error {
 		return he.NewServerError(he.CodeInvalidPayload, "", err)
 	}
 
-	err = ctx.FollowUpReply(text.OperationProcessing)
+	_, err = ctx.FollowUpReply(text.OperationProcessing)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
@@ -63,7 +63,7 @@ func addTokenSendHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(transactionResp.CommonResponse)
 	}
 
-	err = ctx.FollowUpReply(text.OperationSuccess)
+	_, err = ctx.FollowUpReply(text.OperationSuccess)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

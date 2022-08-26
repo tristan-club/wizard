@@ -36,13 +36,27 @@ func (ctx *Context) AckMsg(ephemeralMsgInPrivate bool) error {
 	return nil
 }
 
-func (ctx *Context) FollowUpReply(content string) error {
+func (ctx *Context) FollowUpReply(content string) (*discordgo.Message, error) {
 
 	resp := &discordgo.WebhookParams{
 		Content: content,
 	}
 
-	_, err := ctx.Session.FollowupMessageCreate(ctx.IC.Interaction, false, resp)
+	msg, err := ctx.Session.FollowupMessageCreate(ctx.IC.Interaction, true, resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
+}
+
+func (ctx *Context) FollowUpEdit(messageId string, content string) error {
+
+	resp := &discordgo.WebhookEdit{
+		Content: &content,
+	}
+
+	_, err := ctx.Session.FollowupMessageEdit(ctx.IC.Interaction, messageId, resp)
 	if err != nil {
 		return err
 	}
@@ -127,6 +141,7 @@ func (ctx *Context) Send(chatId string, content string) (*discordgo.Message, err
 	if chatId == "" {
 		chatId = ctx.IC.ChannelID
 	}
+
 	return ctx.Session.ChannelMessageSend(chatId, content)
 
 }

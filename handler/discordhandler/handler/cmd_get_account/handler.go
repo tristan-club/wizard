@@ -21,7 +21,7 @@ var Handler = &handler.DiscordCmdHandler{
 
 func getWalletAddressSendHandler(ctx *dcontext.Context) error {
 
-	if err := ctx.FollowUpReply(fmt.Sprintf(text.GetAccountSuccess, ctx.Requester.RequesterDefaultAddress)); err != nil {
+	if _, err := ctx.FollowUpReply(fmt.Sprintf(text.GetAccountSuccess, ctx.Requester.RequesterDefaultAddress)); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}

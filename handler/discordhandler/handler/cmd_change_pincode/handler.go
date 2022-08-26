@@ -54,7 +54,7 @@ func ChangePinCodeSendHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(accountResp.CommonResponse)
 	}
 
-	err = ctx.FollowUpReply(text.ChangePinCodeSuccess)
+	_, err = ctx.FollowUpReply(text.ChangePinCodeSuccess)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

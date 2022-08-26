@@ -108,6 +108,7 @@ func (t *TGMgr) RegisterCmd(cmdId, desc string, handler flow.TGFlowHandler) erro
 }
 
 func (t *TGMgr) ListenTGUpdate(botToken, webhookUrl, httpAddr string) error {
+
 	var err error
 	t.botApi, err = tgbotapi.NewBotAPI(botToken)
 	if err != nil {
@@ -187,7 +188,6 @@ func (t *TGMgr) ListenTGUpdate(botToken, webhookUrl, httpAddr string) error {
 		u.Timeout = 60
 		//b.Debug = true
 		updates = t.botApi.GetUpdatesChan(u)
-
 		log.Info().Fields(map[string]interface{}{"action": "success init tg bot websocket", "botName": t.botName}).Send()
 	}
 

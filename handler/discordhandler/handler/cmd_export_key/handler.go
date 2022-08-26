@@ -53,7 +53,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 	content := text.GetPrivateSuccess
 	content = fmt.Sprintf(content, resp.Data.PrivateKey)
 
-	err = ctx.FollowUpReply(content)
+	_, err = ctx.FollowUpReply(content)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)

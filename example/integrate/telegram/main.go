@@ -43,6 +43,7 @@ func main() {
 	}
 
 	for update := range updates {
+		update := update
 		checkResult, err := tgBotMgr.CheckShouldHandle(&update)
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "parse update error", "error": err.Error()}).Send()

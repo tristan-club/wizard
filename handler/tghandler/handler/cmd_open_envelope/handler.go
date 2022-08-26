@@ -17,6 +17,7 @@ import (
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type OpenEnvelopePayload struct {
@@ -44,7 +45,12 @@ func IsBridgeCmd(text string) bool {
 	return strings.HasPrefix(text, cmd.CmdBridge)
 }
 
+// todo 检查为啥红包发出来两个人名一样
 func openEnvelopeHandler(ctx *tcontext.Context) error {
+	ctxCopy := &tcontext.Context{}
+	*ctxCopy = *ctx
+	ctx = ctxCopy
+	log.Info().Msgf("user %s start opening envelope", ctx.GetUserName())
 	params := strings.Split(ctx.U.CallbackData(), "/")
 	if len(params) != 2 {
 		log.Error().Fields(map[string]interface{}{"action": "invalid envelope params", "payload": ctx.U.CallbackData()}).Send()
@@ -65,9 +71,10 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	if err != nil {
 		return he.NewServerError(he.CodeWalletRequestError, "", err)
 	}
-
+	log.Info().Msgf("user %s send open envelope request", ctx.GetUserName())
 	//delete envelope keyboard if it is sold out or invalid
 	defer func() {
+
 		if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT || openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOP_STATE_INVALID {
 			messageIdStr, err := tstore.PBGetStr(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, envelopeId), pconst.EnvelopeStorePath)
 			if err != nil {
@@ -105,21 +112,26 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	assetSymbol := openEnvelopeResp.Data.AssetSymbol
 	chainType := openEnvelopeResp.Data.ChainType
 	amountLabel := strings.ReplaceAll(amount, ".", "\\.")
-	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeTransactionProcessing, ctx.GetNickNameMDV2(), envelopeId, amountLabel, assetSymbol, fmt.Sprintf("%s%s", pconst.GetExplore(chainType, pconst.ExploreTypeTx), openEnvelopeResp.Data.TxHash)), nil, true, false)
+	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeTransactionProcessing, ctx.GetNickNameMDV2(), envelopeId, amountLabel, assetSymbol), nil, true, false)
 	if herr != nil {
 		return herr
 	}
-
-	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxHash: openEnvelopeResp.Data.TxHash})
+	log.Info().Msgf("user %s send open envelope pending msg", ctx.GetUserName())
+	time.Sleep(time.Second * 3)
+	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxId: openEnvelopeResp.Data.TxId, IsWait: true})
 	if err != nil {
 		return he.NewServerError(he.CodeWalletRequestError, "", err)
 	} else if getDataResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	ctx.TryDeleteMessage(pendingMsg)
-	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(fmt.Sprintf("%s%s", pconst.GetExplore(chainType, pconst.ExploreTypeTx), openEnvelopeResp.Data.TxHash))), nil, true, false); herr != nil {
+	log.Info().Msgf("user %s get open envelope tx hash", ctx.GetUserName())
+
+	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(fmt.Sprintf("%s%s", pconst.GetExplore(chainType, pconst.ExploreTypeTx), getDataResp.Data.TxHash))), nil, true, false); herr != nil {
 		return herr
 	}
+
+	ctx.TryDeleteMessage(pendingMsg)
+
 	return nil
 }

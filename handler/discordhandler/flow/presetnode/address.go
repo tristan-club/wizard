@@ -7,6 +7,7 @@ import (
 type OptionAddressPayload struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Required    bool   `json:"required"`
 }
 
 func GetAddressOption(payload *OptionAddressPayload) *discordgo.ApplicationCommandOption {
@@ -25,6 +26,7 @@ func GetAddressOption(payload *OptionAddressPayload) *discordgo.ApplicationComma
 		if payload.Description != "" {
 			option.Description = payload.Description
 		}
+		option.Required = payload.Required
 	}
 
 	return option

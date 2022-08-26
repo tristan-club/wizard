@@ -54,7 +54,7 @@ func balanceSendHandler(ctx *dcontext.Context) error {
 		}
 	}
 
-	if err = ctx.FollowUpReply(content); err != nil {
+	if _, err = ctx.FollowUpReply(content); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}

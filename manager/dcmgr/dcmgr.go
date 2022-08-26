@@ -5,12 +5,14 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/customid"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_envelope"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmdhandler"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/userstate"
@@ -28,6 +30,7 @@ import (
 type PreCheckResult struct {
 	shouldHandle bool
 	cmdId        string
+	cid          *customid.CustomId
 	isCmd        bool
 	us           *userstate.UserState
 	handler      *handler.DiscordCmdHandler
@@ -178,21 +181,50 @@ func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreChe
 
 	pcr = &PreCheckResult{}
 
-	if i.Type != discordgo.InteractionApplicationCommand {
+	switch i.Type {
+	case discordgo.InteractionApplicationCommand:
+		cmdHandler := t.cmdHandler[i.ApplicationCommandData().Name]
+		if cmdHandler == nil {
+			return pcr, nil
+		}
+		return &PreCheckResult{
+			shouldHandle: true,
+			cmdId:        i.ApplicationCommandData().Name,
+			isCmd:        true,
+			handler:      cmdHandler,
+		}, nil
+
+	case discordgo.InteractionMessageComponent:
+		cid, ok := customid.ParseCustomId(i.MessageComponentData().CustomID)
+		if !ok {
+			return
+		}
+		if cid.GetCustomType() == pconst.CustomIdOpenEnvelope {
+			return &PreCheckResult{
+				shouldHandle: true,
+				//cmdId:        pconst.,
+				cid:     cid,
+				isCmd:   false,
+				handler: cmd_envelope.OpenEnvelopeHandler,
+			}, nil
+		}
+		return
+	default:
 		return
 	}
 
-	cmdHandler := t.cmdHandler[i.ApplicationCommandData().Name]
-	if cmdHandler == nil {
-		return pcr, nil
-	}
-
-	return &PreCheckResult{
-		shouldHandle: true,
-		cmdId:        i.ApplicationCommandData().Name,
-		isCmd:        true,
-		handler:      cmdHandler,
-	}, nil
+	//
+	//cmdHandler := t.cmdHandler[i.ApplicationCommandData().Name]
+	//if cmdHandler == nil {
+	//	return pcr, nil
+	//}
+	//
+	//return &PreCheckResult{
+	//	shouldHandle: true,
+	//	cmdId:        i.ApplicationCommandData().Name,
+	//	isCmd:        true,
+	//	handler:      cmdHandler,
+	//}, nil
 }
 
 func (t *Manager) handleUpdate(i *discordgo.InteractionCreate, pcr *PreCheckResult) {
@@ -226,10 +258,10 @@ func (t *Manager) handleUpdate(i *discordgo.InteractionCreate, pcr *PreCheckResu
 			log.Error().Fields(map[string]interface{}{"action": "got Server error", "detail": content}).Send()
 		}
 
-		err = ctx.FollowUpReply(content)
+		_, err = ctx.FollowUpReply(content)
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": err.Error(), "content": content}).Send()
-			err = ctx.FollowUpReply(text.ServerError)
+			_, err = ctx.FollowUpReply(text.ServerError)
 		}
 
 	}
@@ -246,6 +278,7 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 		Requester: nil,
 		BotName:   t.botName,
 		CM:        t.controllerMgr,
+		Cid:       pcr.cid,
 	}
 
 	requester := &controller_pb.Requester{
@@ -271,7 +304,7 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 	ctx.Context = metadata.NewOutgoingContext(c, md)
 	ctx.Requester = requester
 
-	cmdId := ctx.IC.Interaction.ApplicationCommandData().Name
+	cmdId := pcr.cmdId
 
 	getUserResp, err := ctx.CM.GetUser(ctx.Context, &controller_pb.GetUserReq{
 		OpenId:   requester.RequesterOpenId,
@@ -314,6 +347,6 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 			}
 		}
 	}
-
+	log.Info().Msgf("user %s begin %s cmd", ctx.Requester.RequesterOpenId, ctx.CmdId)
 	return pcr.handler.Handler(ctx)
 }

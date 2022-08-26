@@ -33,7 +33,7 @@ var Handler = &handler.DiscordCmdHandler{
 		ApplicationID: "",
 		Options: []*discordgo.ApplicationCommandOption{
 			presetnode.GetChainOption(),
-			presetnode.GetAddressOption(&presetnode.OptionAddressPayload{Name: "to"}),
+			presetnode.GetAddressOption(&presetnode.OptionAddressPayload{Name: "to", Required: true}),
 			presetnode.GetAmountOption(),
 			presetnode.GetPinCodeOption("", ""),
 		},
@@ -44,10 +44,10 @@ var Handler = &handler.DiscordCmdHandler{
 
 func transferSendHandler(ctx *dcontext.Context) error {
 
-	if err := ctx.FollowUpReply(text.OperationProcessing); err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
-	}
+	//if _, err := ctx.FollowUpReply(text.OperationProcessing); err != nil {
+	//	log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
+	//	return he.NewServerError(he.CodeBotSendMsgError, "", err)
+	//}
 
 	var payload = &TransferPayload{}
 
@@ -86,7 +86,7 @@ func transferSendHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(transferResp.CommonResponse)
 	}
 
-	if _, err = ctx.EditReply(fmt.Sprintf(text.TransactionProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transferResp.Data.TxHash))); err != nil {
+	if _, err = ctx.FollowUpReply(fmt.Sprintf(text.TransactionProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transferResp.Data.TxHash))); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(he.CodeBotSendMsgError, "", err)
 	}
