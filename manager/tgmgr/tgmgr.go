@@ -261,20 +261,39 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 			log.Error().Fields(map[string]interface{}{"action": "got Server error", "detail": content, "us": us}).Send()
 		}
 
-		message := tgbotapi.NewMessage(update.FromChat().ID, content)
-		if update.Message != nil {
-			message.ReplyToMessageID = update.Message.MessageID
-		}
+		ctx := tcontext.DefaultContext(update, t.botApi)
 
-		_, err = t.botApi.Send(message)
-		if err != nil {
-			log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": err.Error(), "content": content}).Send()
-			message.Text = text.ServerError
-			_, err = t.botApi.Send(message)
-			if err != nil {
-				log.Error().Fields(map[string]interface{}{"action": "send server error", "error": err.Error()}).Send()
+		msg := &tgbotapi.Message{}
+
+		msg, herr = ctx.Send(update.SentFrom().ID, content, nil, false, false)
+		if herr == nil {
+			return shouldHandle
+		}
+		log.Warn().Fields(map[string]interface{}{"action": "bot send error msg error", "error": herr, "ctx": ctx, "content": content}).Send()
+
+		*msg, herr = ctx.Reply(update.FromChat().ID, content, nil, false)
+		if herr != nil {
+			log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": herr, "content": content}).Send()
+			_, herr = ctx.Send(update.FromChat().ID, text.ServerError, nil, false, false)
+			if herr != nil {
+				log.Error().Fields(map[string]interface{}{"action": "send server error", "error": herr}).Send()
 			}
 		}
+
+		//message := tgbotapi.NewMessage(update.FromChat().ID, content)
+		//if update.Message != nil {
+		//	message.ReplyToMessageID = update.Message.MessageID
+		//}
+		//
+		//_, err = t.botApi.Send(message)
+		//if err != nil {
+		//	log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": err.Error(), "content": content}).Send()
+		//	message.Text = text.ServerError
+		//	_, err = t.botApi.Send(message)
+		//	if err != nil {
+		//		log.Error().Fields(map[string]interface{}{"action": "send server error", "error": err.Error()}).Send()
+		//	}
+		//}
 	}
 	return shouldHandle
 }

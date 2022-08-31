@@ -10,6 +10,7 @@ import (
 	"github.com/tristan-club/wizard/pkg/mdparse"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
+	"strconv"
 )
 
 type Context struct {
@@ -24,8 +25,16 @@ type Context struct {
 	Payload      interface{}
 }
 
+func DefaultContext(u *tgbotapi.Update, api *tgbotapi.BotAPI) *Context {
+	return &Context{U: u, BotApi: api}
+}
+
 func (ctx *Context) OpenId() string {
-	return ctx.Requester.RequesterOpenId
+	var openId string
+	if openId = ctx.Requester.RequesterOpenId; openId == "" {
+		openId = strconv.FormatInt(ctx.U.SentFrom().ID, 10)
+	}
+	return openId
 }
 
 func (ctx *Context) GetUserName() string {
