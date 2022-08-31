@@ -36,10 +36,15 @@ type PreCheckResult struct {
 	isCmd        bool
 	us           *userstate.UserState
 	handle       flow.TGFlowHandler
+	payload      interface{}
 }
 
 func (p *PreCheckResult) ShouldHandle() bool {
 	return p.shouldHandle
+}
+
+func (p *PreCheckResult) InjectPayload(payload interface{}) {
+	p.payload = payload
 }
 
 type TGMgr struct {
@@ -422,6 +427,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		CM:      t.controllerMgr,
 		BotApi:  t.botApi,
 		BotName: t.botName,
+		Payload: preCheckResult.payload,
 	}
 
 	requester := &controller_pb.Requester{

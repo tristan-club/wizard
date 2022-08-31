@@ -84,16 +84,20 @@ func (c *ChainHandler) Handle(ctx *tcontext.Context) error {
 	}
 
 	if ctx.CurrentState == userstate.StateNone && len(c.Nodes) > 0 {
-		herr := c.Nodes[0].AskForHandler(ctx, c.Nodes[0])
-		if herr != nil {
-			return herr
-		} else {
-			if herr := userstate.SetState(ctx.Requester.RequesterOpenId, c.Nodes[0].Id, "", "", nil); herr != nil {
+
+		if askForHandler := c.Nodes[0].AskForHandler; askForHandler != nil {
+			herr := c.Nodes[0].AskForHandler(ctx, c.Nodes[0])
+			if herr != nil {
 				return herr
-			} else {
-				return nil
 			}
 		}
+
+		if herr := userstate.SetState(ctx.Requester.RequesterOpenId, c.Nodes[0].Id, "", "", nil); herr != nil {
+			return herr
+		} else {
+			return nil
+		}
+
 	}
 
 	if len(c.Nodes) != 0 {

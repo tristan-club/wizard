@@ -21,6 +21,7 @@ type Context struct {
 	BotApi       *tgbotapi.BotAPI
 	BotName      string
 	Requester    *controller_pb.Requester
+	Payload      interface{}
 }
 
 func (ctx *Context) OpenId() string {

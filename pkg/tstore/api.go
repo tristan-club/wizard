@@ -3,6 +3,7 @@ package tstore
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/tstore_pb"
 	"github.com/tristan-club/wizard/pkg/cluster/rpc/grpc_client"
@@ -14,6 +15,9 @@ import (
 var conn *grpc.ClientConn
 
 func InitTStore(svc string) (err error) {
+	if svc == "" {
+		return fmt.Errorf("empty svc addr")
+	}
 	conn, err = grpc_client.Start(svc)
 	return err
 }
