@@ -1,6 +1,7 @@
 package cmd_change_pin_code
 
 import (
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -10,7 +11,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 type ChangePinCodePayload struct {
@@ -47,7 +48,7 @@ func ChangePinCodeSendHandler(ctx *tcontext.Context) error {
 	}
 
 	if payload.OldPinCode == payload.NewPinCode {
-		return he.NewBusinessError(he.CodeSamePinCode, "", nil)
+		return he.NewBusinessError(pconst.CodeSamePinCode, "", nil)
 	}
 
 	accountResp, err := ctx.CM.ChangeAccountPinCode(ctx.Context, &controller_pb.ChangeAccountPinCodeReq{
@@ -56,7 +57,7 @@ func ChangePinCodeSendHandler(ctx *tcontext.Context) error {
 		NewPinCode: payload.NewPinCode,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if accountResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(accountResp.CommonResponse)
 	}

@@ -1,13 +1,14 @@
 package presetnode
 
 import (
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/util"
 )
 
@@ -44,7 +45,7 @@ func enterAddress(ctx *tcontext.Context, node *chain.Node) error {
 
 	addressChecked, err := util.EIP55Checksum(address)
 	if err != nil {
-		return he.NewServerError(he.CodeAddressParamInvalid, "", err)
+		return he.NewServerError(pconst.CodeAddressParamInvalid, "", err)
 	}
 
 	var param = &AddressParam{}
@@ -62,9 +63,9 @@ func enterAddress(ctx *tcontext.Context, node *chain.Node) error {
 
 	addressChecked, err = util.EIP55Checksum(address)
 	if err != nil {
-		return he.NewBusinessError(he.CodeAddressParamInvalid, "", nil)
+		return he.NewBusinessError(pconst.CodeAddressParamInvalid, "", nil)
 	} else if len(addressChecked) != 42 {
-		return he.NewBusinessError(he.CodeAddressParamInvalid, "", nil)
+		return he.NewBusinessError(pconst.CodeAddressParamInvalid, "", nil)
 	}
 	userstate.SetParam(ctx.OpenId(), paramKey, addressChecked)
 

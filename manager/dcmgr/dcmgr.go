@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/tristan-club/kit/customid"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
@@ -19,7 +20,6 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/cluster/rpc/grpc_client"
 	"github.com/tristan-club/wizard/pkg/dingding"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
@@ -296,7 +296,7 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 
 	b, err := proto.Marshal(requester)
 	if err != nil {
-		return he.NewServerError(he.CodeMarshalError, "", err)
+		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
 
 	requestStr := base64.StdEncoding.EncodeToString(b)
@@ -311,14 +311,14 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 		OpenType: requester.RequesterOpenType,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getUserResp.CommonResponse.Code != he.Success {
 		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 
 			if cmdId != cmd.CmdStart {
 				err = ctx.ReplyDmWithGroupForward("", "", "You do not have an account yet, use start command to create account")
 				if err != nil {
-					return he.NewServerError(he.CodeBotSendMsgError, "", err)
+					return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 				}
 			}
 

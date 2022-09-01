@@ -5,6 +5,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/tristan-club/kit/chain_info"
 	"github.com/tristan-club/kit/customid"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -15,7 +16,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
 	"strconv"
@@ -92,7 +92,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "parse param", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	net := chain_info.GetNetByChainType(payload.ChainType)
@@ -102,7 +102,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 		addressChecked, err := util.EIP55Checksum(payload.Asset)
 		if err != nil {
 			log.Info().Fields(map[string]interface{}{"action": "address param invalid", "ctx": ctx}).Send()
-			return he.NewServerError(he.CodeAddressParamInvalid, "", err)
+			return he.NewServerError(pconst.CodeAddressParamInvalid, "", err)
 		}
 		payload.Asset = addressChecked
 		tokenType = pconst.TokenTypeErc20
@@ -144,7 +144,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	createRedEnvelope, err := ctx.CM.AddEnvelope(ctx.Context, createEnvelopeReq)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "add envelope error", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if createRedEnvelope.CommonResponse.Code != he.Success {
 		log.Error().Fields(map[string]interface{}{"action": "add envelope error", "error": createRedEnvelope}).Send()
 		return tcontext.RespToError(createRedEnvelope.CommonResponse)
@@ -153,7 +153,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	msg, err := ctx.FollowUpReply(fmt.Sprintf(text.EnvelopePreparing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeAddress), createRedEnvelope.Data.AccountAddress)))
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	requesterCtx, cancel, herr := ctx.CopyRequester()
@@ -166,7 +166,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	envelopeResp, err := ctx.CM.GetEnvelope(requesterCtx, &controller_pb.GetEnvelopeReq{EnvelopeNo: createRedEnvelope.Data.EnvelopeNo, WaitSuccess: true})
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "call wallet", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if envelopeResp.CommonResponse.Code != he.Success {
 		log.Error().Fields(map[string]interface{}{"action": "get envelope", "error": envelopeResp.CommonResponse}).Send()
 		return tcontext.RespToError(envelopeResp.CommonResponse)
@@ -181,7 +181,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 
 	if err = ctx.FollowUpEdit(msg.ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.Id, chain_info.GetExplorerTargetUrl(net.ChainId, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	//messageSend := discordgo.MessageSend{

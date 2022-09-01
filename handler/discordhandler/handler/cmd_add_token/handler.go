@@ -2,6 +2,7 @@ package cmd_add_token
 
 import (
 	"github.com/bwmarrin/discordgo"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
@@ -11,7 +12,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 )
 
 type AddTokenPayload struct {
@@ -39,13 +39,13 @@ func addTokenSendHandler(ctx *dcontext.Context) error {
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "parse param", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	_, err = ctx.FollowUpReply(text.OperationProcessing)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	req := &controller_pb.AddAssetReq{
@@ -58,7 +58,7 @@ func addTokenSendHandler(ctx *dcontext.Context) error {
 
 	transactionResp, err := ctx.CM.AddAsset(ctx.Context, req)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if transactionResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(transactionResp.CommonResponse)
 	}
@@ -66,7 +66,7 @@ func addTokenSendHandler(ctx *dcontext.Context) error {
 	_, err = ctx.FollowUpReply(text.OperationSuccess)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	return nil

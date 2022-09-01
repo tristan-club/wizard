@@ -5,8 +5,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/mdparse"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
@@ -61,7 +62,7 @@ func (ctx *Context) CopyRequester() (context.Context, he.Error) {
 	c := context.Background()
 	b, err := proto.Marshal(ctx.Requester)
 	if err != nil {
-		return c, he.NewServerError(he.CodeMarshalError, "", err)
+		return c, he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
 	requestStr := base64.StdEncoding.EncodeToString(b)
 	md := metadata.Pairs("requester", requestStr)

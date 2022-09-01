@@ -3,6 +3,7 @@ package cmd_balance
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
@@ -11,7 +12,6 @@ import (
 	"github.com/tristan-club/wizard/handler/discordhandler/parser"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -30,7 +30,7 @@ func balanceSendHandler(ctx *dcontext.Context) error {
 	chainType, err := parser.OptionGetInt(ctx.IC.Interaction)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "invalid payload", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	assetListResp, err := ctx.CM.AssetList(ctx.Context, &controller_pb.AssetListReq{
@@ -40,7 +40,7 @@ func balanceSendHandler(ctx *dcontext.Context) error {
 		CheckBalance: true,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetListResp.CommonResponse.Code != he.Success {
 		return he.NewServerError(int(assetListResp.CommonResponse.Code), "", fmt.Errorf(assetListResp.CommonResponse.Message))
 	}
@@ -56,7 +56,7 @@ func balanceSendHandler(ctx *dcontext.Context) error {
 
 	if _, err = ctx.FollowUpReply(content); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 	return nil
 }

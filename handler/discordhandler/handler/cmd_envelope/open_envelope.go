@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/tristan-club/kit/chain_info"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
@@ -12,7 +13,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/mdparse"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"strconv"
@@ -58,16 +58,16 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 		IsWait:     false,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	}
 
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if openEnvelopeResp.CommonResponse.Code != he.Success {
 		if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_OPENED || openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT {
 			if _, err := ctx.FollowUpReply(fmt.Sprintf(mdparse.ParseV2(text.BusinessError), ctx.GetNickNameMDV2(), "open envelope command", mdparse.ParseV2(openEnvelopeResp.CommonResponse.Message))); err != nil {
 				log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-				return he.NewServerError(he.CodeBotSendMsgError, "", err)
+				return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 			}
 
 			if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT {
@@ -101,14 +101,14 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 	_, err = ctx.FollowUpReply(fmt.Sprintf(text.OpenEnvelopeTransactionProcessing, ctx.GetNickNameMDV2(), envelopeId, amountLabel, assetSymbol))
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	time.Sleep(time.Second * 5)
 
 	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxId: openEnvelopeResp.Data.TxId, IsWait: true})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getDataResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
@@ -118,7 +118,7 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 	if _, err = ctx.Send(channelId, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount),
 		mdparse.ParseV2(assetSymbol), chain_info.GetExplorerTargetUrl(net.ChainId, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 	return nil
 }

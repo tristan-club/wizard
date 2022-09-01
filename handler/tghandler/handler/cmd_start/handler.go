@@ -3,6 +3,7 @@ package cmd_start
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -11,7 +12,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/inline_keybord"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/util"
 	"time"
 )
@@ -24,7 +24,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 	if ctx.U.Message == nil {
 		log.Error().Fields(map[string]interface{}{"full update context": ctx.U, "warn": "nil message or something"}).Send()
-		return he.NewServerError(he.CodeInvalidUserState, "", fmt.Errorf("invalid state for start command"))
+		return he.NewServerError(pconst.CodeInvalidUserState, "", fmt.Errorf("invalid state for start command"))
 	}
 
 	var user *controller_pb.User
@@ -41,7 +41,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 			"error":  err.Error(),
 			"openId": ctx.Requester.RequesterOpenId,
 		}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getUserResp.CommonResponse.Code != he.Success {
 		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 			if ctx.U.FromChat().IsPrivate() {
@@ -67,7 +67,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 						"error":  err.Error(),
 						"openId": ctx.Requester.RequesterOpenId,
 					}).Send()
-					return he.NewServerError(he.CodeWalletRequestError, "", err)
+					return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 				} else if addUserResp.CommonResponse.Code != he.Success {
 
 					return tcontext.RespToError(addUserResp.CommonResponse)
@@ -106,7 +106,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 	if ctx.U.Message.Chat.IsPrivate() {
 
 		if user == nil {
-			return he.NewBusinessError(he.CodeUserNotInit, "", nil)
+			return he.NewBusinessError(pconst.CodeUserNotInit, "", nil)
 		}
 
 		walletContent := "⚡️ Wallet\n"

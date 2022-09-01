@@ -3,6 +3,7 @@ package cmd_create_envelope
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -14,7 +15,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/mdparse"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"strconv"
@@ -93,7 +93,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 
 	channelId, err := strconv.ParseInt(payload.ChannelId, 10, 64)
 	if err != nil {
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	tokenType := pconst.TokenTypeInternal
@@ -119,7 +119,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 
 	createRedEnvelope, err := ctx.CM.AddEnvelope(ctx.Context, createEnvelopeReq)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if createRedEnvelope.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(createRedEnvelope.CommonResponse)
 	}
@@ -139,7 +139,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	envelopeResp, err := ctx.CM.GetEnvelope(requesterCtx, &controller_pb.GetEnvelopeReq{EnvelopeNo: createRedEnvelope.Data.EnvelopeNo, WaitSuccess: true})
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "call wallet", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if envelopeResp.CommonResponse.Code != he.Success {
 		log.Error().Fields(map[string]interface{}{"action": "get envelope", "error": envelopeResp.CommonResponse}).Send()
 		return tcontext.RespToError(envelopeResp.CommonResponse)

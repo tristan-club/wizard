@@ -2,13 +2,14 @@ package presetnode
 
 import (
 	"fmt"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"strconv"
 )
 
@@ -60,7 +61,7 @@ func EnterQuantity(ctx *tcontext.Context, node *chain.Node) error {
 
 	quantity, err := strconv.ParseInt(ctx.U.Message.Text, 10, 64)
 	if err != nil {
-		return he.NewServerError(he.CodeInvalidQuantity, "", err)
+		return he.NewServerError(pconst.CodeInvalidQuantity, "", err)
 	}
 
 	var param = &EnterQuantityParam{}
@@ -71,11 +72,11 @@ func EnterQuantity(ctx *tcontext.Context, node *chain.Node) error {
 		}
 	}
 	if quantity < param.Min {
-		return he.NewBusinessError(he.CodeInvalidQuantity, "", nil)
+		return he.NewBusinessError(pconst.CodeInvalidQuantity, "", nil)
 	}
 	if param.Max != 0 {
 		if quantity > param.Max {
-			return he.NewBusinessError(he.CodeInvalidQuantity, "", nil)
+			return he.NewBusinessError(pconst.CodeInvalidQuantity, "", nil)
 		}
 	}
 

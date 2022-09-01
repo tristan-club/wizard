@@ -3,8 +3,9 @@ package userstate
 import (
 	"encoding/json"
 	"fmt"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
 )
@@ -55,11 +56,11 @@ func SetState(openId string, state int, currentCmd, currentService string, paylo
 	usByte, err := json.Marshal(us)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "marshal user state", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeMarshalError, "", err)
+		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
 	if err := tstore.PBSaveString(openId, PathUserState, string(usByte)); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "tstore save", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeCallTStoreError, "", err)
+		return he.NewServerError(pconst.CodeCallTStoreError, "", err)
 	}
 
 	log.Info().Fields(map[string]interface{}{"action": "success update user state", "OpenId": openId, "state": state,
@@ -83,11 +84,11 @@ func InitState(openId, cmd, userId, defaultAddress string) he.Error {
 	usByte, err := json.Marshal(userState)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "marshal user state", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeMarshalError, "", err)
+		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
 	if err := tstore.PBSaveString(openId, PathUserState, string(usByte)); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "tstore save", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeMarshalError, "", err)
+		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
 
 	return nil
@@ -109,7 +110,7 @@ func GetState(openId string, out interface{}) (*UserState, he.Error) {
 	userStateSaveStr, err := tstore.PBGetStr(openId, PathUserState)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "tstore get", "error": err.Error()}).Send()
-		return nil, he.NewServerError(he.CodeCallTStoreError, "", err)
+		return nil, he.NewServerError(pconst.CodeCallTStoreError, "", err)
 	}
 
 	if userStateSaveStr == "" {
@@ -118,18 +119,18 @@ func GetState(openId string, out interface{}) (*UserState, he.Error) {
 
 	if err := json.Unmarshal([]byte(userStateSaveStr), &userState); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "marshal user state", "error": err.Error()}).Send()
-		return nil, he.NewServerError(he.CodeMarshalError, "", err)
+		return nil, he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
 
 	if !util.IsNil(out) && len(userState.Payload) != 0 {
 		b, err := json.Marshal(userState.Payload)
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "marshal payload", "error": err.Error()}).Send()
-			return nil, he.NewServerError(he.CodeMarshalError, "", err)
+			return nil, he.NewServerError(pconst.CodeMarshalError, "", err)
 		}
 		if err := json.Unmarshal(b, &out); err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "unmarshal payload", "error": err.Error()}).Send()
-			return nil, he.NewServerError(he.CodeMarshalError, "", err)
+			return nil, he.NewServerError(pconst.CodeMarshalError, "", err)
 		}
 	}
 	if userState.Payload == nil {
@@ -180,7 +181,7 @@ func GetParam(openId, key string) (interface{}, he.Error) {
 func MustString(openId string, key string) (string, he.Error) {
 	us, _ := GetState(openId, nil)
 	if resp, ok := us.Payload[key].(string); !ok || resp == "" {
-		return "", he.NewServerError(he.CodeInvalidPayload, "", fmt.Errorf("need string get %s", util.FastMarshal(us.Payload[key])))
+		return "", he.NewServerError(pconst.CodeInvalidPayload, "", fmt.Errorf("need string get %s", util.FastMarshal(us.Payload[key])))
 	} else {
 		return resp, nil
 	}
@@ -195,7 +196,7 @@ func MustInt64(openId string, key string) (int64, he.Error) {
 	case float64:
 		return int64(param.(float64)), nil
 	default:
-		return 0, he.NewServerError(he.CodeInvalidPayload, "", fmt.Errorf("need int get %s", util.FastMarshal(us.Payload[key])))
+		return 0, he.NewServerError(pconst.CodeInvalidPayload, "", fmt.Errorf("need int get %s", util.FastMarshal(us.Payload[key])))
 	}
 }
 
@@ -204,7 +205,7 @@ func MustUInt64(openId string, key string) (uint64, he.Error) {
 	if herr != nil {
 		return 0, herr
 	} else if resp == 0 {
-		return 0, he.NewServerError(he.CodeInvalidPayload, "", fmt.Errorf("got 0 for uint64, OpenId %s, key %s", openId, key))
+		return 0, he.NewServerError(pconst.CodeInvalidPayload, "", fmt.Errorf("got 0 for uint64, OpenId %s, key %s", openId, key))
 	}
 	return uint64(resp), nil
 }

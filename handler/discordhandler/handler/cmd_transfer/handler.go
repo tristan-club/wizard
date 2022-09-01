@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
@@ -13,7 +14,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/mdparse"
 )
 
@@ -46,7 +46,7 @@ func transferSendHandler(ctx *dcontext.Context) error {
 
 	//if _, err := ctx.FollowUpReply(text.OperationProcessing); err != nil {
 	//	log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-	//	return he.NewServerError(he.CodeBotSendMsgError, "", err)
+	//	return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	//}
 
 	var payload = &TransferPayload{}
@@ -54,7 +54,7 @@ func transferSendHandler(ctx *dcontext.Context) error {
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "parse param", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	tokenType := pconst.TokenTypeInternal
@@ -81,19 +81,19 @@ func transferSendHandler(ctx *dcontext.Context) error {
 
 	transferResp, err := ctx.CM.Transfer(ctx.Context, req)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if transferResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(transferResp.CommonResponse)
 	}
 
 	if _, err = ctx.FollowUpReply(fmt.Sprintf(text.TransactionProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transferResp.Data.TxHash))); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxHash: transferResp.Data.TxHash})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getDataResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
@@ -103,7 +103,7 @@ func transferSendHandler(ctx *dcontext.Context) error {
 
 	if err := ctx.DM(content); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	return nil

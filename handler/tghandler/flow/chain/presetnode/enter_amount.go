@@ -3,14 +3,15 @@ package presetnode
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
+	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/bignum"
-	he "github.com/tristan-club/wizard/pkg/error"
 )
 
 const (
@@ -86,7 +87,7 @@ func EnterAmount(ctx *tcontext.Context, node *chain.Node) error {
 		amount = ctx.U.Message.Text
 		amountBig, ok := bignum.HandleAddDecimal(amount, 18)
 		if !ok {
-			return he.NewBusinessError(he.CodeAmountParamInvalid, "", nil)
+			return he.NewBusinessError(pconst.CodeAmountParamInvalid, "", nil)
 		}
 
 		if param.Min != "" || param.Max != "" {
@@ -99,7 +100,7 @@ func EnterAmount(ctx *tcontext.Context, node *chain.Node) error {
 				log.Error().Msgf("preset amount param max %s invalid, node id %s", param.Max, node.Id)
 			}
 			if amountBig.Cmp(min) < 0 || amountBig.Cmp(max) > 0 {
-				return he.NewBusinessError(he.CodeAmountParamInvalid, "", nil)
+				return he.NewBusinessError(pconst.CodeAmountParamInvalid, "", nil)
 			}
 		}
 
@@ -109,7 +110,7 @@ func EnterAmount(ctx *tcontext.Context, node *chain.Node) error {
 		}
 	} else {
 		log.Error().Fields(map[string]interface{}{"action": "enter amount invalid state", "message": ctx}).Send()
-		return he.NewServerError(he.CodeInvalidUserState, "", fmt.Errorf("invalid user state when enter amount"))
+		return he.NewServerError(pconst.CodeInvalidUserState, "", fmt.Errorf("invalid user state when enter amount"))
 	}
 
 	if param.CheckBalance {
@@ -123,16 +124,16 @@ func EnterAmount(ctx *tcontext.Context, node *chain.Node) error {
 		//	Address:   ctx.Requester.RequesterDefaultAddress,
 		//})
 		//if err != nil {
-		//	return he.NewServerError(he.CodeWalletRequestError, err)
+		//	return he.NewServerError(pconst.CodeWalletRequestError, err)
 		//} else if assetListResp.CommonResponse.Code != he.Success {
 		//	return tcontext.RespToError(assetListResp.CommonResponse)
 		//} else if len(assetListResp.Data.List) == 0 {
-		//	return he.NewServerError(he.CodeWalletRequestError, fmt.Errorf("invalid asset response"))
+		//	return he.NewServerError(pconst.CodeWalletRequestError, fmt.Errorf("invalid asset response"))
 		//}
 		//
 		//userBalance, _ := bignum.HandleAddDecimal(assetListResp.Data.List[0].BalanceCutDecimal, 18)
 		//if amountBig.Cmp(userBalance) > 0 {
-		//	return he.NewBusinessError(he.CodeInsufficientBalance, "")
+		//	return he.NewBusinessError(pconst.CodeInsufficientBalance, "")
 		//}
 
 	}

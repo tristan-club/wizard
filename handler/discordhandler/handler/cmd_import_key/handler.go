@@ -2,6 +2,7 @@ package cmd_import_key
 
 import (
 	"github.com/bwmarrin/discordgo"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
@@ -10,7 +11,7 @@ import (
 	"github.com/tristan-club/wizard/handler/discordhandler/parser"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -41,7 +42,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "parse param", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	resp, err := ctx.CM.ImportAccount(ctx.Context, &controller_pb.ImportAccountReq{
@@ -51,7 +52,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 	})
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "request controller error", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if resp.CommonResponse.Code != he.Success {
 		log.Error().Fields(map[string]interface{}{"action": "controller error", "error": resp}).Send()
 		return tcontext.RespToError(resp.CommonResponse)
@@ -60,7 +61,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 	_, err = ctx.FollowUpReply(text.OperationSuccess)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	return nil

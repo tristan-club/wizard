@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/tristan-club/kit/chain_info"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -15,7 +16,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"io"
 	"strings"
 )
@@ -71,7 +71,7 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 
 	bridgeResp, err := ctx.CM.Bridge(ctx.Context, bridgeReq)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if bridgeResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(bridgeResp.CommonResponse)
 	}
@@ -89,7 +89,7 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 	brStream, err := ctx.CM.WaitBridgeData(requesterCtx, &controller_pb.GetBridgeReq{RecordNo: brNo})
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "get bridge record stream", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if bridgeResp.CommonResponse.Code != he.Success {
 		log.Error().Fields(map[string]interface{}{"action": "get bridge record stream", "error": bridgeResp}).Send()
 		return tcontext.RespToError(bridgeResp.CommonResponse)
@@ -100,7 +100,7 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 	for {
 		//if currentCheckTime > 20*30 {
 		//	log.Error().Fields(map[string]interface{}{"action": "bridge out of time", "error": err.Error()}).Send()
-		//	return he.NewError(he.CodeWalletRequestError, fmt.Errorf("transaction out of time"))
+		//	return he.NewError(pconst.CodeWalletRequestError, fmt.Errorf("transaction out of time"))
 		//}
 		//time.Sleep(time.Second * 3)
 		//currentCheckTime++
@@ -110,7 +110,7 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 			if err == io.EOF {
 				return nil
 			} else {
-				return he.NewServerError(he.CodeWalletRequestError, "", err)
+				return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 			}
 		} else if bridgeRecordResp.CommonResponse.Code != he.Success {
 			log.Error().Fields(map[string]interface{}{"action": "get bridge record ", "error": bridgeResp}).Send()

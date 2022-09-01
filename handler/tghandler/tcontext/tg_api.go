@@ -2,9 +2,10 @@ package tcontext
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/handler/text"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/util"
 )
 
@@ -41,7 +42,7 @@ func (ctx *Context) Send(chatId int64, content string, ikm interface{}, markdown
 			"content":  content,
 			"error":    err,
 		}).Send()
-		return nil, he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return nil, he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 	return &thisMSg, nil
 }
@@ -105,7 +106,7 @@ func (ctx *Context) DeleteMessage(chatId int64, messageId int) he.Error {
 			"msgId":   messageId,
 			"payload": util.FastMarshal(ctx),
 		}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 	return nil
 }
@@ -130,7 +131,7 @@ func (ctx *Context) EditMessageAndKeyboard(chatId int64, messageId int, content 
 			"msgId":   messageId,
 			"payload": util.FastMarshal(ctx),
 		}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 	return nil
 }
@@ -155,7 +156,7 @@ func (ctx *Context) ReplyDmWithGroupForward(content string, ikm *tgbotapi.Inline
 	if !message.Chat.IsPrivate() {
 		_, err = ctx.Reply(0, text.CheckDm, nil, false)
 		if err != nil {
-			return he.NewServerError(he.CodeBotSendMsgError, "", err)
+			return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 		}
 	}
 	return nil

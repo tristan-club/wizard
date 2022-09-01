@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
@@ -17,7 +18,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/cluster/rpc/grpc_client"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
 	"google.golang.org/grpc/metadata"
@@ -359,7 +359,7 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 					"action":  "parse cmd",
 					"payload": util.FastMarshal(update),
 				}).Send()
-				return pcr, he.NewBusinessError(he.CodeInvalidCmd, "", nil)
+				return pcr, he.NewBusinessError(pconst.CodeInvalidCmd, "", nil)
 			}
 			isCmd = true
 			//if err := userstate.ResetState(userId); err != nil {
@@ -469,7 +469,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 
 		b, err := proto.Marshal(requester)
 		if err != nil {
-			return he.NewServerError(he.CodeMarshalError, "", err)
+			return he.NewServerError(pconst.CodeMarshalError, "", err)
 		}
 
 		requestStr := base64.StdEncoding.EncodeToString(b)
@@ -482,7 +482,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 			OpenType: requester.RequesterOpenType,
 		})
 		if err != nil {
-			return he.NewServerError(he.CodeWalletRequestError, "", err)
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 		} else if getUserResp.CommonResponse.Code != he.Success {
 			if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 				var heErr he.Error
@@ -499,7 +499,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 						}
 					}
 					return heErr
-					//return he.NewBusinessError(he.CodeUserNotInit, text.UserNoInit)
+					//return he.NewBusinessError(pconst.CodeUserNotInit, text.UserNoInit)
 				}
 
 			} else {
@@ -536,7 +536,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		requester.RequesterUserNo = us.UserNo
 		requester.RequesterDefaultAddress = us.DefaultAddress
 		if requester.RequesterUserNo == "" || requester.RequesterDefaultAddress == "" {
-			return he.NewBusinessError(he.CodeUserNotInit, "", nil)
+			return he.NewBusinessError(pconst.CodeUserNotInit, "", nil)
 		}
 		ctx.CurrentState = us.CurrentState
 	}
@@ -544,7 +544,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 	ctx.Requester = requester
 	b, err := proto.Marshal(requester)
 	if err != nil {
-		return he.NewServerError(he.CodeMarshalError, "", err)
+		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
 
 	requestStr := base64.StdEncoding.EncodeToString(b)

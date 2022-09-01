@@ -3,6 +3,7 @@ package presetnode
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
@@ -11,7 +12,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/util"
 	"strconv"
 )
@@ -41,7 +41,7 @@ func AskForType(ctx *tcontext.Context, node *chain.Node) error {
 			"param":  util.FastMarshal(param),
 			"ctx":    util.FastMarshal(ctx),
 		}).Send()
-		return he.NewServerError(he.CodeInvalidChoice, "", fmt.Errorf("invalid choice"))
+		return he.NewServerError(pconst.CodeInvalidChoice, "", fmt.Errorf("invalid choice"))
 	}
 	ikb := make([]tgbotapi.InlineKeyboardButton, 0)
 	for k, v := range param.ChoiceText {
@@ -66,7 +66,7 @@ func AskForType(ctx *tcontext.Context, node *chain.Node) error {
 func EnterType(ctx *tcontext.Context, node *chain.Node) error {
 	typeParam, err := strconv.ParseInt(ctx.U.CallbackData(), 10, 64)
 	if err != nil {
-		return he.NewServerError(he.CodeInvalidType, "", err)
+		return he.NewServerError(pconst.CodeInvalidType, "", err)
 	}
 	var param = &EnterTypeParam{}
 	if !node.IsPayloadNil() {

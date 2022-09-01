@@ -1,13 +1,14 @@
 package prehandler
 
 import (
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 func OnlyPublic(ctx *tcontext.Context) error {
 	if ctx.U.FromChat().IsPrivate() {
-		return he.NewBusinessError(he.CodeCmdNeedGroupChat, "", nil)
+		return he.NewBusinessError(pconst.CodeCmdNeedGroupChat, "", nil)
 	}
 	return nil
 }

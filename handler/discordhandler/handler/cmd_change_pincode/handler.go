@@ -2,6 +2,7 @@ package cmd_change_pincode
 
 import (
 	"github.com/bwmarrin/discordgo"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
@@ -10,7 +11,7 @@ import (
 	"github.com/tristan-club/wizard/handler/discordhandler/parser"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -36,11 +37,11 @@ func ChangePinCodeSendHandler(ctx *dcontext.Context) error {
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "parse param", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	if payload.OldPinCode == payload.NewPinCode {
-		return he.NewBusinessError(he.CodeSamePinCode, "", nil)
+		return he.NewBusinessError(pconst.CodeSamePinCode, "", nil)
 	}
 
 	accountResp, err := ctx.CM.ChangeAccountPinCode(ctx.Context, &controller_pb.ChangeAccountPinCodeReq{
@@ -49,7 +50,7 @@ func ChangePinCodeSendHandler(ctx *dcontext.Context) error {
 		NewPinCode: payload.NewPinCode,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if accountResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(accountResp.CommonResponse)
 	}
@@ -57,7 +58,7 @@ func ChangePinCodeSendHandler(ctx *dcontext.Context) error {
 	_, err = ctx.FollowUpReply(text.ChangePinCodeSuccess)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	return nil

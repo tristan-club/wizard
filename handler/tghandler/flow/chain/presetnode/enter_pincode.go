@@ -1,6 +1,7 @@
 package presetnode
 
 import (
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/handler/text"
@@ -9,7 +10,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"strings"
 )
 
@@ -78,7 +79,7 @@ func EnterPinCode(ctx *tcontext.Context, node *chain.Node) error {
 	pinCode := ctx.U.Message.Text
 
 	if !config.EnvIsDev() && len(pinCode) < 6 {
-		return he.NewBusinessError(he.CodePinCodeLengthInvalid, "", nil)
+		return he.NewBusinessError(pconst.CodePinCodeLengthInvalid, "", nil)
 	}
 
 	if pinCode == "cancel" {
@@ -86,5 +87,10 @@ func EnterPinCode(ctx *tcontext.Context, node *chain.Node) error {
 	}
 
 	userstate.SetParam(ctx.OpenId(), paramKey, pinCode)
+
+	if herr := ctx.DeleteMessage(ctx.U.FromChat().ID, ctx.U.Message.MessageID); herr != nil {
+		log.Error().Fields(map[string]interface{}{"action": "delete pin code error", "error": herr}).Send()
+	}
+
 	return nil
 }

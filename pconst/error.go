@@ -1,6 +1,13 @@
-package error
+package pconst
+
+import he "github.com/tristan-club/kit/error"
+
+func init() {
+	he.InjectCodeMessage(errMap)
+}
 
 const (
+	ServerError           = 500
 	CodeNotSupportChainId = 40001
 	CodeUserNotConfirm    = 40101
 	CodeNeedPrivateChat   = 40301
@@ -39,7 +46,7 @@ const (
 	CodeGetDefaultBotFailed     = 30031
 )
 
-var CodeMessageSting = map[int]string{
+var errMap = map[int]string{
 	CodeNotSupportChainId: "this chain id not supported",
 
 	CodeRequestBotError: "an error occurred while requesting the bot service",

@@ -2,11 +2,12 @@ package chain
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext/expire_message"
 	"github.com/tristan-club/wizard/handler/userstate"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/util"
 )
 
@@ -140,7 +141,7 @@ func (c *ChainHandler) Handle(ctx *tcontext.Context) error {
 				}
 			}
 		}
-		return he.NewBusinessError(he.CodeInvalidUserState, "", nil)
+		return he.NewBusinessError(pconst.CodeInvalidUserState, "", nil)
 	} else {
 		if herr := c.SendHandler(ctx); herr != nil {
 			return herr

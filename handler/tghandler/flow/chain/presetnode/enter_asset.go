@@ -3,6 +3,7 @@ package presetnode
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -11,8 +12,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
-	pconst2 "github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 	"strconv"
 	"strings"
 )
@@ -49,13 +49,13 @@ func askForAsset(ctx *tcontext.Context, node *chain.Node) error {
 	}
 	assetListResp, err := ctx.CM.AssetList(ctx.Context, &controller_pb.AssetListReq{
 		ChainType:    uint32(chainType),
-		ChainId:      pconst2.GetChainId(uint32(chainType)),
+		ChainId:      pconst.GetChainId(uint32(chainType)),
 		Address:      ctx.Requester.RequesterDefaultAddress,
 		TokenType:    assetType,
 		CheckBalance: param.CheckBalance,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetListResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(assetListResp.CommonResponse)
 	} else if assetListResp.Data.Count == 0 {
@@ -74,7 +74,7 @@ func askForAsset(ctx *tcontext.Context, node *chain.Node) error {
 	} else {
 		expiremessage_state.AddExpireMessage(ctx.OpenId(), thisMsg)
 	}
-	ctx.SetDeadlineMsg(ctx.U.SentFrom().ID, thisMsg.MessageID, pconst2.COMMON_KEYBOARD_DEADLINE)
+	ctx.SetDeadlineMsg(ctx.U.SentFrom().ID, thisMsg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
 	return nil
 }
 
@@ -108,7 +108,7 @@ func enterAsset(ctx *tcontext.Context, node *chain.Node) error {
 			ForceBalance:    true,
 		})
 		if err != nil {
-			return he.NewServerError(he.CodeWalletRequestError, "", err)
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 		} else if assetResp.CommonResponse.Code != he.Success {
 			return tcontext.RespToError(assetResp.CommonResponse)
 		}
@@ -128,23 +128,23 @@ func enterAsset(ctx *tcontext.Context, node *chain.Node) error {
 func getAssetPayload(input string) (resp *AssetPayload, herr he.Error) {
 	p := strings.Split(input, "/")
 	if len(p) != 5 {
-		return nil, he.NewServerError(he.CodeAssetParamInvalid, "", fmt.Errorf("invalid asset payload %s", input))
+		return nil, he.NewServerError(pconst.CodeAssetParamInvalid, "", fmt.Errorf("invalid asset payload %s", input))
 
 	}
 	chainType, err := strconv.ParseUint(p[0], 10, 32)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "invalid payload", "error": err.Error(), "input": input}).Send()
-		return nil, he.NewServerError(he.CodeInvalidPayload, "", err)
+		return nil, he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 	chainId, err := strconv.ParseUint(p[1], 10, 64)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "invalid payload", "error": err.Error(), "input": input}).Send()
-		return nil, he.NewServerError(he.CodeInvalidPayload, "", err)
+		return nil, he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 	decimals, err := strconv.ParseUint(p[2], 10, 32)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "invalid payload", "error": err.Error(), "input": input}).Send()
-		return nil, he.NewServerError(he.CodeInvalidPayload, "", err)
+		return nil, he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 	resp = &AssetPayload{
 		ChainType:    uint32(chainType),

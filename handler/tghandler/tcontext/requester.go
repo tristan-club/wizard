@@ -2,8 +2,8 @@ package tcontext
 
 import (
 	"fmt"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
-	he "github.com/tristan-club/wizard/pkg/error"
 )
 
 func RespToError(in interface{}) he.Error {

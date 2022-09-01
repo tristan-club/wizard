@@ -1,6 +1,7 @@
 package cmd_add_token
 
 import (
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -10,7 +11,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 )
 
 var Handler *chain.ChainHandler
@@ -50,7 +50,7 @@ func addTokenSendHandler(ctx *tcontext.Context) error {
 
 	transactionResp, err := ctx.CM.AddAsset(ctx.Context, req)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if transactionResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(transactionResp.CommonResponse)
 	}

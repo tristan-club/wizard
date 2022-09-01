@@ -2,6 +2,7 @@ package cmd_balance
 
 import (
 	"fmt"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -11,7 +12,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 )
 
 var Handler = chain.NewChainHandler(cmd.CmdBalance, balanceSendHandler).AddPreHandler(prehandler.ForwardPrivate).AddPresetNode(presetnode.SelectChainNode, nil)
@@ -30,7 +30,7 @@ func balanceSendHandler(ctx *tcontext.Context) error {
 		CheckBalance: true,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetListResp.CommonResponse.Code != he.Success {
 		return he.NewServerError(int(assetListResp.CommonResponse.Code), "", fmt.Errorf(assetListResp.CommonResponse.Message))
 	}

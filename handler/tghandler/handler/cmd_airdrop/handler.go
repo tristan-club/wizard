@@ -3,6 +3,7 @@ package cmd_airdrop
 import (
 	"context"
 	"fmt"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -12,7 +13,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/mdparse"
 	"strconv"
 )
@@ -56,7 +56,7 @@ func airdropSendHandler(ctx *tcontext.Context) error {
 
 	channelId, err := strconv.ParseInt(payload.ChannelId, 10, 64)
 	if err != nil {
-		return he.NewServerError(he.CodeInvalidPayload, "", err)
+		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
 	req := &controller_pb.AirdropReq{
@@ -73,7 +73,7 @@ func airdropSendHandler(ctx *tcontext.Context) error {
 
 	transactionResp, err := ctx.CM.Airdrop(ctx.Context, req)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if transactionResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(transactionResp.CommonResponse)
 	}
@@ -85,7 +85,7 @@ func airdropSendHandler(ctx *tcontext.Context) error {
 
 	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxHash: transactionResp.Data.TxHash, IsWait: true})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getDataResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}

@@ -3,6 +3,7 @@ package cmd_issue_token
 import (
 	"context"
 	"fmt"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -14,7 +15,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"strconv"
 )
 
@@ -118,7 +118,7 @@ func issueTokenHandler(ctx *tcontext.Context) error {
 
 	transactionResp, err := ctx.CM.IssueToken(ctx.Context, req)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if transactionResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(transactionResp.CommonResponse)
 	}
@@ -130,7 +130,7 @@ func issueTokenHandler(ctx *tcontext.Context) error {
 
 	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxHash: transactionResp.Data.TxHash, IsWait: true})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getDataResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}

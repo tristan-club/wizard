@@ -2,6 +2,7 @@ package cmd_export_key
 
 import (
 	"fmt"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -10,7 +11,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
-	he "github.com/tristan-club/wizard/pkg/error"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 type ExportKeyPayload struct {
@@ -41,7 +42,7 @@ func ExportKeySendHandler(ctx *tcontext.Context) error {
 		PinCode: payload.PinCode,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if accountResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(accountResp.CommonResponse)
 	}

@@ -3,6 +3,7 @@ package bridge_node
 import (
 	"fmt"
 	"github.com/tristan-club/kit/chain_info"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -12,7 +13,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/bignum"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"math/big"
 	"strings"
 )
@@ -55,7 +55,7 @@ func askForBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 		ForceBalance:    true,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(assetResp.CommonResponse)
 	}
@@ -63,7 +63,7 @@ func askForBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 	balanceBig, ok := new(big.Int).SetString(assetResp.Data.Balance, 10)
 	if !ok {
 		log.Error().Fields(map[string]interface{}{"action": "invalid balance", "error": assetResp}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	}
 
 	//content :=
@@ -85,7 +85,7 @@ func askForBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 		ChainId:   toChainId,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if bankBalanceResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(bankBalanceResp.CommonResponse)
 	}
@@ -93,12 +93,12 @@ func askForBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 	bankBalance, ok := new(big.Int).SetString(bankBalanceResp.Data.Balance, 10)
 	if !ok {
 		log.Error().Fields(map[string]interface{}{"action": "invalid bank balance", "balance": bankBalance}).Send()
-		return he.NewServerError(he.CodeBankLackBalance, "", fmt.Errorf("invalid bank balance %s", bankBalanceResp.Data.Balance))
+		return he.NewServerError(pconst.CodeBankLackBalance, "", fmt.Errorf("invalid bank balance %s", bankBalanceResp.Data.Balance))
 	}
 
 	if bankBalance.Cmp(bridgeMinAvaliableAmountBig) < 0 {
 		log.Warn().Fields(map[string]interface{}{"action": "bank balance low", "balance": bankBalance})
-		return he.NewBusinessError(he.CodeBankLackBalance, "", nil)
+		return he.NewBusinessError(pconst.CodeBankLackBalance, "", nil)
 	}
 
 	content := fmt.Sprintf(text.EnterBridgeAmount, balance, bridgeAmountMinStr, bridgeAmountMaxStr)
@@ -124,11 +124,11 @@ func enterBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 	amountInput := ctx.U.Message.Text
 	amountInputBig, ok := bignum.HandleAddDecimal(amountInput, 18)
 	if !ok {
-		return he.NewBusinessError(he.CodeAmountParamInvalid, "", nil)
+		return he.NewBusinessError(pconst.CodeAmountParamInvalid, "", nil)
 	}
 
 	if amountInputBig.Cmp(bridgeAmountMin) < 0 || amountInputBig.Cmp(bridgeAmountMax) > 0 {
-		return he.NewBusinessError(he.CodeBridgeAmountMustInScope, "", nil)
+		return he.NewBusinessError(pconst.CodeBridgeAmountMustInScope, "", nil)
 	}
 
 	assetResp, err := ctx.CM.GetAsset(ctx.Context, &controller_pb.GetAssetReq{
@@ -139,18 +139,18 @@ func enterBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 		ForceBalance:    true,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(assetResp.CommonResponse)
 	}
 
 	balanceBig, ok := new(big.Int).SetString(assetResp.Data.Balance, 10)
 	if !ok {
-		return he.NewServerError(he.CodeWalletRequestError, "", fmt.Errorf("invalid balance %s", assetResp.Data.BalanceCutDecimal))
+		return he.NewServerError(pconst.CodeWalletRequestError, "", fmt.Errorf("invalid balance %s", assetResp.Data.BalanceCutDecimal))
 	}
 
 	if amountInputBig.Cmp(balanceBig) > 0 {
-		return he.NewBusinessError(he.CodeInsufficientBalance, fmt.Sprintf("Insufficient amount input\nYour balance %s\nYour input %s", assetResp.Data.BalanceCutDecimal, amountInput), nil)
+		return he.NewBusinessError(pconst.CodeInsufficientBalance, fmt.Sprintf("Insufficient amount input\nYour balance %s\nYour input %s", assetResp.Data.BalanceCutDecimal, amountInput), nil)
 	}
 
 	total := new(big.Int).Add(amountInputBig, bridgeFeeBig)
@@ -159,7 +159,7 @@ func enterBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 		t2, _ := bignum.HandleAddDecimal(totalStr, 18)
 		t3, _ := bignum.HandleAddDecimal(assetResp.Data.BalanceCutDecimal, 18)
 		if t3.Cmp(t2) != 0 {
-			return he.NewBusinessError(he.CodeInsufficientBalance, fmt.Sprintf("Insufficient amount input\nYour balance %s\nTotal cost %s\nYou need %s for bridge value and %s for bridge fee",
+			return he.NewBusinessError(pconst.CodeInsufficientBalance, fmt.Sprintf("Insufficient amount input\nYour balance %s\nTotal cost %s\nYou need %s for bridge value and %s for bridge fee",
 				assetResp.Data.BalanceCutDecimal, totalStr, amountInput, bridgeFee), nil)
 		}
 
@@ -174,20 +174,20 @@ func enterBridgeAmount(ctx *tcontext.Context, node *chain.Node) error {
 		ChainId:   toChainId,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(assetResp.CommonResponse)
 	}
 
 	if bankBalanceResp.Data.Balance == "" || bankBalanceResp.Data.Balance == "0" {
-		return he.NewBusinessError(he.CodeNoBankBalance, "", nil)
+		return he.NewBusinessError(pconst.CodeNoBankBalance, "", nil)
 	} else {
 		bankBalanceBig, ok := new(big.Int).SetString(bankBalanceResp.Data.Balance, 10)
 		if !ok {
-			return he.NewServerError(he.CodeInsufficientBalance, "", fmt.Errorf("get bank balance error"))
+			return he.NewServerError(pconst.CodeInsufficientBalance, "", fmt.Errorf("get bank balance error"))
 		}
 		if bankBalanceBig.Cmp(amountInputBig) < 0 {
-			return he.NewBusinessError(he.CodeBankLackBalance, "", nil)
+			return he.NewBusinessError(pconst.CodeBankLackBalance, "", nil)
 		}
 	}
 

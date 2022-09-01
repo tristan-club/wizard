@@ -3,6 +3,7 @@ package cmd_start
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
@@ -10,7 +11,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"github.com/tristan-club/wizard/pkg/util"
 )
 
@@ -39,7 +39,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 			"error":  err.Error(),
 			"openId": ctx.Requester.RequesterOpenId,
 		}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getUserResp.CommonResponse.Code != he.Success {
 		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 
@@ -68,7 +68,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 				"error":  err.Error(),
 				"openId": ctx.Requester.RequesterOpenId,
 			}).Send()
-			return he.NewServerError(he.CodeWalletRequestError, "", err)
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 		} else if addUserResp.CommonResponse.Code != he.Success {
 			return tcontext.RespToError(addUserResp.CommonResponse)
 		} else {
@@ -100,7 +100,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 	_, err = ctx.FollowUpReply(respContent)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeBotSendMsgError, "", err)
+		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
 	if dmContent != "" {

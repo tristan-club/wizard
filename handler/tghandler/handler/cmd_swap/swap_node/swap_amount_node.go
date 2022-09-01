@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/shopspring/decimal"
 	"github.com/tristan-club/kit/chain_info"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -13,7 +14,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/bignum"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"math/big"
 	"strings"
 )
@@ -45,7 +45,7 @@ func askForSwapAmount(ctx *tcontext.Context, _ *chain.Node) error {
 		ForceBalance:    true,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(assetResp.CommonResponse)
 	}
@@ -72,20 +72,20 @@ func enterSwapAmount(ctx *tcontext.Context, node *chain.Node) error {
 	amountInput := ctx.U.Message.Text
 	amountInputBig, ok := bignum.HandleAddDecimal(amountInput, int(swapAsset.Decimals))
 	if !ok {
-		return he.NewBusinessError(he.CodeAmountParamInvalid, "", nil)
+		return he.NewBusinessError(pconst.CodeAmountParamInvalid, "", nil)
 	}
 	min, ok := bignum.HandleAddDecimal(swapAsset.SwapAmountMin, int(swapAsset.Decimals))
 	if !ok {
 		log.Error().Msgf("preset amount param min %s invalid, node id %s", swapAsset.SwapAmountMin, node.Id)
-		return he.NewBusinessError(he.CodeAmountParamInvalid, "", nil)
+		return he.NewBusinessError(pconst.CodeAmountParamInvalid, "", nil)
 	}
 	max, ok := bignum.HandleAddDecimal(swapAsset.SwapAmountMax, int(swapAsset.Decimals))
 	if !ok {
 		log.Error().Msgf("preset amount param max %s invalid, node id %s", swapAsset.SwapAmountMax, node.Id)
-		return he.NewBusinessError(he.CodeAmountParamInvalid, "", nil)
+		return he.NewBusinessError(pconst.CodeAmountParamInvalid, "", nil)
 	}
 	if amountInputBig.Cmp(min) < 0 || amountInputBig.Cmp(max) > 0 {
-		return he.NewBusinessError(he.CodeBridgeAmountMustInScope, "", nil)
+		return he.NewBusinessError(pconst.CodeBridgeAmountMustInScope, "", nil)
 	}
 
 	assetResp, err := ctx.CM.GetAsset(ctx.Context, &controller_pb.GetAssetReq{
@@ -96,7 +96,7 @@ func enterSwapAmount(ctx *tcontext.Context, node *chain.Node) error {
 		ForceBalance:    true,
 	})
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if assetResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(assetResp.CommonResponse)
 	}
@@ -104,11 +104,11 @@ func enterSwapAmount(ctx *tcontext.Context, node *chain.Node) error {
 	balance, ok := new(big.Int).SetString(assetResp.Data.Balance, 10)
 
 	if !ok {
-		return he.NewServerError(he.CodeWalletRequestError, "", fmt.Errorf("invalid balance %s", assetResp.Data.Balance))
+		return he.NewServerError(pconst.CodeWalletRequestError, "", fmt.Errorf("invalid balance %s", assetResp.Data.Balance))
 	}
 
 	if amountInputBig.Cmp(balance) > 0 {
-		return he.NewBusinessError(he.CodeInsufficientBalance, "", nil)
+		return he.NewBusinessError(pconst.CodeInsufficientBalance, "", nil)
 	}
 	var tokenType uint32
 	if assetResp.GetData().TokenType != 0 {
@@ -136,14 +136,14 @@ func enterSwapAmount(ctx *tcontext.Context, node *chain.Node) error {
 	swapCalculateResp, err := ctx.CM.SwapCalculate(ctx.Context, swapCalculateReq)
 
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if swapCalculateResp.Code != he.Success {
 		return he.NewBusinessError(0, swapCalculateResp.Message, nil)
 	}
 	outDecimal, err := decimal.NewFromString(swapCalculateResp.CurrentOut)
 	if err != nil {
 		log.Error().Msgf("convert calculate out error:%s", err)
-		return he.NewServerError(he.CodeWalletRequestError, "", fmt.Errorf("calculate error %s", err.Error()))
+		return he.NewServerError(pconst.CodeWalletRequestError, "", fmt.Errorf("calculate error %s", err.Error()))
 	}
 	outMin := outDecimal.Mul(decimal.NewFromFloat(1 - Slider_Point_Max))
 

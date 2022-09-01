@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/tristan-club/kit/chain_info"
+	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -17,7 +18,6 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/bignum"
 	"github.com/tristan-club/wizard/pkg/dingding"
-	he "github.com/tristan-club/wizard/pkg/error"
 	"io"
 	"math/big"
 	"os"
@@ -48,7 +48,7 @@ const (
 
 var Handler *chain.ChainHandler
 
-//Todo optimize code
+// Todo optimize code
 func init() {
 	var swapAssetList []string
 	var swapAssetValueList []int64
@@ -117,7 +117,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 		})
 
 		if err != nil {
-			return he.NewServerError(he.CodeWalletRequestError, "", err)
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 		} else if allowanceResp.Code != he.Success {
 			return tcontext.RespToError(allowanceResp.Message)
 		}
@@ -127,7 +127,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 
 		if !ok1 || !ok2 {
 			log.Error().Msgf("str to big int error:allowanceV:%s,needV:%s", allowanceV, needV)
-			return he.NewServerError(he.CodeInvalidPayload, "", fmt.Errorf("str to big int error:allowanceV:%s,needV:%s", allowanceV, needV))
+			return he.NewServerError(pconst.CodeInvalidPayload, "", fmt.Errorf("str to big int error:allowanceV:%s,needV:%s", allowanceV, needV))
 		}
 
 		shouldApprove = allowanceV.Cmp(needV) < 0
@@ -150,7 +150,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 				IsWait:    false,
 			})
 			if err != nil {
-				return he.NewServerError(he.CodeWalletRequestError, "", err)
+				return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 			} else if approveResp.CommonResponse.Code != he.Success {
 				return tcontext.RespToError(approveResp.CommonResponse.Message)
 			}
@@ -162,7 +162,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 				IsWait: true,
 			})
 			if err != nil {
-				return he.NewServerError(he.CodeWalletRequestError, "", err)
+				return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 			} else if approveResp.CommonResponse.Code != he.Success {
 				return tcontext.RespToError(approveResp.CommonResponse.Message)
 			}
@@ -178,7 +178,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 
 	swapResp, err := ctx.CM.Swap(ctx.Context, swapReq)
 	if err != nil {
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if swapResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(swapResp.CommonResponse.Message)
 	}
@@ -207,7 +207,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 	swapStream, err := ctx.CM.WaitSwapData(requesterCtx, &controller_pb.GetSwapReq{RecordNo: swapResp.Data.RecordNo})
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "get swap record stream", "error": err.Error()}).Send()
-		return he.NewServerError(he.CodeWalletRequestError, "", err)
+		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if swapResp.CommonResponse.Code != he.Success {
 		log.Error().Fields(map[string]interface{}{"action": "get swap record stream", "error": swapResp}).Send()
 		return tcontext.RespToError(swapResp.CommonResponse)
@@ -248,7 +248,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 			if err == io.EOF {
 				return nil
 			} else {
-				return he.NewServerError(he.CodeWalletRequestError, "", err)
+				return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 			}
 		} else if swapRecResp.CommonResponse.Code != he.Success {
 			log.Error().Fields(map[string]interface{}{"action": "get swap record ", "error": swapRecResp}).Send()
@@ -275,7 +275,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 				ForceBalance:    true,
 			})
 			if err != nil {
-				return he.NewServerError(he.CodeWalletRequestError, "", err)
+				return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 			} else if assetResp.CommonResponse.Code != he.Success {
 				return tcontext.RespToError(assetResp.CommonResponse)
 			}
