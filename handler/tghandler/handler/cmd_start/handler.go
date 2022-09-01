@@ -128,10 +128,10 @@ func startSendHandler(ctx *tcontext.Context) error {
 			return herr
 		}
 	} else {
-		groupContent := text.SwitchPrivate
+		groupContent := fmt.Sprintf(text.SwitchPrivate, ctx.GetNickNameMDV2())
 
 		if text.CustomStartMenu != "" {
-			groupContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, text.SwitchPrivate)
+			groupContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, groupContent)
 		}
 
 		var inlineKeyboard *tgbotapi.InlineKeyboardMarkup
