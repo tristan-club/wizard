@@ -1,7 +1,6 @@
 package tcontext
 
 import (
-	"github.com/tristan-club/wizard/handler/userstate"
 	"time"
 )
 
@@ -13,7 +12,6 @@ func (ctx *Context) SetDeadlineMsg(chatId int64, messageId int, deadline time.Du
 		time.Sleep(deadline)
 		if cid, ok := deadlineMsg[messageId]; ok && cid > 0 {
 			ctx.DeleteMessage(cid, messageId)
-			userstate.ResetState(ctx.Requester.RequesterOpenId)
 		}
 	}()
 }
