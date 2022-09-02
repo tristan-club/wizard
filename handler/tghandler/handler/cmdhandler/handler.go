@@ -9,6 +9,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_bridge"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_change_pin_code"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_create_envelope"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_delete_account"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_export_key"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_get_account"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_import_key"
@@ -41,6 +42,7 @@ func init() {
 		cmd.CmdMyWallet:        cmd_my_wallet.Handler,
 		cmd.CmdExportPrivate:   cmd_export_key.Handler,
 		cmd.CmdReplacePrivate:  cmd_import_key.Handler,
+		cmd.CmdDeleteAccount:   cmd_delete_account.Handler,
 	}
 }
 

@@ -23,6 +23,7 @@ const (
 	EnterMintable          = "✳️ Choose whether your tokens can be mint later "
 	EnterBridgeAsset       = "✳️ *Choose an asset on BNB to swap for METIS*"
 	EnterPrivateWithDelete = "✳️ Enter your private\n\n*Note*:\nTo keep your private key safe\nWe recommend that you delete the private key message after the operation is complete"
+	EnterPinCodeToDelete   = "✳️ Enter the pincode to clear the account\nNote that this operation will erase all your data and cannot be recovered"
 
 	ChosenChain  = "You have chosen the %s."
 	ChosenAsset  = "Your have chosen asset %s."

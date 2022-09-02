@@ -19,11 +19,13 @@ const (
 	CmdMyWallet        = "my_wallet"
 	CmdExportPrivate   = "export_private"
 	CmdReplacePrivate  = "replace_private"
+
+	CmdDeleteAccount = "delete_account"
 )
 
 var cmdList = []string{
 	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdOpenEnvelope, CmdAddTokenBalance, CmdIssueToken,
-	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate,
+	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate, CmdDeleteAccount,
 }
 var betaCmdList = []string{}
 
@@ -64,6 +66,8 @@ var desc = map[string]string{
 	CmdMyWallet:        "Your wallet tristan uri",
 	CmdReplacePrivate:  "Import a new private key to REPLACE the old key, the old key WILL NOT be recovered!",
 	CmdExportPrivate:   "Export private key",
+
+	CmdDeleteAccount: "Erase your account data, this operation cannot be reversed",
 }
 
 func GetCmdDescMap() map[string]string {
