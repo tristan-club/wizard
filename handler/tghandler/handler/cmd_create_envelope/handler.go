@@ -96,6 +96,14 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
+	msg, herr := ctx.Send(ctx.U.SentFrom().ID, text.OperationProcessing, nil, false, false)
+	if herr != nil {
+		log.Error().Fields(map[string]interface{}{"action": "bot send msg error", "error": herr}).Send()
+		return herr
+	}
+
+	ctx.SetDeadlineMsg(msg.Chat.ID, msg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
+
 	tokenType := pconst.TokenTypeInternal
 	if payload.Asset != "" && payload.Asset != "INTERNAL" && strings.HasPrefix(payload.Asset, "0x") {
 		tokenType = pconst.TokenTypeErc20
@@ -122,6 +130,11 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if createRedEnvelope.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(createRedEnvelope.CommonResponse)
+	}
+
+	herr = ctx.DeleteMessage(msg.Chat.ID, msg.MessageID)
+	if herr != nil {
+		log.Error().Fields(map[string]interface{}{"action": "delete msg error", "error": herr}).Send()
 	}
 
 	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.EnvelopePreparing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeAddress), createRedEnvelope.Data.AccountAddress)), nil, true, false)
