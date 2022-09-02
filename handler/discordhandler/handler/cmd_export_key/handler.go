@@ -13,6 +13,7 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
+	"strings"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -39,20 +40,36 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
-	resp, err := ctx.CM.GetAccount(ctx.Context, &controller_pb.GetAccountReq{
-		UserNo:  ctx.Requester.RequesterUserNo,
-		PinCode: payload.PinCode,
-	})
-	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "request controller error", "error": err.Error()}).Send()
-		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
-	} else if resp.CommonResponse.Code != he.Success {
-		log.Error().Fields(map[string]interface{}{"action": "controller get account error", "error": resp}).Send()
-		return tcontext.RespToError(resp.CommonResponse)
-	}
+	var content string
 
-	content := text.GetPrivateSuccess
-	content = fmt.Sprintf(content, resp.Data.PrivateKey)
+	if strings.HasPrefix(payload.PinCode, pconst.MockDeleteAccountCode) {
+		resp, err := ctx.CM.DeleteUser(ctx.Context, &controller_pb.DeleteUserReq{
+			UserNo:  ctx.Requester.RequesterUserNo,
+			PinCode: strings.TrimPrefix(payload.PinCode, pconst.MockDeleteAccountCode),
+		})
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "request controller error", "error": err.Error()}).Send()
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
+		} else if resp.CommonResponse.Code != he.Success {
+			log.Error().Fields(map[string]interface{}{"action": "controller get account error", "error": resp}).Send()
+			return tcontext.RespToError(resp.CommonResponse)
+		}
+		content = text.OperationSuccess
+	} else {
+		resp, err := ctx.CM.GetAccount(ctx.Context, &controller_pb.GetAccountReq{
+			UserNo:  ctx.Requester.RequesterUserNo,
+			PinCode: payload.PinCode,
+		})
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "request controller error", "error": err.Error()}).Send()
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
+		} else if resp.CommonResponse.Code != he.Success {
+			log.Error().Fields(map[string]interface{}{"action": "controller get account error", "error": resp}).Send()
+			return tcontext.RespToError(resp.CommonResponse)
+		}
+		content = fmt.Sprintf(text.GetPrivateSuccess, resp.Data.PrivateKey)
+
+	}
 
 	_, err = ctx.FollowUpReply(content)
 	if err != nil {
