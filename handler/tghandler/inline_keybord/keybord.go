@@ -47,21 +47,21 @@ func NewMaxAmountKeyboard() (*tgbotapi.InlineKeyboardMarkup, time.Duration) {
 	return &km, pconst.COMMON_KEYBOARD_DEADLINE
 }
 
-//forward keyboard need to be delete after some minutes
+// forward keyboard need to be delete after some minutes
 func NewForwardPrivateKeyBoard(ctx *tcontext.Context) (*tgbotapi.InlineKeyboardMarkup, time.Duration) {
 	km := tgbotapi.NewInlineKeyboardMarkup(
 		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonURL(text.ButtonForwardPrivateChat, fmt.Sprintf("https://t.me/%s", ctx.BotName))})
-	return &km, pconst.COMMON_KEYBOARD_DEADLINE
+	return &km, pconst.ForwardPrivateDeadline
 }
 
 func NewForwardCreateKeyBoard(ctx *tcontext.Context) (*tgbotapi.InlineKeyboardMarkup, time.Duration) {
 	km := tgbotapi.NewInlineKeyboardMarkup(
 		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonURL(text.ButtonForwardCreate, fmt.Sprintf("https://t.me/%s", ctx.BotName))})
-	return &km, pconst.COMMON_KEYBOARD_DEADLINE
+	return &km, pconst.ForwardPrivateDeadline
 }
 
-//delete keyboard when deadline coming
-//do nothing if deadline is zero
+// delete keyboard when deadline coming
+// do nothing if deadline is zero
 func DeleteDeadKeyboard(ctx *tcontext.Context, deadline time.Duration, msg *tgbotapi.Message) {
 	if msg == nil || msg.Chat == nil || deadline == 0 {
 		return
