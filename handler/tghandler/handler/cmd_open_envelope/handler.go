@@ -15,6 +15,7 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/mdparse"
 	"github.com/tristan-club/wizard/pkg/tstore"
+	"github.com/tristan-club/wizard/pkg/util"
 	"strconv"
 	"strings"
 	"time"
@@ -47,10 +48,10 @@ func IsBridgeCmd(text string) bool {
 
 // todo 检查为啥红包发出来两个人名一样
 func openEnvelopeHandler(ctx *tcontext.Context) error {
-	ctxCopy := &tcontext.Context{}
-	*ctxCopy = *ctx
-	ctx = ctxCopy
-	log.Info().Msgf("user %s start opening envelope", ctx.GetUserName())
+
+	uid := util.GenerateUuid(true)
+
+	log.Info().Msgf("user %s start opening envelope, uid %s", ctx.GetUserName(), uid)
 	params := strings.Split(ctx.U.CallbackData(), "/")
 	if len(params) != 2 {
 		log.Error().Fields(map[string]interface{}{"action": "invalid envelope params", "payload": ctx.U.CallbackData()}).Send()
@@ -71,7 +72,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	if err != nil {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	}
-	log.Info().Msgf("user %s send open envelope request", ctx.GetUserName())
+	log.Info().Msgf("user %s send open envelope request, uid %s", ctx.GetUserName(), uid)
 	//delete envelope keyboard if it is sold out or invalid
 	defer func() {
 
@@ -116,7 +117,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	if herr != nil {
 		return herr
 	}
-	log.Info().Msgf("user %s send open envelope pending msg", ctx.GetUserName())
+	log.Info().Msgf("user %s send open envelope pending msg uid %s", ctx.GetUserName(), uid)
 	time.Sleep(time.Second * 3)
 	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxId: openEnvelopeResp.Data.TxId, IsWait: true})
 	if err != nil {
@@ -125,7 +126,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	log.Info().Msgf("user %s get open envelope tx hash", ctx.GetUserName())
+	log.Info().Msgf("user %s get open envelope tx hash uid %s", ctx.GetUserName(), uid)
 
 	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(fmt.Sprintf("%s%s", pconst.GetExplore(chainType, pconst.ExploreTypeTx), getDataResp.Data.TxHash))), nil, true, false); herr != nil {
 		return herr
