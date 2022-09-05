@@ -55,9 +55,10 @@ type TGMgr struct {
 	cmdHandler    map[string]flow.TGFlowHandler
 	cmdDesc       map[string]string
 	cmdParser     []func(u *tgbotapi.Update) string
+	appId         string
 }
 
-func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string) (*TGMgr, error) {
+func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId string) (*TGMgr, error) {
 	controllerConn, err := grpc_client.Start(controllerSvc)
 	if err != nil {
 		return nil, fmt.Errorf("init controller conn error %s", err.Error())
@@ -73,6 +74,7 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string) (*TGMgr
 		cmdHandler:    map[string]flow.TGFlowHandler{},
 		cmdDesc:       map[string]string{},
 		cmdParser:     make([]func(u *tgbotapi.Update) string, 0),
+		appId:         appId,
 	}
 
 	for _, cmdId := range presetCmdIdList {
@@ -455,6 +457,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		RequesterOpenType:     pconst.PlatformTg,
 		RequesterOpenNickname: ctx.GetNickname(),
 		RequesterOpenUserName: ctx.GetUserName(),
+		RequesterAppId:        t.appId,
 	}
 
 	if !update.FromChat().IsPrivate() {
@@ -485,7 +488,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		if err != nil {
 			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 		} else if getUserResp.CommonResponse.Code != he.Success {
-			if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
+			if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST || getUserResp.Data.DefaultAccountAddr == "" {
 				var heErr he.Error
 
 				if cmdId != cmd.CmdStart {

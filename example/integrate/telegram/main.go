@@ -33,7 +33,7 @@ func main() {
 	//b.Debug = true
 	updates := botApi.GetUpdatesChan(u)
 
-	tgBotMgr, err := tgmgr.NewTGMgr(os.Getenv("CONTROLLER_SERVICE"), os.Getenv("TSTORE_SERVICE"), cmd.GetCmdList())
+	tgBotMgr, err := tgmgr.NewTGMgr(os.Getenv("CONTROLLER_SERVICE"), os.Getenv("TSTORE_SERVICE"), cmd.GetCmdList(), "")
 	if err != nil {
 		panic(err)
 	}

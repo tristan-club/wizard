@@ -47,10 +47,11 @@ type Manager struct {
 	cmdList       []string
 	cmdHandler    map[string]*handler.DiscordCmdHandler
 	cmdDesc       map[string]string
+	appId         string
 	//cmdParser     []func(u *tgbotapi.Update) string
 }
 
-func NewMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string) (*Manager, error) {
+func NewMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId string) (*Manager, error) {
 	controllerConn, err := grpc_client.Start(controllerSvc)
 	if err != nil {
 		return nil, fmt.Errorf("init controller conn error %s", err.Error())
@@ -65,6 +66,7 @@ func NewMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string) (*Manager
 		cmdList:       presetCmdIdList,
 		cmdHandler:    map[string]*handler.DiscordCmdHandler{},
 		cmdDesc:       map[string]string{},
+		appId:         appId,
 	}
 
 	for _, cmdId := range presetCmdIdList {
@@ -213,18 +215,6 @@ func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreChe
 		return
 	}
 
-	//
-	//cmdHandler := t.cmdHandler[i.ApplicationCommandData().Name]
-	//if cmdHandler == nil {
-	//	return pcr, nil
-	//}
-	//
-	//return &PreCheckResult{
-	//	shouldHandle: true,
-	//	cmdId:        i.ApplicationCommandData().Name,
-	//	isCmd:        true,
-	//	handler:      cmdHandler,
-	//}, nil
 }
 
 func (t *Manager) handleUpdate(i *discordgo.InteractionCreate, pcr *PreCheckResult) {
@@ -289,6 +279,7 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 		RequesterOpenUserName:   ctx.GetUserName(),
 		RequesterChannelId:      ctx.GetGroupChannelId(),
 		RequesterDefaultAddress: "",
+		RequesterAppId:          t.appId,
 	}
 
 	c, cancel := context.WithTimeout(context.Background(), time.Minute*5)

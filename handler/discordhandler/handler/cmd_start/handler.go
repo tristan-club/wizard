@@ -61,6 +61,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 			ChannelId:     ctx.GetGroupChannelId(),
 			Username:      ctx.GetUserName(),
 			Nickname:      ctx.GetNickname(),
+			AppId:         ctx.Requester.RequesterAppId,
 		})
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{

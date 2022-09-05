@@ -16,6 +16,9 @@ import (
 	"time"
 )
 
+type OpenEnvelopePayload struct {
+}
+
 var Handler = chain.NewChainHandler(cmd.CmdStart, startSendHandler)
 
 var UserChannel = map[string]string{}
@@ -43,8 +46,9 @@ func startSendHandler(ctx *tcontext.Context) error {
 		}).Send()
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getUserResp.CommonResponse.Code != he.Success {
-		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
+		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST || getUserResp.Data.DefaultAccountAddr == "" {
 			if ctx.U.FromChat().IsPrivate() {
+
 				channelId := ctx.Requester.GetRequesterChannelId()
 				if channelId == "" {
 					channelId = UserChannel[ctx.OpenId()]
@@ -60,6 +64,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 					ChannelId:     channelId,
 					Username:      ctx.GetUserName(),
 					Nickname:      ctx.GetNickname(),
+					AppId:         ctx.Requester.RequesterAppId,
 				})
 				if err != nil {
 					log.Error().Fields(map[string]interface{}{

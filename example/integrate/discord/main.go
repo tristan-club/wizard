@@ -51,7 +51,7 @@ func main() {
 
 	log.Info().Fields(map[string]interface{}{"action": "discord bot open session success", "botName": b.State.User.Username}).Send()
 
-	dcMgr, err := dcmgr.NewMgr(os.Getenv("CONTROLLER_SERVICE"), os.Getenv("TSTORE_SERVICE"), cmd.GetCmdList())
+	dcMgr, err := dcmgr.NewMgr(os.Getenv("CONTROLLER_SERVICE"), os.Getenv("TSTORE_SERVICE"), cmd.GetCmdList(), "")
 	if err != nil {
 		panic(err)
 	}

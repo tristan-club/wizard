@@ -178,6 +178,15 @@ func GetParam(openId, key string) (interface{}, he.Error) {
 	return us.Payload[key], nil
 }
 
+func TryGetString(openId string, key string) (string, bool) {
+	us, _ := GetState(openId, nil)
+	if resp, ok := us.Payload[key].(string); !ok || resp == "" {
+		return "", false
+	} else {
+		return resp, true
+	}
+}
+
 func MustString(openId string, key string) (string, he.Error) {
 	us, _ := GetState(openId, nil)
 	if resp, ok := us.Payload[key].(string); !ok || resp == "" {
