@@ -31,11 +31,7 @@ func DefaultContext(u *tgbotapi.Update, api *tgbotapi.BotAPI) *Context {
 }
 
 func (ctx *Context) OpenId() string {
-	var openId string
-	if openId = ctx.Requester.RequesterOpenId; openId == "" {
-		openId = strconv.FormatInt(ctx.U.SentFrom().ID, 10)
-	}
-	return openId
+	return strconv.FormatInt(ctx.U.SentFrom().ID, 10)
 }
 
 func (ctx *Context) GetUserName() string {

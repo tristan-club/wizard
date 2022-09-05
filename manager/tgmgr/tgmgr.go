@@ -114,6 +114,22 @@ func (t *TGMgr) RegisterCmd(cmdId, desc string, handler flow.TGFlowHandler) erro
 	return nil
 }
 
+func (t *TGMgr) EnablePresetCmd(cmdIdList []string) {
+
+	for _, cmdId := range cmdIdList {
+		if handler := cmdhandler.GetCmdHandler(cmdId); handler != nil {
+			t.cmdList = append(t.cmdList, cmdId)
+			t.cmdDesc[cmdId] = cmd.GetCmdDesc(cmdId)
+			t.cmdHandler[cmdId] = handler
+			if handler.GetCmdParser() != nil {
+				t.cmdParser = append(t.cmdParser, handler.GetCmdParser())
+			}
+		} else {
+			log.Error().Fields(map[string]interface{}{"action": "invalid enbale preset cmd", "cmdId": cmdId}).Send()
+		}
+	}
+}
+
 func (t *TGMgr) ListenTGUpdate(botToken, webhookUrl, httpAddr string) error {
 
 	var err error
