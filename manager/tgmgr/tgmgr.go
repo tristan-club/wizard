@@ -504,7 +504,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		if err != nil {
 			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 		} else if getUserResp.CommonResponse.Code != he.Success {
-			if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST || getUserResp.Data.DefaultAccountAddr == "" {
+			if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST || (getUserResp.Data != nil && getUserResp.Data.DefaultAccountAddr == "") {
 				var heErr he.Error
 
 				if cmdId != cmd.CmdStart {
@@ -529,7 +529,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 			requester.RequesterUserNo = getUserResp.Data.UserNo
 			requester.RequesterDefaultAddress = getUserResp.Data.DefaultAccountAddr
 
-			if getUserResp.Data.OpenNickname != ctx.GetNickname() || getUserResp.Data.OpenUsername != ctx.GetUserName() {
+			if getUserResp.Data.OpenNickname != ctx.GetNickname() || getUserResp.Data.OpenUsername != ctx.GetUserName() || (getUserResp.Data.AppId == "" && requester.RequesterAppId != "") {
 				updateUserReq := &controller_pb.UpdateUserReq{
 					UserNo:     getUserResp.Data.UserNo,
 					OpenId:     "",
@@ -537,6 +537,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 					IsOpenInit: false,
 					Username:   ctx.GetUserName(),
 					Nickname:   ctx.GetNickname(),
+					AppId:      requester.RequesterAppId,
 				}
 				updateUserResp, err := t.controllerMgr.UpdateUser(ctx.Context, updateUserReq)
 				if err != nil {
