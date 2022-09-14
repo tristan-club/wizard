@@ -1,12 +1,12 @@
 package presetnode
 
 import (
+	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode/prechecker"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
-	"github.com/tristan-club/wizard/pkg/mdparse"
 )
 
 var EnterTextHandler = chain.NewNode(AskForText, prechecker.MustBeMessage, EnterText)

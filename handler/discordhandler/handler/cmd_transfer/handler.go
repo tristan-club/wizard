@@ -7,6 +7,7 @@ import (
 	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
+	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/flow/presetnode"
@@ -15,7 +16,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	"github.com/tristan-club/wizard/pkg/mdparse"
 )
 
 type TransferPayload struct {

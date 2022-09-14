@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
+	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
@@ -16,7 +17,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pconst"
-	"github.com/tristan-club/wizard/pkg/mdparse"
 	"strconv"
 )
 
