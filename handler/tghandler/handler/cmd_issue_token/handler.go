@@ -3,6 +3,7 @@ package cmd_issue_token
 import (
 	"context"
 	"fmt"
+	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -15,6 +16,7 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pconst"
+	"github.com/tristan-club/wizard/pkg/mdparse"
 	"strconv"
 )
 
@@ -123,7 +125,7 @@ func issueTokenHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(transactionResp.CommonResponse)
 	}
 
-	thisMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.TransactionProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transactionResp.Data.TxHash)), nil, true, false)
+	thisMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.TransactionProcessing, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, transactionResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false)
 	if herr != nil {
 		return herr
 	}
@@ -135,7 +137,8 @@ func issueTokenHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	if herr := ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, thisMsg.MessageID, fmt.Sprintf(text.IssueTokenSuccess, getDataResp.Data.ContractAddress, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeAddress), getDataResp.Data.ContractAddress)), nil, true, false); herr != nil {
+	if herr := ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, thisMsg.MessageID, fmt.Sprintf(text.IssueTokenSuccess, getDataResp.Data.ContractAddress,
+		mdparse.ParseV2(pconst.GetExplore(payload.ChainType, getDataResp.Data.ContractAddress, chain_info.ExplorerTargetAddress))), nil, true, false); herr != nil {
 		return herr
 	}
 

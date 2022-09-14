@@ -3,6 +3,7 @@ package cmd_transfer
 import (
 	"context"
 	"fmt"
+	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -13,7 +14,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
-	"strings"
+	"github.com/tristan-club/wizard/pkg/mdparse"
 )
 
 type TransferPayload struct {
@@ -86,7 +87,7 @@ func transferSendHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(transferResp.CommonResponse)
 	}
 
-	thisMsg, herr := ctx.Send(ctx.U.SentFrom().ID, fmt.Sprintf(text.TransactionProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transferResp.Data.TxHash)), nil, true, false)
+	thisMsg, herr := ctx.Send(ctx.U.SentFrom().ID, fmt.Sprintf(text.TransactionProcessing, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, transferResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false)
 	if herr != nil {
 		return herr
 	}
@@ -98,9 +99,8 @@ func transferSendHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	content := fmt.Sprintf(text.TransferSuccess, payload.To, payload.AssetSymbol, payload.Amount, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transferResp.Data.TxHash))
-	content = strings.ReplaceAll(content, ".", "\\.")
-	herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, content, nil, true, false)
+	content := fmt.Sprintf(text.TransferSuccess, payload.To, payload.AssetSymbol, payload.Amount, pconst.GetExplore(payload.ChainType, transferResp.Data.TxHash, chain_info.ExplorerTargetTransaction))
+	herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, mdparse.ParseV2(content), nil, true, false)
 	if herr != nil {
 		return herr
 	}

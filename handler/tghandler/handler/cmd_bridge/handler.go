@@ -16,8 +16,8 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
+	"github.com/tristan-club/wizard/pkg/mdparse"
 	"io"
-	"strings"
 )
 
 var fromChainType = uint32(chain_info.ChainTypeBsc)
@@ -125,7 +125,7 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 		switch currentStatus {
 		case pconst.BridgeStatusFromTxPending:
 
-			respContent = fmt.Sprintf(text.BridgeFromPending, fmt.Sprintf("%s%s", pconst.GetExplore(fromChainType, pconst.ExploreTypeTx), bridgeRecordResp.Data.FromTxHash))
+			respContent = fmt.Sprintf(text.BridgeFromPending, mdparse.ParseV2(pconst.GetExplore(fromChainType, bridgeRecordResp.Data.FromTxHash, chain_info.ExplorerTargetTransaction)))
 
 			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, respContent, nil, true, false); herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "send msg", "error": herr}).Send()
@@ -141,7 +141,7 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 			}
 
 		case pconst.BridgeStatusFromTxFailed:
-			respContent = fmt.Sprintf(text.BridgeTransactionFailed, fmt.Sprintf("%s%s", pconst.GetExplore(fromChainType, pconst.ExploreTypeTx), bridgeRecordResp.Data.FromTxHash))
+			respContent = fmt.Sprintf(text.BridgeTransactionFailed, mdparse.ParseV2(pconst.GetExplore(fromChainType, bridgeRecordResp.Data.FromTxHash, chain_info.ExplorerTargetTransaction)))
 			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, respContent, nil, true, false); herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "send msg", "error": herr}).Send()
 				return herr
@@ -150,7 +150,7 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 
 		case pconst.BridgeStatusToTxPending:
 
-			respContent = fmt.Sprintf(text.BridgeToPending, fmt.Sprintf("%s%s", pconst.GetExplore(toChainType, pconst.ExploreTypeTx), bridgeRecordResp.Data.ToTxHash))
+			respContent = fmt.Sprintf(text.BridgeToPending, mdparse.ParseV2(pconst.GetExplore(toChainType, bridgeRecordResp.Data.ToTxHash, chain_info.ExplorerTargetTransaction)))
 
 			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, respContent, nil, true, false); herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "send msg", "error": herr}).Send()
@@ -177,18 +177,15 @@ func bridgeSendHandler(ctx *tcontext.Context) error {
 				metisLatestBalance = assetResp.Data.BalanceCutDecimal
 			}
 
-			respContent = fmt.Sprintf(text.BridgeToSuccess, payload.Amount, metisLatestBalance, fmt.Sprintf("%s%s", pconst.GetExplore(toChainType, pconst.ExploreTypeTx), bridgeRecordResp.Data.ToTxHash))
-			if strings.Contains(respContent, ".") {
-				respContent = strings.ReplaceAll(respContent, ".", "\\.")
-			}
-			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, respContent, nil, true, false); herr != nil {
+			respContent = fmt.Sprintf(text.BridgeToSuccess, payload.Amount, metisLatestBalance, pconst.GetExplore(toChainType, bridgeRecordResp.Data.ToTxHash, chain_info.ExplorerTargetTransaction))
+			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, mdparse.ParseV2(respContent), nil, true, false); herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "send msg", "error": herr}).Send()
 				return herr
 			}
 			return nil
 
 		case pconst.BridgeStatusToTxFailed:
-			respContent = fmt.Sprintf(text.BridgeTransactionFailed, fmt.Sprintf("%s%s", pconst.GetExplore(toChainType, pconst.ExploreTypeTx), bridgeRecordResp.Data.FromTxHash))
+			respContent = fmt.Sprintf(text.BridgeTransactionFailed, mdparse.ParseV2(pconst.GetExplore(toChainType, bridgeRecordResp.Data.FromTxHash, chain_info.ExplorerTargetTransaction)))
 			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, respContent, nil, true, false); herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "send msg", "error": herr}).Send()
 				return herr

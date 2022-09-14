@@ -3,6 +3,7 @@ package cmd_airdrop
 import (
 	"context"
 	"fmt"
+	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -78,7 +79,7 @@ func airdropSendHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(transactionResp.CommonResponse)
 	}
 
-	thisMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.TransactionProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transactionResp.Data.TxHash)), nil, true, false)
+	thisMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.TransactionProcessing, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, transactionResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false)
 	if herr != nil {
 		return herr
 	}
@@ -90,7 +91,7 @@ func airdropSendHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	if herr := ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, thisMsg.MessageID, fmt.Sprintf(text.AirdropSuccess, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), getDataResp.Data.TxHash)), nil, true, false); herr != nil {
+	if herr = ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, thisMsg.MessageID, fmt.Sprintf(text.AirdropSuccess, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
 		return herr
 	}
 
@@ -99,7 +100,7 @@ func airdropSendHandler(ctx *tcontext.Context) error {
 		receiverList += fmt.Sprintf("\\- [@%s](tg://user?id=%s)\n", mdparse.ParseV2(v), transactionResp.Data.OpenIdList[k])
 	}
 	content := fmt.Sprintf(text.AirdropSuccessInGroup, ctx.GetNickNameMDV2(), mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol),
-		mdparse.ParseV2(transactionResp.Data.Amount), mdparse.ParseV2(payload.AssetSymbol), receiverList, mdparse.ParseV2(fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), getDataResp.Data.TxHash)))
+		mdparse.ParseV2(transactionResp.Data.Amount), mdparse.ParseV2(payload.AssetSymbol), receiverList, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction)))
 	if _, herr := ctx.Send(channelId, content, nil, true, true); herr != nil {
 		return herr
 	}

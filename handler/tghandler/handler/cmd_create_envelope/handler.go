@@ -3,6 +3,7 @@ package cmd_create_envelope
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
@@ -137,7 +138,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		log.Error().Fields(map[string]interface{}{"action": "delete msg error", "error": herr}).Send()
 	}
 
-	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.EnvelopePreparing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeAddress), createRedEnvelope.Data.AccountAddress)), nil, true, false)
+	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.EnvelopePreparing, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.AccountAddress, chain_info.ExplorerTargetAddress))), nil, true, false)
 	if herr != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send pending tx error", "error": herr.Error()}).Send()
 		return herr
@@ -169,7 +170,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, createRedEnvelope.Data.Id))},
 	)
 	ctx.TryDeleteMessage(pendingMsg)
-	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.Id, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), createRedEnvelope.Data.TxHash)), nil, true, false); herr != nil {
+	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.Id, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
 		return herr
 	}
 

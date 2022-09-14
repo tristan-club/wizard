@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -86,7 +87,7 @@ func transferSendHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(transferResp.CommonResponse)
 	}
 
-	if _, err = ctx.FollowUpReply(fmt.Sprintf(text.TransactionProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transferResp.Data.TxHash))); err != nil {
+	if _, err = ctx.FollowUpReply(fmt.Sprintf(text.TransactionProcessing, pconst.GetExplore(payload.ChainType, transferResp.Data.TxHash, chain_info.ExplorerTargetTransaction))); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
@@ -99,7 +100,7 @@ func transferSendHandler(ctx *dcontext.Context) error {
 	}
 
 	content := fmt.Sprintf(text.TransferSuccess, payload.To, mdparse.ParseV2(payload.AssetSymbol),
-		mdparse.ParseV2(payload.Amount), fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), transferResp.Data.TxHash))
+		mdparse.ParseV2(payload.Amount), pconst.GetExplore(payload.ChainType, transferResp.Data.TxHash, chain_info.ExplorerTargetTransaction))
 
 	if err := ctx.DM(content); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
@@ -128,7 +129,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 
 	log.Info().Msgf("user %s get open envelope tx hash uid %s", ctx.GetUserName(), uid)
 
-	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(fmt.Sprintf("%s%s", pconst.GetExplore(chainType, pconst.ExploreTypeTx), getDataResp.Data.TxHash))), nil, true, false); herr != nil {
+	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
 		return herr
 	}
 

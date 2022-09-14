@@ -18,7 +18,10 @@ const (
 	ExploreTypeAddress
 )
 
-func GetExplore(chainType uint32, exploreType chain_info.ExplorerTargetType) string {
+func GetExplore(chainType uint32, txHash string, exploreType chain_info.ExplorerTargetType) string {
+
+	return chain_info.GetExplorerTargetUrl(chain_info.GetNetByChainType(chainType).ChainId, txHash, exploreType)
+
 	netType := chain_info.NetworkTypeMainNet
 	if config.IsTestNet() {
 		netType = chain_info.NetworkTypeTestNet

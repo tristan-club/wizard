@@ -150,7 +150,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(createRedEnvelope.CommonResponse)
 	}
 
-	msg, err := ctx.FollowUpReply(fmt.Sprintf(text.EnvelopePreparing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeAddress), createRedEnvelope.Data.AccountAddress)))
+	msg, err := ctx.FollowUpReply(fmt.Sprintf(text.EnvelopePreparing, pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.AccountAddress, chain_info.ExplorerTargetAddress)))
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)

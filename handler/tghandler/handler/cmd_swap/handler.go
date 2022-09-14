@@ -18,10 +18,10 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/bignum"
 	"github.com/tristan-club/wizard/pkg/dingding"
+	"github.com/tristan-club/wizard/pkg/mdparse"
 	"io"
 	"math/big"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -154,7 +154,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 			} else if approveResp.CommonResponse.Code != he.Success {
 				return tcontext.RespToError(approveResp.CommonResponse.Message)
 			}
-			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, fmt.Sprintf(text.SwapApproveProcessing, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), approveResp.Data.TxHash)), nil, true, false); herr != nil {
+			if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, mdparse.ParseV2(fmt.Sprintf(text.SwapApproveProcessing, pconst.GetExplore(payload.ChainType, approveResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
 				return herr
 			}
 			txHashResp, err := ctx.CM.GetTx(ctx.Context, &controller_pb.GetTxReq{
@@ -185,10 +185,10 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 
 	var swapContent string
 	if shouldApprove {
-		swapContent = fmt.Sprintf(text.SwapProcessing1, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), swapResp.Data.TxHash))
+		swapContent = fmt.Sprintf(text.SwapProcessing1, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, swapResp.Data.TxHash, chain_info.ExplorerTargetTransaction)))
 
 	} else {
-		swapContent = fmt.Sprintf(text.SwapProcessing2, fmt.Sprintf("%s%s", pconst.GetExplore(payload.ChainType, pconst.ExploreTypeTx), swapResp.Data.TxHash))
+		swapContent = fmt.Sprintf(text.SwapProcessing2, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, swapResp.Data.TxHash, chain_info.ExplorerTargetTransaction)))
 	}
 	if thisMsg != nil {
 		if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, swapContent, nil, true, false); herr != nil {
@@ -223,18 +223,19 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 	currentCheckTime := 0
 	for {
 		if currentCheckTime >= maxQueryTime {
-			hashUri := fmt.Sprintf("%s%s", pconst.GetExplore(fromChainType, pconst.ExploreTypeTx))
+			url := mdparse.ParseV2(pconst.GetExplore(fromChainType, swapResp.Data.TxHash, chain_info.ExplorerTargetTransaction))
 			if shouldApprove {
-				endContent = fmt.Sprintf(text.CheckTimeOut1, fmt.Sprintf("%s%s", hashUri, swapResp.Data.TxHash))
+				endContent = fmt.Sprintf(text.CheckTimeOut1, url)
 			} else {
-				endContent = fmt.Sprintf(fmt.Sprintf(text.CheckTimeout2, hashUri, swapResp.Data.TxHash))
+				endContent = fmt.Sprintf(text.CheckTimeout2, url)
 			}
 			success = false
 			dingDingToken := os.Getenv("DING_TOKEN")
 			dingDingSecret := os.Getenv("DING_SECRET")
 			if dingDingToken != "" {
 				bot := dingding.NewRobot(dingDingToken, dingDingSecret, "", "")
-				if err := bot.SendMarkdownMessage("## MetaWallet Swap Warn", fmt.Sprintf("This swap transaction proccessing time out\nuri:%s\nhash:%s\nswap record no:%s\nplease check it", hashUri, swapResp.Data.TxHash, swapResp.Data.RecordNo), []string{}, false); err != nil {
+				if err := bot.SendMarkdownMessage("## MetaWallet Swap Warn", fmt.Sprintf("This swap transaction proccessing time out\nuri:%s\nhash:%s\nswap record no:%s\nplease check it",
+					url, swapResp.Data.TxHash, swapResp.Data.RecordNo), []string{}, false); err != nil {
 					log.Error().Fields(map[string]interface{}{"action": "ding ding send", "error": err.Error()}).Send()
 				}
 			}
@@ -265,7 +266,7 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 		case pconst.TxStateFailed:
 			success = false
 			endContent = fmt.Sprintf(text.SwapFailed, swapRecResp.Data.ErrMsg,
-				fmt.Sprintf("%s%s", pconst.GetExplore(fromChainType, pconst.ExploreTypeTx), swapRecResp.Data.TxHash))
+				pconst.GetExplore(fromChainType, swapRecResp.Data.TxHash, chain_info.ExplorerTargetTransaction))
 		case pconst.TxStateSuccess:
 			assetResp, err := ctx.CM.GetAsset(ctx.Context, &controller_pb.GetAssetReq{
 				ChainType:       swapReq.ChainType,
@@ -279,7 +280,8 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 			} else if assetResp.CommonResponse.Code != he.Success {
 				return tcontext.RespToError(assetResp.CommonResponse)
 			}
-			endContent = fmt.Sprintf(text.SwapSuccess, swapReq.TargetValue[0:8], assetResp.Data.BalanceCutDecimal, fmt.Sprintf("%s%s", pconst.GetExplore(fromChainType, pconst.ExploreTypeTx), swapRecResp.Data.TxHash))
+			endContent = fmt.Sprintf(text.SwapSuccess, swapReq.TargetValue[0:8], assetResp.Data.BalanceCutDecimal,
+				pconst.GetExplore(fromChainType, swapRecResp.Data.TxHash, chain_info.ExplorerTargetTransaction))
 		default:
 
 		}
@@ -297,13 +299,9 @@ func swapAndBridgeSendHandler(ctx *tcontext.Context) error {
 		continueButton = &openButton
 	}
 
-	endContent = strings.ReplaceAll(endContent, ".", "\\.")
-
-	if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, endContent, continueButton, true, true); herr != nil {
+	if herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, mdparse.ParseV2(endContent), continueButton, true, true); herr != nil {
 		return herr
 	}
-
-	//ctx.SetDeadlineMsg(ctx.U.SentFrom().ID, thisMsg.MessageID, constant.COMMON_KEYBOARD_DEADLINE)
 
 	return nil
 }
