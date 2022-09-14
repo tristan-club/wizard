@@ -6,13 +6,6 @@ import (
 	"github.com/tristan-club/wizard/config"
 )
 
-const (
-	ChainTypeBsc     = 1
-	ChainTypeMetis   = 2
-	ChainTypePolygon = 3
-	ChainTypeKlaytn  = 4
-)
-
 var DebugChainTypeList = chain_info.GetSupportChainTypeList()
 var ChainTypeList = chain_info.GetSupportChainTypeList()
 
@@ -25,13 +18,13 @@ const (
 	ExploreTypeAddress
 )
 
-func GetExplore(chainType uint32, exploreType int32) string {
+func GetExplore(chainType uint32, exploreType chain_info.ExplorerTargetType) string {
 	netType := chain_info.NetworkTypeMainNet
 	if config.IsTestNet() {
 		netType = chain_info.NetworkTypeTestNet
 	}
 	var queryType string
-	if exploreType == ExploreTypeTx {
+	if exploreType == chain_info.ExplorerTargetTransaction {
 		queryType = "tx/"
 	} else {
 		queryType = "address/"
@@ -47,14 +40,5 @@ func GetExplore(chainType uint32, exploreType int32) string {
 }
 
 func GetChainId(chainType uint32) uint64 {
-	netType := chain_info.NetworkTypeMainNet
-	if config.IsTestNet() {
-		netType = chain_info.NetworkTypeTestNet
-	}
-	for _, net := range chain_info.GetSupportNetList() {
-		if net.ChainType == chainType && net.Type == uint8(netType) {
-			return net.ChainId
-		}
-	}
-	return 0
+	return chain_info.GetNetByChainType(chainType).ChainId
 }
