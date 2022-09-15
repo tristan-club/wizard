@@ -28,6 +28,7 @@ var Handler = chain.NewChainHandler(cmd.CmdStart, startSendHandler)
 var UserChannel = map[string]string{}
 
 func startSendHandler(ctx *tcontext.Context) error {
+
 	var user *controller_pb.User
 	var isCreateUser bool
 	var pinCode string

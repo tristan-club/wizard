@@ -92,5 +92,9 @@ const (
 )
 
 const (
+	ForbiddenError = "%s, bot can\\'t initiate conversation with you\\, please click the bot to enter the private chat and click `/start`\\."
+)
+
+const (
 	StartBotDefaultText = "Hi %s\\, click the button below and join the group to help your friend complete the task\\!"
 )

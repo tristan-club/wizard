@@ -10,6 +10,7 @@ import (
 )
 
 func (ctx *Context) Send(chatId int64, content string, ikm interface{}, markdownContent bool, disablePreview bool) (*tgbotapi.Message, he.Error) {
+
 	var message *tgbotapi.Message
 	var thisMSg tgbotapi.Message
 	if ctx.U.Message != nil {

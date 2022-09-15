@@ -261,7 +261,7 @@ func (t *TGMgr) HandleTGUpdate(update *tgbotapi.Update, result *PreCheckResult) 
 	go t.handleTGUpdate(update, result)
 }
 
-func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheckResult) (shouldHandle bool) {
+func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheckResult) {
 	err := t.handle(update, preCheckResult)
 	if err != nil {
 
@@ -295,15 +295,18 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 
 		ctx := tcontext.DefaultContext(update, t.botApi)
 
-		msg := &tgbotapi.Message{}
-
-		msg, herr = ctx.Send(update.SentFrom().ID, content, nil, false, false)
+		_, herr = ctx.Send(update.SentFrom().ID, content, nil, false, false)
 		if herr == nil {
-			return shouldHandle
+			return
+		} else if strings.Contains(herr.Error(), "bot can't initiate conversation with a user") {
+			_, herr = ctx.Send(update.SentFrom().ID, fmt.Sprintf(text.ForbiddenError, ctx.GetNickNameMDV2()), nil, false, false)
+			if herr == nil {
+				return
+			}
 		}
 		log.Warn().Fields(map[string]interface{}{"action": "bot send error msg error", "error": herr, "ctx": ctx, "content": content}).Send()
 
-		*msg, herr = ctx.Reply(update.FromChat().ID, content, nil, false)
+		_, herr = ctx.Reply(update.FromChat().ID, content, nil, false)
 		if herr != nil {
 			log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": herr, "content": content}).Send()
 			_, herr = ctx.Send(update.FromChat().ID, text.ServerError, nil, false, false)
@@ -327,7 +330,7 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 		//	}
 		//}
 	}
-	return shouldHandle
+	return
 }
 
 func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult, err error) {
