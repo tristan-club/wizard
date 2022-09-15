@@ -169,9 +169,11 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 			forwardIkm := tgbotapi.NewInlineKeyboardMarkup(
 				[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonURL(text.ButtonJoin, inviteLink)})
-			if _, herr := ctx.Send(ctx.U.SentFrom().ID, inviteContent, forwardIkm, true, false); herr != nil {
+			if msg, herr := ctx.Send(ctx.U.SentFrom().ID, inviteContent, forwardIkm, true, false); herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "send forward ikm error", "error": herr.Error()}).Send()
 				return herr
+			} else {
+				inline_keybord.DeleteDeadKeyboard(ctx, pconst.COMMON_KEYBOARD_DEADLINE, msg)
 			}
 
 		} else {
