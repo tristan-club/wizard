@@ -1,6 +1,7 @@
 package text
 
 var CustomStartMenu = ""
+var StartInviteText = ""
 
 const (
 	SelectChain            = "✳️ Select chain "
@@ -79,6 +80,7 @@ const (
 
 	ButtonForwardPrivateChat = "FORWARD TO CONTINUE"
 	ButtonForwardCreate      = "FORWARD TO CREATE"
+	ButtonJoin               = "JOIN"
 
 	DepositAsset = "Please Deposit Some %s To Your %s Chain Address"
 
@@ -87,4 +89,8 @@ const (
 
 	GetPrivateSuccess              = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
 	GetPrivateSuccessNeedDeleteMsg = "Your private key is:\n`%s`\nPlease keep it safe\nIn order to protect your private key security\nPlease delete this message in time"
+)
+
+const (
+	StartBotDefaultText = "Hi %s\\, click the button below and join the group to help your friend complete the task\\!"
 )

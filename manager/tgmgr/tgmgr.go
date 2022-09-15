@@ -37,6 +37,7 @@ type PreCheckResult struct {
 	us           *userstate.UserState
 	handle       flow.TGFlowHandler
 	payload      interface{}
+	cmdParam     []string
 }
 
 func (p *PreCheckResult) ShouldHandle() bool {
@@ -45,6 +46,18 @@ func (p *PreCheckResult) ShouldHandle() bool {
 
 func (p *PreCheckResult) InjectPayload(payload interface{}) {
 	p.payload = payload
+}
+
+func (p *PreCheckResult) IsCmd() bool {
+	return p.isCmd
+}
+
+func (p *PreCheckResult) CmdId() string {
+	return p.cmdId
+}
+
+func (p *PreCheckResult) CmdParam() []string {
+	return p.cmdParam
 }
 
 type TGMgr struct {
@@ -322,6 +335,7 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 	var cmdId string
 	var isCmd bool
 	pcr = &PreCheckResult{}
+	var cmdParam []string
 
 	var message *tgbotapi.Message
 
@@ -357,7 +371,8 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 					if strings.Contains(msgText, t.botName) {
 						msgText = strings.Replace(msgText, fmt.Sprintf("@%s", t.botName), " ", 1)
 					} else {
-						_cmdId, ok := parseCmd(msgText)
+						_cmdId, args, ok := parseCmd(msgText)
+						cmdParam = args
 						if ok {
 							if _, ok := t.cmdDesc[_cmdId]; ok {
 								cmdId = _cmdId
@@ -368,7 +383,8 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 						}
 					}
 				}
-				_cmdId, ok := parseCmd(msgText)
+				_cmdId, args, ok := parseCmd(msgText)
+				cmdParam = args
 				if ok {
 					cmdId = _cmdId
 				}
@@ -414,13 +430,13 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 	if cmdHandler == nil {
 		return pcr, nil
 	}
-
 	return &PreCheckResult{
 		shouldHandle: true,
 		cmdId:        cmdId,
 		isCmd:        isCmd,
 		us:           us,
 		handle:       cmdHandler,
+		cmdParam:     cmdParam,
 	}, nil
 }
 
@@ -437,6 +453,8 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 			return nil
 		}
 	}
+
+	//log.Info().Fields(map[string]interface{}{"action": "get pcr", "prc": preCheckResult}).Send()
 
 	//var message *tgbotapi.Message
 	//
@@ -459,13 +477,14 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 	c, cancel := context.WithTimeout(context.Background(), time.Second*600)
 	defer cancel()
 	ctx := &tcontext.Context{
-		CmdId:   cmdId,
-		Context: c,
-		U:       update,
-		CM:      t.controllerMgr,
-		BotApi:  t.botApi,
-		BotName: t.botName,
-		Payload: preCheckResult.payload,
+		CmdId:    cmdId,
+		Context:  c,
+		U:        update,
+		CM:       t.controllerMgr,
+		BotApi:   t.botApi,
+		BotName:  t.botName,
+		Payload:  preCheckResult.payload,
+		CmdParam: preCheckResult.cmdParam,
 	}
 
 	requester := &controller_pb.Requester{
@@ -576,16 +595,17 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 
 }
 
-func parseCmd(content string) (string, bool) {
+func parseCmd(content string) (string, []string, bool) {
 	reg, err := regexp.Compile("[^ /]+")
 
 	if err != nil {
 		log.Error().Msgf("compile error: %s", err)
-		return "", false
+		return "", nil, false
 	}
 
 	argv := reg.FindAllString(content, -1)
 	var cmdId string
+	var args []string
 	//tcmd := bot_pb.Command{
 	//	Cmd:  "",
 	//	Args: nil,
@@ -595,5 +615,9 @@ func parseCmd(content string) (string, bool) {
 		cmdId = argv[0]
 	}
 
-	return cmdId, true
+	if len(argv) > 1 {
+		args = argv[1:]
+	}
+
+	return cmdId, args, true
 }

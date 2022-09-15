@@ -99,8 +99,8 @@ func transferSendHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	content := fmt.Sprintf(text.TransferSuccess, payload.To, payload.AssetSymbol, payload.Amount, pconst.GetExplore(payload.ChainType, transferResp.Data.TxHash, chain_info.ExplorerTargetTransaction))
-	herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, mdparse.ParseV2(content), nil, true, false)
+	content := fmt.Sprintf(text.TransferSuccess, payload.To, mdparse.ParseV2(payload.AssetSymbol), mdparse.ParseV2(payload.Amount), mdparse.ParseV2(pconst.GetExplore(payload.ChainType, transferResp.Data.TxHash, chain_info.ExplorerTargetTransaction)))
+	herr = ctx.EditMessageAndKeyboard(ctx.U.SentFrom().ID, thisMsg.MessageID, content, nil, true, false)
 	if herr != nil {
 		return herr
 	}
