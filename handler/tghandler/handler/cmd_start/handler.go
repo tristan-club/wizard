@@ -42,15 +42,20 @@ func startSendHandler(ctx *tcontext.Context) error {
 	}
 
 	if len(ctx.CmdParam) == 1 {
-		inviteArray := strings.Split(ctx.CmdParam[0], "_")
-		if len(inviteArray) != 3 {
-			robot := dingding.NewRobot(config.GetDingDingToken(), "", "", "")
-			robot.SendMarkdownMessage("## Telegram Wizard", fmt.Sprintf("invalid cmd param for /start, openId %s, param %s", ctx.OpenId(), ctx.CmdParam[0]), nil, true)
+		if ctx.CmdParam[0] == pconst.DefaultDeepLinkStart {
+			log.Info().Msgf("openId %s use start deep link", ctx.OpenId())
 		} else {
-			isStartBot = true
-			activityId = inviteArray[0]
-			inviteeId = inviteArray[1]
-			inviteGroupId = inviteArray[2]
+			inviteArray := strings.Split(ctx.CmdParam[0], "_")
+			if len(inviteArray) != 3 {
+				robot := dingding.NewRobot(config.GetDingDingToken(), "", "", "")
+				robot.SendMarkdownMessage("## Telegram Wizard", fmt.Sprintf("invalid cmd param for /start, openId %s, param %s", ctx.OpenId(), ctx.CmdParam[0]), nil, false)
+				log.Error().Fields(map[string]interface{}{"action": "invalid cmd param for  start", "openId": ctx.OpenId(), "param": ctx.CmdParam, "ctx": ctx}).Send()
+			} else {
+				isStartBot = true
+				activityId = inviteArray[0]
+				inviteeId = inviteArray[1]
+				inviteGroupId = inviteArray[2]
+			}
 		}
 	}
 
