@@ -92,7 +92,7 @@ const (
 )
 
 const (
-	ForbiddenError = "%s, bot can\\'t initiate conversation with you\\, please click the bot to enter the private chat and click `/start`\\."
+	ForbiddenError = "Operation failed\\. %s\\, bot can't send messages to you\\. Please forward to the bot and click `Start` first\\. "
 )
 
 const (

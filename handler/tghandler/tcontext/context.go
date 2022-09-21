@@ -50,6 +50,14 @@ func (ctx *Context) GetAvailableName() string {
 	return ctx.GetNickname()
 }
 
+func (ctx *Context) GetMentionName() string {
+	name := ctx.U.SentFrom().UserName
+	if name == "" {
+		name = ctx.U.SentFrom().FirstName + " " + ctx.U.SentFrom().LastName
+	}
+	return "@" + name
+}
+
 func (ctx *Context) GetNickNameMDV2() string {
 	nicknameAt := fmt.Sprintf("[@%s](tg://user?id=%s)", mdparse.ParseV2(ctx.GetNickname()), ctx.OpenId())
 	return nicknameAt

@@ -264,7 +264,8 @@ func (t *TGMgr) HandleTGUpdate(update *tgbotapi.Update, result *PreCheckResult) 
 func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheckResult) {
 	err := t.handle(update, preCheckResult)
 	if err != nil {
-
+		var isMarkdown bool
+		ctx := tcontext.DefaultContext(update, t.botApi)
 		openId := strconv.FormatInt(update.SentFrom().ID, 10)
 		var isBusinessError bool
 
@@ -276,11 +277,14 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 		us, _ := userstate.GetState(openId, nil)
 		herr, ok := err.(he.Error)
 		if ok {
-			if herr.ErrorType() == he.BusinessError {
+			if strings.Contains(herr.Error(), "bot can't initiate conversation with a user") {
+				content = fmt.Sprintf(text.ForbiddenError, ctx.GetNickNameMDV2())
+				isMarkdown = true
+			} else if herr.ErrorType() == he.BusinessError {
 				isBusinessError = true
 				content = fmt.Sprintf(herr.Msg())
 			} else {
-				content = fmt.Sprintf("code:%d; error:%s; detail:%s", herr.Code(), herr.Msg(), herr.Error())
+				content = fmt.Sprintf("code: %d; error: %s; detail: %s", herr.Code(), herr.Msg(), herr.Error())
 			}
 
 		} else {
@@ -293,42 +297,32 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 			log.Error().Fields(map[string]interface{}{"action": "got Server error", "detail": content, "us": us}).Send()
 		}
 
-		ctx := tcontext.DefaultContext(update, t.botApi)
+		msg := &tgbotapi.Message{}
 
-		_, herr = ctx.Send(update.SentFrom().ID, content, nil, false, false)
-		if herr == nil {
-			return
-		} else if strings.Contains(herr.Error(), "bot can't initiate conversation with a user") {
-			_, herr = ctx.Send(update.SentFrom().ID, fmt.Sprintf(text.ForbiddenError, ctx.GetNickNameMDV2()), nil, false, false)
-			if herr == nil {
-				return
-			}
-		}
-		log.Warn().Fields(map[string]interface{}{"action": "bot send error msg error", "error": herr, "ctx": ctx, "content": content}).Send()
-
-		_, herr = ctx.Reply(update.FromChat().ID, content, nil, false)
-		if herr != nil {
-			log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": herr, "content": content}).Send()
-			_, herr = ctx.Send(update.FromChat().ID, text.ServerError, nil, false, false)
+		if ctx.U.FromChat().IsPrivate() {
+			msg, herr = ctx.Send(update.SentFrom().ID, content, nil, isMarkdown, false)
 			if herr != nil {
-				log.Error().Fields(map[string]interface{}{"action": "send server error", "error": herr}).Send()
+				log.Warn().Fields(map[string]interface{}{"action": "bot send error msg error", "error": herr, "ctx": ctx, "content": content}).Send()
+				msg, herr = ctx.Send(update.FromChat().ID, text.ServerError, nil, isMarkdown, false)
+				if herr != nil {
+					log.Error().Fields(map[string]interface{}{"action": "send server error", "error": herr}).Send()
+				}
+			}
+		} else {
+
+			*msg, herr = ctx.Reply(update.FromChat().ID, content, nil, isMarkdown)
+			if herr != nil {
+				log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": herr, "content": content}).Send()
+				msg, herr = ctx.Send(update.FromChat().ID, text.ServerError, nil, isMarkdown, false)
+				if herr != nil {
+					log.Error().Fields(map[string]interface{}{"action": "send server error", "error": herr}).Send()
+				}
 			}
 		}
 
-		//message := tgbotapi.NewMessage(update.FromChat().ID, content)
-		//if update.Message != nil {
-		//	message.ReplyToMessageID = update.Message.MessageID
-		//}
-		//
-		//_, err = t.botApi.Send(message)
-		//if err != nil {
-		//	log.Error().Fields(map[string]interface{}{"action": "send error message to user", "error": err.Error(), "content": content}).Send()
-		//	message.Text = text.ServerError
-		//	_, err = t.botApi.Send(message)
-		//	if err != nil {
-		//		log.Error().Fields(map[string]interface{}{"action": "send server error", "error": err.Error()}).Send()
-		//	}
-		//}
+		if msg.MessageID != 0 {
+			ctx.SetDeadlineMsg(ctx.U.FromChat().ID, msg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
+		}
 	}
 	return
 }
