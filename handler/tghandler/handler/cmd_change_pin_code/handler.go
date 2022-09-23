@@ -1,6 +1,7 @@
 package cmd_change_pin_code
 
 import (
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -27,6 +28,12 @@ func init() {
 	enterNewPinCodeNode := chain.NewNode(presetnode.AskForPinCode, prechecker.MustBeMessage, presetnode.EnterPinCode)
 
 	Handler = chain.NewChainHandler(cmd.CmdChangePinCode, ChangePinCodeSendHandler).
+		AddCmdParser(func(u *tgbotapi.Update) string {
+			if u.CallbackData() == cmd.CmdChangePinCode {
+				return cmd.CmdChangePinCode
+			}
+			return ""
+		}).
 		AddPreHandler(prehandler.ForwardPrivate).
 		AddPreHandler(prehandler.SetFrom).
 		AddPresetNode(presetnode.EnterPinCodeHandler, &presetnode.EnterPinCodeParam{

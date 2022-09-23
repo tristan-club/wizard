@@ -62,6 +62,8 @@ const (
 	AirdropSuccessInGroup             = "User %s successfully initiated the %s %s token airdrop operation\\nEveryone in the following list got %s %s :\n%s\n*TXN URL*: [click to view](%s)"
 	OpenEnvelope                      = "OPEN"
 	Bridge                            = "BRIDGE"
+	ChangePinCode                     = "CHANGE PIN CODE"
+	BindMetamask                      = "BIND METAMASK"
 	ContinueToBridge                  = "continue to bridge"
 	OpenEnvelopeTransactionProcessing = "User %s open red envelope NO\\#%d is processing\\, get %s %s"
 	OpenEnvelopeSuccess               = "User %s open red envelope NO\\#%d succeed \\! get %s %s \\!\n*TXN URL: [click to view](%s)*"
@@ -92,10 +94,10 @@ const (
 	GetPrivateSuccessNeedDeleteMsg = "Your private key is:\n`%s`\nPlease keep it safe\nIn order to protect your private key security\nPlease delete this message in time"
 
 	NoMetamaskAddress  = "You have not bound the Metamask address, enter your address to complete the binding operation"
-	HasMetamaskAddress = "Your account has been bound with Metamask Address `(%s)`\\.\n" +
+	HasMetamaskAddress = "Your account has been bound with Metamask Address `%s`\\.\n" +
 		"Entering a new address will unblock the original bound account,\n" +
 		"which may cause the original bound account reward to be invalid\\."
-	BindMetamaskAddressSuccess = "Operation Success!\nThe Metamask address currently bound to your account is `%s`"
+	BindMetamaskAddressSuccess = "Operation Success\\!\nThe Metamask address currently bound to your account is `%s`"
 )
 
 const (

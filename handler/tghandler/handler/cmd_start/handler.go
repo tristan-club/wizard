@@ -142,6 +142,10 @@ func startSendHandler(ctx *tcontext.Context) error {
 	//content += cmdDesc
 	//content += "\n"
 
+	ikm := tgbotapi.NewInlineKeyboardMarkup(
+		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.ChangePinCode, cmd.CmdChangePinCode), tgbotapi.NewInlineKeyboardButtonData(text.BindMetamask, cmd.CmdBindMetamask)},
+	)
+
 	if ctx.U.Message.Chat.IsPrivate() {
 
 		if user == nil {
@@ -198,18 +202,18 @@ func startSendHandler(ctx *tcontext.Context) error {
 			//	return herr
 			//}
 
-			if _, herr := ctx.Send(ctx.U.SentFrom().ID, walletContent, nil, true, false); herr != nil {
+			if _, herr := ctx.Send(ctx.U.SentFrom().ID, walletContent, ikm, true, false); herr != nil {
 				return herr
 			}
 
-			if isCreateUser {
-				go func() {
-					time.Sleep(time.Second * 5)
-					if _, herr := ctx.Send(ctx.U.SentFrom().ID, text.RecommendChangePinCode, nil, true, false); herr != nil {
-						log.Error().Fields(map[string]interface{}{"action": "send msg error", "error": herr}).Send()
-					}
-				}()
-			}
+			//if isCreateUser {
+			//	go func() {
+			//		time.Sleep(time.Second * 5)
+			//		if _, herr := ctx.Send(ctx.U.SentFrom().ID, text.RecommendChangePinCode, nil, true, false); herr != nil {
+			//			log.Error().Fields(map[string]interface{}{"action": "send msg error", "error": herr}).Send()
+			//		}
+			//	}()
+			//}
 		}
 
 	} else {

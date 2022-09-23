@@ -16,7 +16,6 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pconst"
-	"strings"
 )
 
 var Handler *chain.ChainHandler
@@ -31,15 +30,14 @@ func init() {
 
 	Handler = chain.NewChainHandler(cmd.CmdAddTokenBalance, bindMetaMask).
 		AddCmdParser(func(u *tgbotapi.Update) string {
-			if strings.HasPrefix(u.CallbackData(), cmd.CmdBindMetamask) {
+			if u.CallbackData() == cmd.CmdBindMetamask {
 				return cmd.CmdBindMetamask
 			}
 			return ""
 		}).
 		AddPreHandler(prehandler.ForwardPrivate).
 		AddPreHandler(prehandler.SetFrom).
-		AddPresetNode(presetnode.EnterAddressNode, presetnode.AddressParam{ParamKey: "address", Content: text.EnterMetamaskAddress}).
-		AddPresetNode(chain.NewNode(askForMetamaskAddress, prechecker.MustBeMessage, presetnode.EnterAddress), nil)
+		AddPresetNode(chain.NewNode(askForMetamaskAddress, prechecker.MustBeMessage, presetnode.EnterAddress), &presetnode.AddressParam{ParamKey: "address"})
 }
 
 func askForMetamaskAddress(ctx *tcontext.Context, node *chain.Node) error {
