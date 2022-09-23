@@ -10,7 +10,6 @@ import (
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
-	"github.com/tristan-club/wizard/entity/entity_pb/widget_pb"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/cmdhandler"
@@ -63,14 +62,14 @@ func (p *PreCheckResult) CmdParam() []string {
 
 type TGMgr struct {
 	controllerMgr controller_pb.ControllerServiceClient
-	widgetMgr     widget_pb.WidgetServiceClient
-	botApi        *tgbotapi.BotAPI
-	botName       string
-	cmdList       []string
-	cmdHandler    map[string]flow.TGFlowHandler
-	cmdDesc       map[string]string
-	cmdParser     []func(u *tgbotapi.Update) string
-	appId         string
+	//widgetMgr     widget_pb.WidgetServiceClient
+	botApi     *tgbotapi.BotAPI
+	botName    string
+	cmdList    []string
+	cmdHandler map[string]flow.TGFlowHandler
+	cmdDesc    map[string]string
+	cmdParser  []func(u *tgbotapi.Update) string
+	appId      string
 }
 
 func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId string) (*TGMgr, error) {
