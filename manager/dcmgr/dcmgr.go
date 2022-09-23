@@ -13,7 +13,9 @@ import (
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_change_pincode"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_envelope"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_submit_metamask"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmdhandler"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/userstate"
@@ -201,14 +203,19 @@ func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreChe
 		if !ok {
 			return
 		}
-		if cid.GetCustomType() == pconst.CustomIdOpenEnvelope {
-			return &PreCheckResult{
-				shouldHandle: true,
-				//cmdId:        pconst.,
-				cid:     cid,
-				isCmd:   false,
-				handler: cmd_envelope.OpenEnvelopeHandler,
-			}, nil
+		pcr.cid = cid
+		pcr.isCmd = true
+		pcr.shouldHandle = true
+		switch cid.GetCustomType() {
+		case pconst.CustomIdOpenEnvelope:
+			pcr.handler = cmd_envelope.OpenEnvelopeHandler
+		case pconst.CustomIdChangePinCode:
+			pcr.handler = cmd_change_pincode.Handler
+		case pconst.CustomIdSubmitMetaMask:
+			pcr.handler = cmd_submit_metamask.Handler
+		default:
+			pcr.isCmd = false
+			pcr.shouldHandle = false
 		}
 		return
 	default:
