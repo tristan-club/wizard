@@ -143,7 +143,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 	//content += "\n"
 
 	ikm := tgbotapi.NewInlineKeyboardMarkup(
-		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.ChangePinCode, cmd.CmdChangePinCode), tgbotapi.NewInlineKeyboardButtonData(text.BindMetamask, cmd.CmdBindMetamask)},
+		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.ChangePinCode, cmd.CmdChangePinCode), tgbotapi.NewInlineKeyboardButtonData(text.SubmitMetamask, cmd.CmdSubmitMetamask)},
 	)
 
 	if ctx.U.Message.Chat.IsPrivate() {

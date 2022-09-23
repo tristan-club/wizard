@@ -30,7 +30,7 @@ func AskForBool(ctx *tcontext.Context, node *chain.Node) error {
 	}
 	ikb := []tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData("Yes", "Yes"), tgbotapi.NewInlineKeyboardButtonData("No", "No")}
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(ikb)
-	content := text.SelectEnvelopeType
+	content := text.SelectEnvelopeRewardType
 	if param.Content != "" {
 		content = param.Content
 	}

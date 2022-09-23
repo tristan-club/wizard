@@ -8,6 +8,7 @@ import (
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/cmd"
+	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
@@ -30,20 +31,24 @@ const (
 	AmountMax = "10000000000"
 )
 
-var envelopeTypeText = []string{"Average Amount", "Random Amount"}
-var envelopeTypeValue = []int64{1, 2}
+var envelopeRewardTypeText = []string{"Average Amount", "Random Amount"}
+var envelopeRewardTypeValue = []int64{1, 2}
+
+var envelopeTypeText = []string{"Ordinary Red Envelope", "Task Red Envelopee"}
+var envelopeTypeValue = []int64{pconst.EnvelopeTypeOrdinary, pconst.EnvelopeTypeTask}
 
 type CreateEnvelopePayload struct {
-	UserNo       string `json:"user_no"`
-	From         string `json:"from"`
-	ChainType    uint32 `json:"chain_type"`
-	Asset        string `json:"asset"`
-	AssetSymbol  string `json:"asset_symbol"`
-	EnvelopeType uint32 `json:"envelope_type"`
-	ChannelId    string `json:"channel_id"`
-	Quantity     uint64 `json:"quantity"`
-	Amount       string `json:"amount"`
-	PinCode      string `json:"pin_code"`
+	UserNo             string `json:"user_no"`
+	From               string `json:"from"`
+	ChainType          uint32 `json:"chain_type"`
+	Asset              string `json:"asset"`
+	AssetSymbol        string `json:"asset_symbol"`
+	EnvelopeRewardType uint32 `json:"envelope_reward_type"`
+	EnvelopeType       uint32 `json:"envelope_type"`
+	ChannelId          string `json:"channel_id"`
+	Quantity           uint64 `json:"quantity"`
+	Amount             string `json:"amount"`
+	PinCode            string `json:"pin_code"`
 }
 
 var Handler *chain.ChainHandler
@@ -61,13 +66,23 @@ func init() {
 		AddPreHandler(prehandler.ForwardPrivate).
 		AddPreHandler(prehandler.SetFrom).
 		AddPresetNode(presetnode.SelectChainNode, nil).
-		AddPresetNode(presetnode.EnterAssetNode, nil).
-		AddPresetNode(enterEnvelopeTypeNode, &presetnode.EnterTypeParam{
+		AddPresetNode(presetnode.EnterAssetNode, nil)
+
+	if config.EnableTaskEnvelope() {
+		Handler.AddPresetNode(enterEnvelopeTypeNode, &presetnode.EnterTypeParam{
 			ChoiceText:  envelopeTypeText,
 			ChoiceValue: envelopeTypeValue,
 			Content:     text.SelectEnvelopeType,
 			ParamKey:    "envelope_type",
-		}).
+		})
+	}
+
+	Handler.AddPresetNode(enterEnvelopeTypeNode, &presetnode.EnterTypeParam{
+		ChoiceText:  envelopeRewardTypeText,
+		ChoiceValue: envelopeRewardTypeValue,
+		Content:     text.SelectEnvelopeRewardType,
+		ParamKey:    "envelope_reward_type",
+	}).
 		AddPresetNode(presetnode.EnterAmountNode, &presetnode.AmountParam{
 			Min:          AmountMin,
 			Max:          AmountMax,
@@ -111,19 +126,20 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	}
 
 	createEnvelopeReq := &controller_pb.AddEnvelopeReq{
-		FromId:          payload.UserNo,
-		ChainType:       payload.ChainType,
-		ChannelId:       payload.ChannelId,
-		ChainId:         pconst.GetChainId(payload.ChainType),
-		TokenType:       uint32(tokenType),
-		Address:         payload.From,
-		ContractAddress: payload.Asset,
-		Amount:          payload.Amount,
-		Quantity:        payload.Quantity,
-		EnvelopeType:    payload.EnvelopeType,
-		Blessing:        "",
-		PinCode:         payload.PinCode,
-		IsWait:          false,
+		FromId:             payload.UserNo,
+		ChainType:          payload.ChainType,
+		ChannelId:          payload.ChannelId,
+		ChainId:            pconst.GetChainId(payload.ChainType),
+		TokenType:          uint32(tokenType),
+		Address:            payload.From,
+		ContractAddress:    payload.Asset,
+		Amount:             payload.Amount,
+		Quantity:           payload.Quantity,
+		EnvelopeType:       payload.EnvelopeRewardType,
+		EnvelopeRewardType: payload.EnvelopeRewardType,
+		Blessing:           "",
+		PinCode:            payload.PinCode,
+		IsWait:             false,
 	}
 
 	createRedEnvelope, err := ctx.CM.AddEnvelope(ctx.Context, createEnvelopeReq)

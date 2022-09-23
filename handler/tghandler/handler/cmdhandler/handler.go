@@ -31,7 +31,7 @@ func init() {
 		cmd.CmdStart:           cmd_start.Handler,
 		cmd.CmdGetAccount:      cmd_get_account.Handler,
 		cmd.CmdChangePinCode:   cmd_change_pin_code.Handler,
-		cmd.CmdBindMetamask:    cmd_bind_metamask.Handler,
+		cmd.CmdSubmitMetamask:  cmd_bind_metamask.Handler,
 		cmd.CmdBalance:         cmd_balance.Handler,
 		cmd.CmdTransfer:        cmd_transfer.Handler,
 		cmd.CmdCreateEnvelope:  cmd_create_envelope.Handler,

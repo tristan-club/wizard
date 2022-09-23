@@ -48,7 +48,7 @@ func AskForType(ctx *tcontext.Context, node *chain.Node) error {
 		ikb = append(ikb, tgbotapi.NewInlineKeyboardButtonData(v, strconv.FormatInt(param.ChoiceValue[k], 10)))
 	}
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(ikb)
-	content := text.SelectEnvelopeType
+	content := text.SelectEnvelopeRewardType
 	if param.Content != "" {
 		content = param.Content
 	}

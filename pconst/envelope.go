@@ -18,3 +18,8 @@ const (
 	EnvelopeStorePrefix = "ENVELOPE_"
 	EnvelopeStorePath   = "ENVELOPE"
 )
+
+const (
+	EnvelopeTypeOrdinary = 1
+	EnvelopeTypeTask     = 2
+)

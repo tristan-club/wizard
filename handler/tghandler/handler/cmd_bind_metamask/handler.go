@@ -30,8 +30,8 @@ func init() {
 
 	Handler = chain.NewChainHandler(cmd.CmdAddTokenBalance, bindMetaMask).
 		AddCmdParser(func(u *tgbotapi.Update) string {
-			if u.CallbackData() == cmd.CmdBindMetamask {
-				return cmd.CmdBindMetamask
+			if u.CallbackData() == cmd.CmdSubmitMetamask {
+				return cmd.CmdSubmitMetamask
 			}
 			return ""
 		}).
