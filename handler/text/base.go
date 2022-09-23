@@ -13,6 +13,7 @@ const (
 	EnterQuantityWithRange = "✳️ Enter an quantity between %d and %d."
 	EnterReceiverAddress   = "✳️ Enter receiver wallet address"
 	EnterTokenAddress      = "✳️ Enter token address you want to add, only support ERC20 or BEP20 token now."
+	EnterMetamaskAddress   = "✳️ Enter your metamask address"
 	EnterPinCode           = "✳️ Enter your pin code"
 	EnterOldPinCode        = "✳️ Enter your old pin code"
 	EnterNewPinCode        = "✳️ Enter your new pin code, at least 6 characters."
@@ -89,6 +90,12 @@ const (
 
 	GetPrivateSuccess              = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
 	GetPrivateSuccessNeedDeleteMsg = "Your private key is:\n`%s`\nPlease keep it safe\nIn order to protect your private key security\nPlease delete this message in time"
+
+	NoMetamaskAddress  = "You have not bound the Metamask address, enter your address to complete the binding operation"
+	HasMetamaskAddress = "Your account has been bound with Metamask Address `(%s)`\\.\n" +
+		"Entering a new address will unblock the original bound account,\n" +
+		"which may cause the original bound account reward to be invalid\\."
+	BindMetamaskAddressSuccess = "Operation Success!\nThe Metamask address currently bound to your account is `%s`"
 )
 
 const (

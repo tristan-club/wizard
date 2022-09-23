@@ -19,13 +19,14 @@ const (
 	CmdMyWallet        = "my_wallet"
 	CmdExportPrivate   = "export_private"
 	CmdReplacePrivate  = "replace_private"
+	CmdBindMetamask    = "bind_metamask"
 
 	CmdDeleteAccount = "delete_account"
 )
 
 var cmdList = []string{
 	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdOpenEnvelope, CmdAddTokenBalance, CmdIssueToken,
-	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate, CmdDeleteAccount,
+	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate, CmdDeleteAccount, CmdBindMetamask,
 }
 var betaCmdList = []string{}
 
@@ -66,6 +67,7 @@ var desc = map[string]string{
 	CmdMyWallet:        "Your wallet tristan uri",
 	CmdReplacePrivate:  "Import a new private key to REPLACE the old key, the old key WILL NOT be recovered!",
 	CmdExportPrivate:   "Export private key",
+	CmdBindMetamask:    "For further potential reward, you can submit your Metamask wallet.",
 
 	CmdDeleteAccount: "Erase your account data, this operation cannot be reversed",
 }

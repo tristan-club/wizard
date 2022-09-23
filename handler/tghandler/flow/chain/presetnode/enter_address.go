@@ -17,7 +17,7 @@ type AddressParam struct {
 	ParamKey string `json:"param_key"`
 }
 
-var EnterAddressNode = chain.NewNode(askForAddress, prechecker.MustBeMessage, enterAddress)
+var EnterAddressNode = chain.NewNode(askForAddress, prechecker.MustBeMessage, EnterAddress)
 
 func askForAddress(ctx *tcontext.Context, node *chain.Node) error {
 	var param = &AddressParam{}
@@ -40,7 +40,7 @@ func askForAddress(ctx *tcontext.Context, node *chain.Node) error {
 	return nil
 }
 
-func enterAddress(ctx *tcontext.Context, node *chain.Node) error {
+func EnterAddress(ctx *tcontext.Context, node *chain.Node) error {
 	address := ctx.U.Message.Text
 
 	addressChecked, err := util.EIP55Checksum(address)

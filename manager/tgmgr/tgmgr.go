@@ -544,6 +544,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		} else {
 			requester.RequesterUserNo = getUserResp.Data.UserNo
 			requester.RequesterDefaultAddress = getUserResp.Data.DefaultAccountAddr
+			requester.MetamaskAddress = getUserResp.Data.MetamaskAddress
 
 			if getUserResp.Data.OpenNickname != ctx.GetNickname() || getUserResp.Data.OpenUsername != ctx.GetUserName() || (getUserResp.Data.AppId == "" && requester.RequesterAppId != "") {
 				updateUserReq := &controller_pb.UpdateUserReq{
