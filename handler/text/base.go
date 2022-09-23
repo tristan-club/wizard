@@ -94,11 +94,11 @@ const (
 	GetPrivateSuccess              = "Your private key is:\n`%s`\nPlease keep it safe\nThis message will be deleted shortly"
 	GetPrivateSuccessNeedDeleteMsg = "Your private key is:\n`%s`\nPlease keep it safe\nIn order to protect your private key security\nPlease delete this message in time"
 
-	NoMetamaskAddress  = "You have not bound the Metamask address, enter your address to complete the binding operation"
-	HasMetamaskAddress = "Your account has been bound with Metamask Address `%s`\\.\n" +
-		"Entering a new address will unblock the original bound account,\n" +
-		"which may cause the original bound account reward to be invalid\\."
-	BindMetamaskAddressSuccess = "Operation Success\\!\nThe Metamask address currently bound to your account is `%s`"
+	NoMetamaskAddress  = "Please enter your MetaMask address"
+	HasMetamaskAddress = "Your account has been associate with MetaMask address `%s`\\.\n" +
+		"Entering a new address will replace the original one,\n" +
+		"which may cause the reward for the original address to be invalid\\."
+	BindMetamaskAddressSuccess = "Operation Success\\!\nThe MetaMask address currently associate with your account is `%s`"
 )
 
 const (

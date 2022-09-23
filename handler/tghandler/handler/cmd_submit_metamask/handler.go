@@ -1,4 +1,4 @@
-package cmd_bind_metamask
+package cmd_submit_metamask
 
 import (
 	"fmt"
@@ -28,7 +28,7 @@ type BindMetamaskPayload struct {
 
 func init() {
 
-	Handler = chain.NewChainHandler(cmd.CmdAddTokenBalance, bindMetaMask).
+	Handler = chain.NewChainHandler(cmd.CmdAddTokenBalance, subMetaMask).
 		AddCmdParser(func(u *tgbotapi.Update) string {
 			if u.CallbackData() == cmd.CmdSubmitMetamask {
 				return cmd.CmdSubmitMetamask
@@ -58,7 +58,7 @@ func askForMetamaskAddress(ctx *tcontext.Context, node *chain.Node) error {
 	return nil
 }
 
-func bindMetaMask(ctx *tcontext.Context) error {
+func subMetaMask(ctx *tcontext.Context) error {
 
 	var payload = &BindMetamaskPayload{}
 	_, herr := userstate.GetState(ctx.OpenId(), payload)
