@@ -13,6 +13,7 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 type BindMetamaskPayload struct {
@@ -40,6 +41,12 @@ func submitMetaMask(ctx *dcontext.Context) error {
 		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
+	address, err := util.EIP55Checksum(payload.Address)
+	if err != nil {
+		log.Info().Fields(map[string]interface{}{"action": "address param invalid"}).Send()
+		return he.NewServerError(pconst.CodeAddressParamInvalid, "", err)
+	}
+
 	_, err = ctx.FollowUpReply(text.OperationProcessing)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
@@ -48,7 +55,7 @@ func submitMetaMask(ctx *dcontext.Context) error {
 
 	req := &controller_pb.UpdateUserReq{
 		UserNo:          ctx.Requester.RequesterUserNo,
-		MetamaskAddress: payload.Address,
+		MetamaskAddress: address,
 	}
 
 	resp, err := ctx.CM.UpdateUser(ctx.Context, req)
