@@ -78,7 +78,7 @@ func NewMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId str
 			if config.EnvIsDev() {
 				continue
 			}
-			return nil, fmt.Errorf("invalid preset command config %s, handler is nil", cmdId)
+			return nil, fmt.Errorf("invalid preset command config %s, chandler is nil", cmdId)
 		}
 		mgr.cmdHandler[cmdId] = h
 	}
@@ -87,7 +87,7 @@ func NewMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId str
 
 func (t *Manager) SetCmd(handler *handler.DiscordCmdHandler) {
 	if handler == nil {
-		log.Error().Fields(map[string]interface{}{"action": "empty handler set"}).Send()
+		log.Error().Fields(map[string]interface{}{"action": "empty chandler set"}).Send()
 		return
 	}
 

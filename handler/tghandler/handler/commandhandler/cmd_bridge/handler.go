@@ -13,7 +13,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/prehandler"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/presetnode"
-	"github.com/tristan-club/wizard/handler/tghandler/handler/cmd_bridge/bridge_node"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_bridge/bridge_node"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"

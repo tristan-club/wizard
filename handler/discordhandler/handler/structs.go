@@ -7,5 +7,5 @@ import (
 
 type DiscordCmdHandler struct {
 	ApplicationCommand *discordgo.ApplicationCommand     `json:"detail"`
-	Handler            func(ctx *dcontext.Context) error `json:"handler"`
+	Handler            func(ctx *dcontext.Context) error `json:"chandler"`
 }

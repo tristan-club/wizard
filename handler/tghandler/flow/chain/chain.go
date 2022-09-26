@@ -56,7 +56,7 @@ func (c *ChainHandler) AddPresetNode(node *Node, payload interface{}) *ChainHand
 	if !util.IsNil(payload) {
 		herr := node.AddPayload(payload)
 		if herr != nil {
-			log.Error().Msgf("add payload error %s, node id %s, handler id %s, payload %v", herr.Error(), node.Id, c.Id, payload)
+			log.Error().Msgf("add payload error %s, node id %s, chandler id %s, payload %v", herr.Error(), node.Id, c.Id, payload)
 		}
 	}
 
@@ -75,7 +75,7 @@ func (c *ChainHandler) AddCmdParser(parser func(u *tgbotapi.Update) string) *Cha
 }
 
 func (c *ChainHandler) Handle(ctx *tcontext.Context) error {
-	log.Debug().Msgf("start handler cmd %s, state %d, cmdId %s", ctx.CmdId, ctx.CurrentState, c.Id)
+	log.Debug().Msgf("start chandler cmd %s, state %d, cmdId %s", ctx.CmdId, ctx.CurrentState, c.Id)
 	if len(c.PreHandlers) != 0 && ctx.CurrentState == userstate.StateNone {
 		for _, preHandler := range c.PreHandlers {
 			if herr := preHandler(ctx); herr != nil {

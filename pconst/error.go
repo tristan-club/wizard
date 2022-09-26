@@ -63,7 +63,7 @@ var errMap = map[int]string{
 	CodeRedisError:              "request redis error",
 	CodeInvalidCmd:              "Invalid command",
 	CodeUnknownCmd:              "Unknown command",
-	CodeUnknownCallbackHandler:  "unknown callback handler",
+	CodeUnknownCallbackHandler:  "unknown callback chandler",
 	CodeInvalidUserState:        "Ops, it looks like your user status is out of date or invalid, you can start a new command to refresh your status.",
 	CodeAmountParamInvalid:      "invalid amount input",
 	CodeInvalidPayload:          "cmd payload data error ",

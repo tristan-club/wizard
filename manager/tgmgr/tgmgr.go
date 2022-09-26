@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/customid"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/cmd"
@@ -12,7 +13,7 @@ import (
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow"
-	"github.com/tristan-club/wizard/handler/tghandler/handler/cmdhandler"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmdhandler"
 	"github.com/tristan-club/wizard/handler/tghandler/inline_keybord"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
@@ -32,10 +33,11 @@ import (
 
 type PreCheckResult struct {
 	shouldHandle bool
-	cmdId        string
 	isCmd        bool
+	cmdId        string
+	customId     string
 	us           *userstate.UserState
-	handle       flow.TGFlowHandler
+	handler      flow.TGFlowHandler
 	payload      interface{}
 	cmdParam     []string
 }
@@ -63,13 +65,14 @@ func (p *PreCheckResult) CmdParam() []string {
 type TGMgr struct {
 	controllerMgr controller_pb.ControllerServiceClient
 	//widgetMgr     widget_pb.WidgetServiceClient
-	botApi     *tgbotapi.BotAPI
-	botName    string
-	cmdList    []string
-	cmdHandler map[string]flow.TGFlowHandler
-	cmdDesc    map[string]string
-	cmdParser  []func(u *tgbotapi.Update) string
-	appId      string
+	botApi        *tgbotapi.BotAPI
+	botName       string
+	cmdList       []string
+	cmdHandler    map[string]flow.TGFlowHandler
+	customHandler map[string]flow.TGFlowHandler
+	cmdDesc       map[string]string
+	cmdParser     []func(u *tgbotapi.Update) string
+	appId         string
 }
 
 func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId string) (*TGMgr, error) {
@@ -87,6 +90,7 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId s
 		cmdList:       presetCmdIdList,
 		cmdHandler:    map[string]flow.TGFlowHandler{},
 		cmdDesc:       map[string]string{},
+		customHandler: map[string]flow.TGFlowHandler{},
 		cmdParser:     make([]func(u *tgbotapi.Update) string, 0),
 		appId:         appId,
 	}
@@ -98,7 +102,7 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId s
 			if config.EnvIsDev() {
 				continue
 			}
-			return nil, fmt.Errorf("invalid preset command config %s, handler is nil", cmdId)
+			return nil, fmt.Errorf("invalid preset command config %s, chandler is nil", cmdId)
 		}
 		tgMgr.cmdHandler[cmdId] = handler
 		if handler.GetCmdParser() != nil {
@@ -126,6 +130,10 @@ func (t *TGMgr) RegisterCmd(cmdId, desc string, handler flow.TGFlowHandler) erro
 	}
 
 	return nil
+}
+
+func (t *TGMgr) RegisterCustomHandler(cid *customid.CustomId, h flow.TGFlowHandler) {
+	t.customHandler[cid.String()] = h
 }
 
 func (t *TGMgr) EnablePresetCmd(cmdIdList []string) {
@@ -332,6 +340,7 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 
 	var cmdId string
 	var isCmd bool
+	var customId string
 	pcr = &PreCheckResult{}
 	var cmdParam []string
 
@@ -415,27 +424,53 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 		}
 
 		if cmdId == "" {
+			cid, ok := customid.ParseCustomId(update.CallbackData())
+			if ok {
+				customId = cid.String()
+				pcr.customId = customId
+			}
+		}
+
+		if cmdId == "" && customId == "" {
 			cmdId = us.CurrentCommand
 		}
 
 	}
 
-	if cmdId == "" || cmdId == userstate.CmdNone {
+	if (cmdId == "" || cmdId == userstate.CmdNone) && customId == "" {
 		return pcr, nil
 	}
 
-	cmdHandler := t.cmdHandler[cmdId]
-	if cmdHandler == nil {
-		return pcr, nil
+	if cmdId != "" {
+		cmdHandler := t.cmdHandler[cmdId]
+		if cmdHandler == nil {
+			return pcr, nil
+		} else {
+			return &PreCheckResult{
+				shouldHandle: true,
+				cmdId:        cmdId,
+				isCmd:        isCmd,
+				us:           us,
+				handler:      cmdHandler,
+				cmdParam:     cmdParam,
+			}, nil
+		}
+	} else {
+		customHandler := t.customHandler[customId]
+		if customHandler == nil {
+			return pcr, nil
+		} else {
+			return &PreCheckResult{
+				shouldHandle: true,
+				cmdId:        "",
+				isCmd:        false,
+				us:           us,
+				handler:      customHandler,
+				cmdParam:     cmdParam,
+			}, nil
+		}
 	}
-	return &PreCheckResult{
-		shouldHandle: true,
-		cmdId:        cmdId,
-		isCmd:        isCmd,
-		us:           us,
-		handle:       cmdHandler,
-		cmdParam:     cmdParam,
-	}, nil
+
 }
 
 func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) (err error) {
@@ -470,7 +505,8 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 	cmdId := preCheckResult.cmdId
 	us := preCheckResult.us
 	isCmd := preCheckResult.isCmd
-	cmdHandler := preCheckResult.handle
+	cmdHandler := preCheckResult.handler
+	customId := preCheckResult.customId
 
 	c, cancel := context.WithTimeout(context.Background(), time.Second*600)
 	defer cancel()
@@ -497,7 +533,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		requester.RequesterChannelId = strconv.FormatInt(update.FromChat().ID, 10)
 	}
 
-	if isCmd {
+	if isCmd || customId != "" {
 
 		if err = userstate.ResetState(userId); err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "reset user state", "error": err.Error()}).Send()

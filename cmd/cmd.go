@@ -22,16 +22,15 @@ const (
 	CmdSubmitMetamask  = "submit_metamask"
 
 	// Button cmd
-	CmdOpenEnvelope            = "open_red_envelope"
-	CmdCheckTaskEnvelopeStatus = "check_task_envelope_status"
-	CmdOpenTaskEnvelopeStatus  = "open_task_envelope"
+	CmdOpenEnvelope = "open_red_envelope"
+
 	// Mock cmd
 	CmdDeleteAccount = "delete_account"
 )
 
 var cmdList = []string{
 	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdOpenEnvelope, CmdAddTokenBalance, CmdIssueToken,
-	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate, CmdDeleteAccount, CmdSubmitMetamask, CmdCheckTaskEnvelopeStatus, CmdOpenTaskEnvelopeStatus,
+	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate, CmdDeleteAccount, CmdSubmitMetamask,
 }
 var betaCmdList = []string{}
 
@@ -74,9 +73,7 @@ var desc = map[string]string{
 	CmdExportPrivate:   "Export private key",
 	CmdSubmitMetamask:  "For further potential reward, you can submit your MetaMask wallet.",
 
-	CmdOpenEnvelope:            "Open Red Packet shared with the community . Please specify the serial number",
-	CmdCheckTaskEnvelopeStatus: CmdCheckTaskEnvelopeStatus,
-	CmdOpenTaskEnvelopeStatus:  CmdOpenTaskEnvelopeStatus,
+	CmdOpenEnvelope: "Open Red Packet shared with the community . Please specify the serial number",
 
 	CmdDeleteAccount: "Erase your account data, this operation cannot be reversed",
 }
