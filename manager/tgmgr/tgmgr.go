@@ -70,6 +70,7 @@ type TGMgr struct {
 	cmdList       []string
 	cmdHandler    map[string]flow.TGFlowHandler
 	customHandler map[string]flow.TGFlowHandler
+	startHandler  []flow.TGFlowHandler
 	cmdDesc       map[string]string
 	cmdParser     []func(u *tgbotapi.Update) string
 	appId         string
@@ -134,6 +135,10 @@ func (t *TGMgr) RegisterCmd(cmdId, desc string, handler flow.TGFlowHandler) erro
 
 func (t *TGMgr) RegisterCustomHandler(cid *customid.CustomId, h flow.TGFlowHandler) {
 	t.customHandler[cid.String()] = h
+}
+
+func (t *TGMgr) RegisterStartHandler(h flow.TGFlowHandler) {
+	t.startHandler = append(t.startHandler, h)
 }
 
 func (t *TGMgr) EnablePresetCmd(cmdIdList []string) {
@@ -442,7 +447,21 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 	}
 
 	if cmdId != "" {
-		cmdHandler := t.cmdHandler[cmdId]
+
+		var cmdHandler flow.TGFlowHandler
+		if cmdId == cmd.CmdStart && len(t.startHandler) > 0 {
+			for _, h := range t.startHandler {
+				if h.GetCmdParser()(update) == cmd.CmdStart {
+					cmdHandler = h
+					break
+				}
+			}
+		}
+
+		if cmdHandler == nil {
+			cmdHandler = t.cmdHandler[cmdId]
+		}
+
 		if cmdHandler == nil {
 			return pcr, nil
 		} else {
