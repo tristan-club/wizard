@@ -451,7 +451,7 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 		var cmdHandler flow.TGFlowHandler
 		if cmdId == cmd.CmdStart && len(t.startHandler) > 0 {
 			for _, h := range t.startHandler {
-				if h.GetCmdParser()(update) == cmd.CmdStart {
+				if h.GetCmdParser()(update) != "" {
 					cmdHandler = h
 					break
 				}
