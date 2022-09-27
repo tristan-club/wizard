@@ -336,7 +336,7 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 			}
 		}
 
-		if msg.MessageID != 0 {
+		if msg != nil && msg.MessageID != 0 {
 			ctx.SetDeadlineMsg(msg.Chat.ID, msg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
 		}
 	}
@@ -581,9 +581,9 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 			if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST || (getUserResp.Data != nil && getUserResp.Data.DefaultAccountAddr == "") {
 				var heErr he.Error
 
-				if cmdId != cmd.CmdStart {
+				if cmdId != cmd.CmdStart && !(cmdId == cmd.CmdStart && len(preCheckResult.cmdParam) == 1 && preCheckResult.cmdParam[0] == pconst.DefaultDeepLinkStart) {
 					if ctx.U.FromChat().IsPrivate() {
-						_, heErr = ctx.Reply(ctx.U.SentFrom().ID, fmt.Sprintf(text.UserNoInit, ctx.GetNickNameMDV2()), nil, true)
+						_, heErr = ctx.Reply(ctx.U.SentFrom().ID, fmt.Sprintf(text.UserNoInitInPrivate, ctx.GetNickNameMDV2()), nil, true)
 
 					} else {
 						var replyMsg tgbotapi.Message

@@ -56,7 +56,7 @@ func NewForwardPrivateKeyBoard(ctx *tcontext.Context) (*tgbotapi.InlineKeyboardM
 
 func NewForwardCreateKeyBoard(ctx *tcontext.Context) (*tgbotapi.InlineKeyboardMarkup, time.Duration) {
 	km := tgbotapi.NewInlineKeyboardMarkup(
-		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonURL(text.ButtonForwardCreate, fmt.Sprintf("https://t.me/%s", ctx.BotName))})
+		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonURL(text.ButtonForwardCreate, fmt.Sprintf("https://t.me/%s?start=default", ctx.BotName))})
 	return &km, pconst.ForwardPrivateDeadline
 }
 

@@ -40,10 +40,10 @@ const (
 	GetAccountSuccess      = "Your MetaWallet address is\\: `%s` \\."
 	RecommendChangePinCode = "Would you like to change the Pincode\\?\nPlease use `/change_pin_code` command\\."
 
-	CheckDm    = "We have forwarded you the details. Please lookout for DM from \"MetaWalletBot\" "
-	UserNoInit = "%s \\,you have not created an account yet\\, please forward to private chat with bot to initialize your account\\."
-	//UserNoInitInPrivate = "You have not created an account yet, \"/start\" to initialize your account."
-	BalanceSuccess = "Your balance is"
+	CheckDm             = "We have forwarded you the details. Please lookout for DM from \"MetaWalletBot\" "
+	UserNoInit          = "%s \\, you have not created an account yet\\, please forward to private chat with bot to initialize your account\\."
+	UserNoInitInPrivate = "%s \\, you have not created an account yet, use \"/start\" to initialize your account\\."
+	BalanceSuccess      = "Your balance is"
 
 	MessageDisappearSoon = "*NOTE*\\: This message will be clear shortly\nPlease save your pincode in time or use the `/change_pin_code` command to change your pincode"
 
