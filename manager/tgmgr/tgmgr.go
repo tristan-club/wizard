@@ -288,12 +288,14 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 		}
 
 		var content string
+		var isGroupMsg bool
 		us, _ := userstate.GetState(openId, nil)
 		herr, ok := err.(he.Error)
 		if ok {
 			if strings.Contains(herr.Error(), "bot can't initiate conversation with a user") {
 				content = fmt.Sprintf(text.ForbiddenError, ctx.GetNickNameMDV2())
 				isMarkdown = true
+				isGroupMsg = true
 			} else if herr.ErrorType() == he.BusinessError {
 				isBusinessError = true
 				content = fmt.Sprintf(herr.Msg())
@@ -313,11 +315,11 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 
 		msg := &tgbotapi.Message{}
 
-		if ctx.U.FromChat().IsPrivate() {
+		if !isGroupMsg {
 			msg, herr = ctx.Send(update.SentFrom().ID, content, nil, isMarkdown, false)
 			if herr != nil {
 				log.Warn().Fields(map[string]interface{}{"action": "bot send error msg error", "error": herr, "ctx": ctx, "content": content}).Send()
-				msg, herr = ctx.Send(update.FromChat().ID, text.ServerError, nil, isMarkdown, false)
+				msg, herr = ctx.Send(update.SentFrom().ID, text.ServerError, nil, isMarkdown, false)
 				if herr != nil {
 					log.Error().Fields(map[string]interface{}{"action": "send server error", "error": herr}).Send()
 				}
@@ -335,7 +337,7 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 		}
 
 		if msg.MessageID != 0 {
-			ctx.SetDeadlineMsg(ctx.U.FromChat().ID, msg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
+			ctx.SetDeadlineMsg(msg.Chat.ID, msg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
 		}
 	}
 	return
