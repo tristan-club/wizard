@@ -306,6 +306,13 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 			} else if herr.ErrorType() == he.BusinessError {
 				isBusinessError = true
 				content = fmt.Sprintf(herr.Msg())
+				if content == "" {
+					log.Error().Fields(map[string]interface{}{"action": "invalid business error", "error": herr}).Send()
+					content = herr.Error()
+				}
+				if content == "" {
+					content = fmt.Sprintf("unknown error %d", herr.Code())
+				}
 			} else {
 				content = fmt.Sprintf("code: %d; error: %s; detail: %s", herr.Code(), herr.Msg(), herr.Error())
 			}
