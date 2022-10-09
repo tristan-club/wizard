@@ -256,6 +256,7 @@ func (t *TGMgr) ListenTGUpdate(botToken, webhookUrl, httpAddr string) error {
 
 	for update := range updates {
 		update := update
+
 		go t.handleTGUpdate(&update, nil)
 	}
 

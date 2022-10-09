@@ -118,7 +118,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		return herr
 	}
 
-	ctx.SetDeadlineMsg(msg.Chat.ID, msg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
+	defer ctx.TryDeleteMessage(msg)
 
 	tokenType := pconst.TokenTypeInternal
 	if payload.Asset != "" && payload.Asset != "INTERNAL" && strings.HasPrefix(payload.Asset, "0x") {
@@ -149,16 +149,13 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(createRedEnvelope.CommonResponse)
 	}
 
-	herr = ctx.DeleteMessage(msg.Chat.ID, msg.MessageID)
-	if herr != nil {
-		log.Error().Fields(map[string]interface{}{"action": "delete msg error", "error": herr}).Send()
-	}
-
 	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.EnvelopePreparing, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.AccountAddress, chain_info.ExplorerTargetAddress))), nil, true, false)
 	if herr != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send pending tx error", "error": herr.Error()}).Send()
 		return herr
 	}
+
+	defer ctx.TryDeleteMessage(pendingMsg)
 
 	requesterCtx, herr := ctx.CopyRequester()
 	if herr != nil {
@@ -185,12 +182,13 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	openButton := tgbotapi.NewInlineKeyboardMarkup(
 		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, createRedEnvelope.Data.Id))},
 	)
-	ctx.TryDeleteMessage(pendingMsg)
+
 	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.Id, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
 		return herr
 	}
 
-	if replyMsg, herr := ctx.Send(channelId, fmt.Sprintf(text.ShareEnvelopeSuccess, ctx.GetNickNameMDV2(), createRedEnvelope.Data.Id, mdparse.ParseV2(payload.AssetSymbol), mdparse.ParseV2(payload.Amount)), &openButton, true, false); herr != nil {
+	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetail, ctx.GetNickNameMDV2(), mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
+	if replyMsg, herr := ctx.Send(channelId, shareEnvelopeContent, &openButton, true, false); herr != nil {
 		return herr
 	} else {
 		err = tstore.PBSaveString(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.Id), pconst.EnvelopeStorePath, strconv.FormatInt(int64(replyMsg.MessageID), 10))

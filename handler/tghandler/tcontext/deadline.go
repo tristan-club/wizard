@@ -10,8 +10,9 @@ func (ctx *Context) SetDeadlineMsg(chatId int64, messageId int, deadline time.Du
 	deadlineMsg[messageId] = chatId
 	go func() {
 		time.Sleep(deadline)
-		if cid, ok := deadlineMsg[messageId]; ok && cid > 0 {
+		if cid, ok := deadlineMsg[messageId]; ok && cid != 0 {
 			ctx.DeleteMessage(cid, messageId)
+			delete(deadlineMsg, messageId)
 		}
 	}()
 }

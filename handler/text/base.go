@@ -61,6 +61,7 @@ const (
 	IssueTokenSuccess                 = "*Your token issued successfully*\nThe contract address is `%s`\n[click to view](%s)"
 	AirdropSuccess                    = "*The airdrop operation succeeded*\n*TXN URL*: [click to view](%s)"
 	AirdropSuccessInGroup             = "User %s successfully initiated the %s %s token airdrop operation\\nEveryone in the following list got %s %s :\n%s\n*TXN URL*: [click to view](%s)"
+	EnvelopeDetail                    = "\U0001F9E7Red Envelope Created by %s\n\n💰Remaining Amount\\: %s %s\n\n🎁Claimed: %d\\/%d"
 	OpenEnvelope                      = "OPEN"
 	Bridge                            = "BRIDGE"
 	ChangePinCode                     = "CHANGE PIN CODE"

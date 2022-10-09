@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/bignum"
 	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
@@ -17,6 +18,7 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
+	"math/big"
 	"strconv"
 	"strings"
 	"time"
@@ -68,11 +70,14 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		Address:    ctx.Requester.RequesterDefaultAddress,
 		EnvelopeNo: "",
 		EnvelopeId: uint32(envelopeId),
-		IsWait:     false,
+		IsWait:     true,
+		ChannelId:  ctx.Requester.RequesterChannelId,
+		ReceiverNo: ctx.Requester.RequesterUserNo,
 	})
 	if err != nil {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	}
+
 	log.Info().Msgf("user %s send open envelope request, uid %s", ctx.GetUserName(), uid)
 	//delete envelope keyboard if it is sold out or invalid
 	defer func() {
@@ -119,21 +124,67 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		return herr
 	}
 	log.Info().Msgf("user %s send open envelope pending msg uid %s", ctx.GetUserName(), uid)
-	time.Sleep(time.Second * 3)
+
+	time.Sleep(time.Second * 5)
+
 	getDataResp, err := ctx.CM.GetTx(context.Background(), &controller_pb.GetTxReq{TxId: openEnvelopeResp.Data.TxId, IsWait: true})
 	if err != nil {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if getDataResp.CommonResponse.Code != he.Success {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
+	ctx.TryDeleteMessage(pendingMsg)
+	envelopeMsgId, err := tstore.PBGetStr(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, envelopeId), pconst.EnvelopeStorePath)
+	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "get envelope msg id error", "error": err.Error()}).Send()
+	} else {
+
+		getEnvelopeResp, err := ctx.CM.GetEnvelope(ctx.Context, &controller_pb.GetEnvelopeReq{EnvelopeId: uint32(envelopeId), WithClaimList: true, WaitSuccess: true})
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "call wallet", "error": err.Error()}).Send()
+		} else if getEnvelopeResp.CommonResponse.Code != he.Success {
+			log.Error().Fields(map[string]interface{}{"action": "get envelope", "error": getEnvelopeResp.CommonResponse}).Send()
+		} else {
+
+			envelopeDetail := fmt.Sprintf(text.EnvelopeDetail,
+				ctx.GenerateNickName(mdparse.ParseV2(getEnvelopeResp.Data.CreatorName), strconv.FormatInt(getEnvelopeResp.Data.CreatorOpenId, 10)),
+				mdparse.ParseV2(bignum.CutDecimal(new(big.Int).SetUint64(getEnvelopeResp.Data.RemainAmount), 4, 4)), mdparse.ParseV2(getEnvelopeResp.Data.AssetSymbol),
+				getEnvelopeResp.Data.Quantity-getEnvelopeResp.Data.RemainQuantity, getEnvelopeResp.Data.Quantity)
+
+			var claimHistory string
+			for _, claim := range getEnvelopeResp.Data.ClaimList {
+				labelLen := 20
+				labelName := make([]rune, labelLen)
+				nicknameRune := []rune(claim.ReceiverNickname)
+				for i := 0; i < len(nicknameRune) && i < labelLen; i++ {
+					labelName[i] = nicknameRune[i]
+				}
+
+				claimHistory += fmt.Sprintf("%s   %s %s   TXN URL\\: [click to view](%s)\n\n",
+					ctx.GenerateNickName(mdparse.ParseV2(string(labelName)), claim.ReceiverOpenId),
+					mdparse.ParseV2(claim.Amount),
+					mdparse.ParseV2(claim.AssetSymbol), mdparse.ParseV2(chain_info.GetExplorerTargetUrl(getEnvelopeResp.Data.ChainId, claim.TxHash, chain_info.ExplorerTargetTransaction)))
+			}
+			envelopeDetail = envelopeDetail + "\n\n🎊Claim History:\n\n" + claimHistory
+			msgId, _ := strconv.ParseInt(envelopeMsgId, 10, 64)
+			openButton := tgbotapi.NewInlineKeyboardMarkup(
+				[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, envelopeId))},
+			)
+			herr = ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, int(msgId), envelopeDetail, &openButton, true, true)
+			if herr != nil {
+				log.Error().Fields(map[string]interface{}{"action": "edit red envelope error", "error": herr.Error()}).Send()
+			}
+
+		}
+	}
 
 	log.Info().Msgf("user %s get open envelope tx hash uid %s", ctx.GetUserName(), uid)
 
-	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
+	if openMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, true); herr != nil {
 		return herr
+	} else {
+		ctx.SetDeadlineMsg(openMsg.Chat.ID, openMsg.MessageID, pconst.GroupMentionDeadline)
 	}
-
-	ctx.TryDeleteMessage(pendingMsg)
 
 	return nil
 }

@@ -63,6 +63,10 @@ func (ctx *Context) GetNickNameMDV2() string {
 	return nicknameAt
 }
 
+func (ctx *Context) GenerateNickName(label string, openId string) string {
+	return fmt.Sprintf("[@%s](tg://user?id=%s)", label, openId)
+}
+
 func (ctx *Context) CopyRequester() (context.Context, he.Error) {
 	c := context.Background()
 	b, err := proto.Marshal(ctx.Requester)
