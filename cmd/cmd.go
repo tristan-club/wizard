@@ -8,7 +8,7 @@ const (
 	CmdGetAccount     = "get_wallet_address"
 	CmdBalance        = "balance"
 	CmdTransfer       = "transfer"
-	CmdCreateEnvelope = "create_red_envelope"
+	CmdCreateEnvelope = "send_red_envelope"
 
 	CmdAddTokenBalance = "add_token_balance"
 	CmdIssueToken      = "issue_token"

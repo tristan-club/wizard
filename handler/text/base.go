@@ -55,9 +55,9 @@ const (
 	TransferSuccessNoMarkdown       = "Your transfer to %s asset %s value %s succeed, you can view it on %s"
 
 	WaitForResult                     = "Your transaction is under processing..."
-	CreateEnvelopeSuccess             = "*Your red envelope No\\#%d is created , [click to view](%s)*"
-	ShareEnvelopeSuccess              = "User %s create a red envelope NO\\#%d by %s total value %s \\!"
-	DCShareEnvelopeSuccess            = "User %s create a red envelope NO\\#%d by %s total value %s \\!\nUse the `/open_red_envelope` command to open the red envelope"
+	CreateEnvelopeSuccess             = "*Your red envelope No\\#%d is created, [click to view](%s)*"
+	ShareEnvelopeSuccess              = "User %s create a red envelope NO\\#%d by %s total value %s\\!"
+	DCShareEnvelopeSuccess            = "User %s create a red envelope NO\\#%d by %s total value %s\\!\nUse the `/open_red_envelope` command to open the red envelope"
 	IssueTokenSuccess                 = "*Your token issued successfully*\nThe contract address is `%s`\n[click to view](%s)"
 	AirdropSuccess                    = "*The airdrop operation succeeded*\n*TXN URL*: [click to view](%s)"
 	AirdropSuccessInGroup             = "User %s successfully initiated the %s %s token airdrop operation\\nEveryone in the following list got %s %s :\n%s\n*TXN URL*: [click to view](%s)"
