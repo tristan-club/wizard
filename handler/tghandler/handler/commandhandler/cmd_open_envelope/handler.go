@@ -102,8 +102,10 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if openEnvelopeResp.CommonResponse.Code != he.Success {
 		if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_OPENED || openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT {
-			if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(mdparse.ParseV2(text.BusinessError), ctx.GetNickNameMDV2(), "open envelope command", mdparse.ParseV2(openEnvelopeResp.CommonResponse.Message)), nil, true, false); herr != nil {
+			if errMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(mdparse.ParseV2(text.BusinessError), ctx.GetNickNameMDV2(), "open envelope command", mdparse.ParseV2(openEnvelopeResp.CommonResponse.Message)), nil, true, false); herr != nil {
 				return herr
+			} else {
+				ctx.SetDeadlineMsg(errMsg.Chat.ID, errMsg.MessageID, pconst.GroupMentionDeadline)
 			}
 			return nil
 		} else if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOP_STATE_INVALID {

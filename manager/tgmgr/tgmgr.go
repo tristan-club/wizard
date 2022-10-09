@@ -65,15 +65,16 @@ func (p *PreCheckResult) CmdParam() []string {
 type TGMgr struct {
 	controllerMgr controller_pb.ControllerServiceClient
 	//widgetMgr     widget_pb.WidgetServiceClient
-	botApi        *tgbotapi.BotAPI
-	botName       string
-	cmdList       []string
-	cmdHandler    map[string]flow.TGFlowHandler
-	customHandler map[int32]flow.TGFlowHandler
-	startHandler  []flow.TGFlowHandler
-	cmdDesc       map[string]string
-	cmdParser     []func(u *tgbotapi.Update) string
-	appId         string
+	botApi         *tgbotapi.BotAPI
+	botName        string
+	cmdList        []string
+	cmdHandler     map[string]flow.TGFlowHandler
+	customHandler  map[int32]flow.TGFlowHandler
+	startHandler   []flow.TGFlowHandler
+	cmdDesc        map[string]string
+	cmdParser      []func(u *tgbotapi.Update) string
+	appId          string
+	availableChain []int32
 }
 
 func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId string) (*TGMgr, error) {
@@ -87,13 +88,14 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId s
 	}
 
 	tgMgr := &TGMgr{
-		controllerMgr: controller_pb.NewControllerServiceClient(controllerConn),
-		cmdList:       presetCmdIdList,
-		cmdHandler:    map[string]flow.TGFlowHandler{},
-		cmdDesc:       map[string]string{},
-		customHandler: map[int32]flow.TGFlowHandler{},
-		cmdParser:     make([]func(u *tgbotapi.Update) string, 0),
-		appId:         appId,
+		controllerMgr:  controller_pb.NewControllerServiceClient(controllerConn),
+		cmdList:        presetCmdIdList,
+		cmdHandler:     map[string]flow.TGFlowHandler{},
+		cmdDesc:        map[string]string{},
+		customHandler:  map[int32]flow.TGFlowHandler{},
+		cmdParser:      make([]func(u *tgbotapi.Update) string, 0),
+		appId:          appId,
+		availableChain: make([]int32, 0),
 	}
 
 	for _, cmdId := range presetCmdIdList {
@@ -116,6 +118,9 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId s
 		}
 	}
 	return tgMgr, nil
+}
+func (t *TGMgr) AddAvailableChain(chainTypeList []int32) {
+	t.availableChain = append(t.availableChain, chainTypeList...)
 }
 
 func (t *TGMgr) RegisterCmd(cmdId, desc string, handler flow.TGFlowHandler) error {
@@ -338,7 +343,7 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 		}
 
 		if msg != nil && msg.MessageID != 0 {
-			ctx.SetDeadlineMsg(msg.Chat.ID, msg.MessageID, pconst.COMMON_KEYBOARD_DEADLINE)
+			ctx.SetDeadlineMsg(msg.Chat.ID, msg.MessageID, pconst.COMMON_MSG_DEADLINE)
 		}
 	}
 	return
