@@ -53,10 +53,10 @@ var errMap = map[int]string{
 
 	CodeUserNotConfirm: "user not confirm",
 
-	ServerError:          "Ops, Somethings Wrong. ",
-	CodeNeedPrivateChat:  "This command only works in private chat.",
-	CodeCmdNeedGroupChat: "This command only works in group chat.",
-
+	ServerError:                 "Ops, Somethings Wrong. ",
+	CodeNeedPrivateChat:         "This command only works in private chat.",
+	CodeCmdNeedGroupChat:        "This command only works in group chat.",
+	CodeUserNotInit:             "You have not created an account, please forward to the bot and click `Start` first.",
 	CodeBotSendMsgError:         "an error occur while bot sending msg",
 	CodeWalletRequestError:      "an error occur while request MetaWallet service",
 	CodeMarshalError:            "json resolve error",
