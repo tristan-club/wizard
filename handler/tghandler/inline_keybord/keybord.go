@@ -3,6 +3,7 @@ package inline_keybord
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
@@ -12,6 +13,51 @@ import (
 )
 
 var ChainKeyboard = tgbotapi.InlineKeyboardMarkup{}
+
+var appAvailableChainKeyboardMap = map[string]tgbotapi.InlineKeyboardMarkup{}
+
+func AddAppChain(appId string, chainTypeList []uint32) {
+
+	if appId == "" || len(chainTypeList) == 0 {
+		log.Error().Msgf("invalid app chain config. appId %s, chainTypeList %v", appId, chainTypeList)
+		return
+	}
+
+	kb := tgbotapi.InlineKeyboardMarkup{}
+	ikb := make([]tgbotapi.InlineKeyboardButton, 0)
+	availableChain := make([]uint32, 0)
+
+	for _, chainType := range chainTypeList {
+		for _, v := range pconst.ChainTypeList {
+			if chainType == v {
+				availableChain = append(availableChain, chainType)
+				break
+			}
+		}
+	}
+
+	if len(availableChain) == 0 {
+		log.Error().Msgf("invalid app chain config. appId %s, chainTypeList %v", appId, chainTypeList)
+		return
+	}
+
+	for _, chainType := range availableChain {
+		ikb = append(ikb, tgbotapi.NewInlineKeyboardButtonData(pconst.GetChainName(uint32(chainType)), strconv.Itoa(int(chainType))))
+	}
+	if len(ikb) <= 3 {
+		kb = tgbotapi.NewInlineKeyboardMarkup(ikb)
+	} else {
+		ikbArray := make([][]tgbotapi.InlineKeyboardButton, 0)
+		for len(ikb) > 3 {
+			ikbArray = append(ikbArray, ikb[:3])
+			ikb = ikb[3:]
+		}
+		ikbArray = append(ikbArray, ikb)
+		kb = tgbotapi.NewInlineKeyboardMarkup(ikbArray...)
+	}
+
+	appAvailableChainKeyboardMap[appId] = kb
+}
 
 func init() {
 	ikb := []tgbotapi.InlineKeyboardButton{}
@@ -34,6 +80,15 @@ func init() {
 		ChainKeyboard = tgbotapi.NewInlineKeyboardMarkup(ikbArray...)
 	}
 
+}
+
+func GetChainKeyBoard(appId string) *tgbotapi.InlineKeyboardMarkup {
+
+	if kb, ok := appAvailableChainKeyboardMap[appId]; ok {
+		return &kb
+	}
+
+	return &ChainKeyboard
 }
 
 var EnvelopeTypeKeyboard = tgbotapi.NewInlineKeyboardMarkup(

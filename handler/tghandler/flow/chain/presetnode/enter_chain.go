@@ -16,7 +16,7 @@ import (
 var SelectChainNode = chain.NewNode(askForChain, prechecker.MustBeCallback, enterChain)
 
 func askForChain(ctx *tcontext.Context, node *chain.Node) error {
-	thisMsg, herr := ctx.Send(ctx.U.SentFrom().ID, text.SelectChain, &inline_keybord.ChainKeyboard, false, false)
+	thisMsg, herr := ctx.Send(ctx.U.SentFrom().ID, text.SelectChain, inline_keybord.GetChainKeyBoard(ctx.Requester.RequesterAppId), false, false)
 	if herr != nil {
 		return herr
 	} else {

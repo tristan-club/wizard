@@ -14,7 +14,7 @@ var ShowOrderNode = chain.NewNode(askForConfirm, prechecker.MustBeCallback, conf
 
 func askForConfirm(ctx *tcontext.Context, node *chain.Node) error {
 
-	_, herr := ctx.Send(ctx.U.SentFrom().ID, text.SelectChain, &inline_keybord.ChainKeyboard, true, false)
+	_, herr := ctx.Send(ctx.U.SentFrom().ID, text.SelectChain, inline_keybord.GetChainKeyBoard(ctx.Requester.RequesterAppId), true, false)
 	if herr != nil {
 		return herr
 	}

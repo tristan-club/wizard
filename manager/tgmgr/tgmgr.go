@@ -74,7 +74,7 @@ type TGMgr struct {
 	cmdDesc        map[string]string
 	cmdParser      []func(u *tgbotapi.Update) string
 	appId          string
-	availableChain []int32
+	availableChain []uint32
 }
 
 func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId string) (*TGMgr, error) {
@@ -95,7 +95,7 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId s
 		customHandler:  map[int32]flow.TGFlowHandler{},
 		cmdParser:      make([]func(u *tgbotapi.Update) string, 0),
 		appId:          appId,
-		availableChain: make([]int32, 0),
+		availableChain: make([]uint32, 0),
 	}
 
 	for _, cmdId := range presetCmdIdList {
@@ -119,8 +119,9 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId s
 	}
 	return tgMgr, nil
 }
-func (t *TGMgr) AddAvailableChain(chainTypeList []int32) {
+func (t *TGMgr) AddAvailableChain(chainTypeList []uint32) {
 	t.availableChain = append(t.availableChain, chainTypeList...)
+	inline_keybord.AddAppChain(t.appId, t.availableChain)
 }
 
 func (t *TGMgr) RegisterCmd(cmdId, desc string, handler flow.TGFlowHandler) error {
