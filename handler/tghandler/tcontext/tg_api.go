@@ -113,20 +113,18 @@ func (ctx *Context) DeleteMessage(chatId int64, messageId int) he.Error {
 }
 
 func (ctx *Context) EditMessageAndKeyboard(chatId int64, messageId int, content string, ikm *tgbotapi.InlineKeyboardMarkup, markdownContent bool, disableWebPreview bool) he.Error {
-	var editMsg tgbotapi.EditMessageTextConfig
+	editMsg := tgbotapi.NewEditMessageText(chatId, messageId, content)
 	if ikm != nil {
-		editMsg = tgbotapi.NewEditMessageTextAndMarkup(chatId, messageId, content, *ikm)
-	} else {
-		editMsg = tgbotapi.NewEditMessageText(chatId, messageId, content)
+		editMsg.ReplyMarkup = ikm
 	}
 	if markdownContent {
 		editMsg.ParseMode = tgbotapi.ModeMarkdownV2
 	}
 	editMsg.DisableWebPagePreview = disableWebPreview
 
-	if _, err := ctx.BotApi.Request(editMsg); err != nil {
+	if _, err := ctx.BotApi.Send(editMsg); err != nil {
 		log.Error().Fields(map[string]interface{}{
-			"action":  "delete msg",
+			"action":  "edit msg",
 			"error":   err.Error(),
 			"chatId":  chatId,
 			"msgId":   messageId,

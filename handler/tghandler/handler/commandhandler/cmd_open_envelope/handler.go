@@ -83,17 +83,20 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	defer func() {
 
 		if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT || openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOP_STATE_INVALID {
-			messageIdStr, err := tstore.PBGetStr(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, envelopeId), pconst.EnvelopeStorePath)
-			if err != nil {
-				log.Error().Fields(map[string]interface{}{"action": "get envelope message error", "error": err.Error()}).Send()
-				return
-			}
-			messageId, err := strconv.ParseInt(messageIdStr, 10, 64)
-			if err != nil {
-				log.Error().Fields(map[string]interface{}{"action": "parse message id error", "error": err.Error(), "raw": messageIdStr}).Send()
-				return
-			}
-			ctx.DeleteMessage(ctx.U.FromChat().ID, int(messageId))
+			//messageIdStr, err := tstore.PBGetStr(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, envelopeId), pconst.EnvelopeStorePath)
+			//if err != nil {
+			//	log.Error().Fields(map[string]interface{}{"action": "get envelope message error", "error": err.Error()}).Send()
+			//	return
+			//}
+			//messageId, err := strconv.ParseInt(messageIdStr, 10, 64)
+			//if err != nil {
+			//	log.Error().Fields(map[string]interface{}{"action": "parse message id error", "error": err.Error(), "raw": messageIdStr}).Send()
+			//	return
+			//}
+			//
+			//msg, err := ctx.BotApi.GetMe()
+			//
+			//ctx.DeleteMessage(ctx.U.FromChat().ID, int(messageId))
 
 		}
 	}()
@@ -169,10 +172,15 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			}
 			envelopeDetail = envelopeDetail + "\n\n🎊Claim History:\n\n" + claimHistory
 			msgId, _ := strconv.ParseInt(envelopeMsgId, 10, 64)
-			openButton := tgbotapi.NewInlineKeyboardMarkup(
-				[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, envelopeId))},
-			)
-			herr = ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, int(msgId), envelopeDetail, &openButton, true, true)
+			var openButton *tgbotapi.InlineKeyboardMarkup
+
+			if getEnvelopeResp.Data.RemainQuantity != 0 {
+				openButton = &tgbotapi.InlineKeyboardMarkup{}
+				*openButton = tgbotapi.NewInlineKeyboardMarkup(
+					[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, envelopeId))},
+				)
+			}
+			herr = ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, int(msgId), envelopeDetail, openButton, true, true)
 			if herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "edit red envelope error", "error": herr.Error()}).Send()
 			}
