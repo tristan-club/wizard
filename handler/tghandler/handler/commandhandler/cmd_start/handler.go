@@ -130,18 +130,6 @@ func startSendHandler(ctx *tcontext.Context) error {
 		user = getUserResp.Data
 	}
 
-	//cmdDesc := "⚙️ Commands\n"
-	//for _, v := range GetCmdList() {
-	//	cmdDesc += fmt.Sprintf("/%s %s\n", v, Desc[v])
-	//}
-	//content := "ℹ️ User Guide\n"
-	//content += text.Introduce
-	//
-	//content += "\n"
-	//content += "\n"
-	//content += cmdDesc
-	//content += "\n"
-
 	ikm := tgbotapi.NewInlineKeyboardMarkup(
 		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.ChangePinCode, cmd.CmdChangePinCode), tgbotapi.NewInlineKeyboardButtonData(text.SubmitMetamask, cmd.CmdSubmitMetamask)},
 	)
