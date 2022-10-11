@@ -22,6 +22,7 @@ type Context struct {
 	CM           controller_pb.ControllerServiceClient
 	BotApi       *tgbotapi.BotAPI
 	BotName      string
+	BotId        int64
 	Requester    *controller_pb.Requester
 	Payload      interface{}
 	CmdParam     []string

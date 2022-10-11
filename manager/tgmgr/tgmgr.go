@@ -67,6 +67,7 @@ type TGMgr struct {
 	//widgetMgr     widget_pb.WidgetServiceClient
 	botApi         *tgbotapi.BotAPI
 	botName        string
+	botId          int64
 	cmdList        []string
 	cmdHandler     map[string]flow.TGFlowHandler
 	customHandler  map[int32]flow.TGFlowHandler
@@ -177,6 +178,7 @@ func (t *TGMgr) ListenTGUpdate(botToken, webhookUrl, httpAddr string) error {
 	}
 
 	t.botName = botInfo.UserName
+	t.botId = botInfo.ID
 
 	var updates tgbotapi.UpdatesChannel
 
@@ -270,11 +272,16 @@ func (t *TGMgr) ListenTGUpdate(botToken, webhookUrl, httpAddr string) error {
 }
 
 func (t *TGMgr) InjectBotApi(botApi *tgbotapi.BotAPI, botName string) error {
-	if botApi == nil || botName == "" {
+	if botApi == nil {
 		return fmt.Errorf("invalid bot api inject")
 	}
+	botInfo, err := botApi.GetMe()
+	if err != nil {
+		return err
+	}
 	t.botApi = botApi
-	t.botName = botName
+	t.botName = botInfo.UserName
+	t.botId = botInfo.ID
 	return nil
 }
 
@@ -552,6 +559,7 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 		CM:       t.controllerMgr,
 		BotApi:   t.botApi,
 		BotName:  t.botName,
+		BotId:    t.botId,
 		Payload:  preCheckResult.payload,
 		CmdParam: preCheckResult.cmdParam,
 	}
