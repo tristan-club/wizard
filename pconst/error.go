@@ -44,6 +44,7 @@ const (
 	CodeConfirmTimeOut          = 30029
 	CodePinCodeInputInvalid     = 30030
 	CodeGetDefaultBotFailed     = 30031
+	CodePermissionRefused       = 30032
 )
 
 var errMap = map[int]string{
@@ -86,4 +87,5 @@ var errMap = map[int]string{
 	CodeConfirmTimeOut:          "confirm time out",
 	CodePinCodeInputInvalid:     "get pin code failed",
 	CodeGetDefaultBotFailed:     "default bot unavailable",
+	CodePermissionRefused:       "permission refused",
 }

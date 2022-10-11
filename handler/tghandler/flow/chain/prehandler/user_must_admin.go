@@ -5,12 +5,13 @@ import (
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 func UserMustBeAdmin(ctx *tcontext.Context) error {
 	if !ctx.U.FromChat().IsPrivate() {
 		message := ctx.U.Message
-		if message == nil {
+		if message == nil && ctx.U.CallbackQuery != nil {
 			message = ctx.U.CallbackQuery.Message
 		}
 		if message == nil {
@@ -28,7 +29,7 @@ func UserMustBeAdmin(ctx *tcontext.Context) error {
 			return he.NewServerError(he.ServerError, "", err)
 		} else if !chatMember.IsAdministrator() && !chatMember.IsCreator() {
 			log.Info().Fields(map[string]interface{}{"action": "user not admin", "chatMember": chatMember}).Send()
-			return nil
+			return he.NewBusinessError(pconst.CodePermissionRefused, "User needs admin rights to perform this action. ", nil)
 		}
 	}
 	return nil
