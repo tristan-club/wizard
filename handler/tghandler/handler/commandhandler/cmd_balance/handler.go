@@ -28,6 +28,7 @@ func balanceSendHandler(ctx *tcontext.Context) error {
 		ChainId:      uint64(pconst.GetChainId(uint32(chainType))),
 		Address:      ctx.Requester.RequesterDefaultAddress,
 		CheckBalance: true,
+		TokenType:    pconst.TokenTypeCoinOrERC20,
 	})
 	if err != nil {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)

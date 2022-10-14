@@ -46,6 +46,9 @@ func askForAsset(ctx *tcontext.Context, node *chain.Node) error {
 			return herr
 		}
 		assetType = param.AssetType
+		if assetType == 0 {
+			assetType = pconst.TokenTypeCoinOrERC20
+		}
 	}
 	assetListResp, err := ctx.CM.AssetList(ctx.Context, &controller_pb.AssetListReq{
 		ChainType:    uint32(chainType),
@@ -104,7 +107,7 @@ func enterAsset(ctx *tcontext.Context, node *chain.Node) error {
 			ChainId:         assetPayload.ChainId,
 			Address:         ctx.Requester.RequesterDefaultAddress,
 			ContractAddress: assetPayload.AssetAddress,
-			TokenType:       0,
+			TokenType:       pconst.TokenTypeCoinOrERC20,
 			ForceBalance:    true,
 		})
 		if err != nil {
