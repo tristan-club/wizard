@@ -23,12 +23,22 @@ type AddTokenPayload struct {
 	ContractAddress string `json:"contract_address"`
 }
 
+var tokenTypeChoiceText = []string{"ERC20", "ERC721"}
+var tokenTypeChoiceValue = []int64{pconst.TokenTypeErc20, pconst.TokenTypeERC721}
+
 func init() {
 
 	Handler = chain.NewChainHandler(cmd.CmdAddTokenBalance, addTokenSendHandler).
 		AddPreHandler(prehandler.ForwardPrivate).
 		AddPreHandler(prehandler.SetFrom).
 		AddPresetNode(presetnode.SelectChainNode, nil).
+		AddPresetNode(presetnode.EnterTypeNode, presetnode.EnterTypeParam{
+			ChoiceText:         tokenTypeChoiceText,
+			ChoiceValue:        tokenTypeChoiceValue,
+			Content:            text.SelectAssetType,
+			ParamKey:           "token_type",
+			ChosenTextParamKey: "",
+		}).
 		AddPresetNode(presetnode.EnterAddressNode, presetnode.AddressParam{ParamKey: "contract_address", Content: text.EnterTokenAddress})
 }
 
@@ -41,10 +51,9 @@ func addTokenSendHandler(ctx *tcontext.Context) error {
 	}
 
 	req := &controller_pb.AddAssetReq{
-		ChainType:       payload.ChainType,
 		ChainId:         pconst.GetChainId(payload.ChainType),
 		Address:         payload.From,
-		TokenType:       pconst.TokenTypeErc20,
+		TokenType:       uint32(payload.TokenType),
 		ContractAddress: payload.ContractAddress,
 	}
 
