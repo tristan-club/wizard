@@ -194,7 +194,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 			)
 			_ = ctx.SetChatMenuButton(&tgbotapi.MenuButton{
 				Type:   "web_app",
-				Text:   "webApp",
+				Text:   "account",
 				WebApp: &tgbotapi.WebAppInfo{URL: url},
 			})
 
