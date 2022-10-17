@@ -11,7 +11,7 @@ func main() {
 
 	time.Local = time.FixedZone("UTC", 0)
 
-	tgBotMgr, err := tgmgr.NewTGMgr(os.Getenv("CONTROLLER_SERVICE"), os.Getenv("TSTORE_SERVICE"), cmd.GetCmdList(), "")
+	tgBotMgr, err := tgmgr.NewTGMgr(os.Getenv("CONTROLLER_SERVICE"), os.Getenv("TSTORE_SERVICE"), cmd.GetCmdList(), os.Getenv("APP_ID"))
 	if err != nil {
 		panic(err)
 	}
