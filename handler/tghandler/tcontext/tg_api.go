@@ -1,6 +1,7 @@
 package tcontext
 
 import (
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
@@ -158,5 +159,23 @@ func (ctx *Context) ReplyDmWithGroupForward(content string, ikm *tgbotapi.Inline
 			return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 		}
 	}
+	return nil
+}
+
+func (ctx *Context) SetChatMenuButton(menuButton *tgbotapi.MenuButton) error {
+	req := tgbotapi.SetChatMenuButtonConfig{
+		ChatID:          ctx.U.SentFrom().ID,
+		ChannelUsername: "",
+		MenuButton:      menuButton,
+	}
+	res, err := ctx.BotApi.Request(req)
+	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "bot send chat button error", "error": err.Error()}).Send()
+		return err
+	} else if !res.Ok {
+		log.Error().Fields(map[string]interface{}{"action": "bot send button get error", "error": res}).Send()
+		return fmt.Errorf(res.Description)
+	}
+
 	return nil
 }

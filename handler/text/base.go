@@ -101,6 +101,8 @@ const (
 		"Entering a new address will replace the original one,\n" +
 		"which may cause the reward for the original address to be invalid\\."
 	BindMetamaskAddressSuccess = "Operation Success\\!\nThe MetaMask address currently associate with your account is `%s`"
+
+	OpenWebApp = "Please open web app"
 )
 
 const (
