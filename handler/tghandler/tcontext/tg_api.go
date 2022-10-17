@@ -8,6 +8,9 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/util"
+	"io"
+	"net/http"
+	"strings"
 )
 
 func (ctx *Context) Send(chatId int64, content string, ikm interface{}, markdownContent bool, disablePreview bool) (*tgbotapi.Message, he.Error) {
@@ -178,4 +181,74 @@ func (ctx *Context) SetChatMenuButton(menuButton *tgbotapi.MenuButton) error {
 	}
 
 	return nil
+}
+
+func (ctx *Context) SendPhoto(chatId int64, content string, ikm interface{}, markdownContent bool, photoUrl string) (*tgbotapi.Message, he.Error) {
+
+	photoConfig := tgbotapi.NewPhoto(chatId, tgbotapi.FileURL(photoUrl))
+	photoConfig.Caption = content
+	photoConfig.ReplyMarkup = ikm
+	if markdownContent {
+		photoConfig.ParseMode = tgbotapi.ModeMarkdownV2
+	}
+	m, err := ctx.BotApi.Send(photoConfig)
+	if err != nil {
+		if isSendPhotoError(err) {
+			m, err = ctx.retrySendPhoto(photoConfig, photoUrl)
+			if err != nil {
+				log.Error().Fields(map[string]interface{}{"action": "retry send photo error", "error": err.Error(), "photoUrl": photoUrl}).Send()
+			}
+		} else {
+			log.Error().Fields(map[string]interface{}{
+				"action": "telegram bot send photo",
+				"chat":   chatId,
+				"name":   ctx.BotName,
+				"photo":  photoUrl,
+				"error":  err,
+			}).Send()
+		}
+	}
+	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "retry send photo error", "error": err.Error(), "photoUrl": photoUrl}).Send()
+		return nil, he.NewServerError(pconst.CodeBotSendMsgError, "", err)
+	}
+	return &m, nil
+}
+
+func isSendPhotoError(err error) bool {
+	if err == nil {
+		log.Warn().Msgf("empty error asset for send photo")
+		return false
+	}
+	if strings.Contains(err.Error(), "wrong file identifier/HTTP URL specified") ||
+		strings.Contains(err.Error(), "failed to get HTTP URL content") {
+		return true
+	}
+	return false
+}
+
+func (ctx *Context) retrySendPhoto(pc tgbotapi.PhotoConfig, photoUrl string) (msg tgbotapi.Message, err error) {
+	httpResp, err := http.Get(photoUrl)
+	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "get photo by url error", "error": err.Error(), "pc": pc}).Send()
+		return msg, err
+	}
+	defer httpResp.Body.Close()
+	body, err := io.ReadAll(httpResp.Body)
+	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "ready photo content error", "error": err.Error(), "pc": pc}).Send()
+		return msg, err
+	}
+
+	pc.File = tgbotapi.FileBytes{Name: "Photo", Bytes: body}
+	msg, err = ctx.BotApi.Send(pc)
+	//if err != nil && isSendPhotoError(err) {
+	//
+	//} else {
+	//	log.Error().Fields(map[string]interface{}{"action": "send photo by content error", "error": err.Error(), "pc": pc}).Send()
+	//	return msg, err
+	//}
+	log.Error().Fields(map[string]interface{}{"action": "send photo by content error", "error": err.Error(), "pc": pc}).Send()
+	return msg, err
+
 }

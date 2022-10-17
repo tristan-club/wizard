@@ -184,8 +184,8 @@ func startSendHandler(ctx *tcontext.Context) error {
 				return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
 			}
 
-			url := fmt.Sprintf("%s?token=%s&&app_id=%s", pconst.WebAppUrl, initTemporaryTokenResp.Data.Token, ctx.Requester.RequesterAppId)
-
+			url := fmt.Sprintf("%s?token=%s&app_id=%s", pconst.WebAppUrl, initTemporaryTokenResp.Data.Token, ctx.Requester.RequesterAppId)
+			log.Info().Msgf("temporary print url: %s", url)
 			ikm := tgbotapi.NewInlineKeyboardMarkup(
 				[]tgbotapi.InlineKeyboardButton{tgbotapi.InlineKeyboardButton{Text: pconst.WebAppBtName, WebApp: &tgbotapi.WebAppInfo{
 					URL: url,

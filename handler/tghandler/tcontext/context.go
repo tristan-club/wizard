@@ -26,6 +26,7 @@ type Context struct {
 	Requester    *controller_pb.Requester
 	Payload      interface{}
 	CmdParam     []string
+	Msg          *tgbotapi.Message
 }
 
 func DefaultContext(u *tgbotapi.Update, api *tgbotapi.BotAPI) *Context {
