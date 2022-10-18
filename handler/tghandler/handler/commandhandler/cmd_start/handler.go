@@ -172,19 +172,19 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 		} else {
 
-			initTemporaryTokenResp, err := ctx.CM.InitTemporaryToken(ctx.Context, &controller_pb.InitTemporaryTokenReq{
-				UserId: ctx.Requester.RequesterUserNo,
-				AppId:  ctx.Requester.RequesterAppId,
-			})
-			if err != nil {
-				log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error()}).Send()
-				return he.NewServerError(pconst.CodeWalletRequestError, "", err)
-			} else if initTemporaryTokenResp.CommonResponse.Code != he.Success {
-				log.Error().Fields(map[string]interface{}{"action": "init temporary token error", "error": initTemporaryTokenResp}).Send()
-				return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
-			}
+			//initTemporaryTokenResp, err := ctx.CM.InitTemporaryToken(ctx.Context, &controller_pb.InitTemporaryTokenReq{
+			//	UserId: ctx.Requester.RequesterUserNo,
+			//	AppId:  ctx.Requester.RequesterAppId,
+			//})
+			//if err != nil {
+			//	log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error()}).Send()
+			//	return he.NewServerError(pconst.CodeWalletRequestError, "", err)
+			//} else if initTemporaryTokenResp.CommonResponse.Code != he.Success {
+			//	log.Error().Fields(map[string]interface{}{"action": "init temporary token error", "error": initTemporaryTokenResp}).Send()
+			//	return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
+			//}
 
-			url := fmt.Sprintf("%s?token=%s&app_id=%s", pconst.WebAppUrl, initTemporaryTokenResp.Data.Token, ctx.Requester.RequesterAppId)
+			url := fmt.Sprintf("%s?app_id=%s", pconst.WebAppUrl, ctx.Requester.RequesterAppId)
 			log.Info().Msgf("temporary print url: %s", url)
 			ikm := tgbotapi.NewInlineKeyboardMarkup(
 				[]tgbotapi.InlineKeyboardButton{tgbotapi.InlineKeyboardButton{Text: pconst.WebAppBtName, WebApp: &tgbotapi.WebAppInfo{
