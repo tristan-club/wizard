@@ -36,6 +36,7 @@ type Context struct {
 	Session   *discordgo.Session
 	BotName   string
 	Requester *controller_pb.Requester
+	Payload   interface{}
 }
 
 func DefaultContext(s *discordgo.Session, i *discordgo.InteractionCreate) *Context {

@@ -36,10 +36,15 @@ type PreCheckResult struct {
 	isCmd        bool
 	us           *userstate.UserState
 	handler      *handler.DiscordCmdHandler
+	payload      interface{}
 }
 
 func (p *PreCheckResult) ShouldHandle() bool {
 	return p.shouldHandle
+}
+
+func (p *PreCheckResult) InjectPayload(payload interface{}) {
+	p.payload = payload
 }
 
 type Manager struct {
@@ -48,6 +53,7 @@ type Manager struct {
 	botName       string
 	cmdList       []string
 	cmdHandler    map[string]*handler.DiscordCmdHandler
+	customHandler map[int32]*handler.DiscordCmdHandler
 	cmdDesc       map[string]string
 	appId         string
 	//cmdParser     []func(u *tgbotapi.Update) string
@@ -67,6 +73,7 @@ func NewMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId str
 		controllerMgr: controller_pb.NewControllerServiceClient(controllerConn),
 		cmdList:       presetCmdIdList,
 		cmdHandler:    map[string]*handler.DiscordCmdHandler{},
+		customHandler: map[int32]*handler.DiscordCmdHandler{},
 		cmdDesc:       map[string]string{},
 		appId:         appId,
 	}
@@ -122,6 +129,11 @@ func (t *Manager) RegisterCmd() error {
 	}
 	return nil
 }
+
+func (t *Manager) RegisterCustomHandler(cid *customid.CustomId, h *handler.DiscordCmdHandler) {
+	t.customHandler[cid.GetCustomType()] = h
+}
+
 func (t *Manager) InjectBotApi(botApi *discordgo.Session, botName string) error {
 	if botApi == nil || botName == "" {
 		return fmt.Errorf("invalid bot api inject")
@@ -213,10 +225,18 @@ func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreChe
 			pcr.handler = cmd_change_pincode.Handler
 		case pconst.CustomIdSubmitMetaMask:
 			pcr.handler = cmd_submit_metamask.Handler
-		default:
-			pcr.isCmd = false
-			pcr.shouldHandle = false
 		}
+
+		if pcr.handler == nil {
+			pcr.handler, ok = t.customHandler[cid.GetCustomType()]
+			if ok {
+				pcr.isCmd = true
+			} else {
+				pcr.isCmd = false
+				pcr.shouldHandle = false
+			}
+		}
+
 		return
 	default:
 		return
@@ -276,6 +296,7 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 		BotName:   t.botName,
 		CM:        t.controllerMgr,
 		Cid:       pcr.cid,
+		Payload:   pcr.payload,
 	}
 
 	requester := &controller_pb.Requester{

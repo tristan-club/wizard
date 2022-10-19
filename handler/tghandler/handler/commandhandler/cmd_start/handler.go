@@ -176,7 +176,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 			if config.UseTemporaryToken() {
 
 				initTemporaryTokenResp, err := ctx.CM.InitTemporaryToken(ctx.Context, &controller_pb.InitTemporaryTokenReq{
-					UserId: ctx.Requester.RequesterUserNo,
+					UserId: user.UserNo,
 					AppId:  ctx.Requester.RequesterAppId,
 				})
 				if err != nil {
