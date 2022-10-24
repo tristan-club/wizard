@@ -181,12 +181,14 @@ func startSendHandler(ctx *tcontext.Context) error {
 				})
 				if err != nil {
 					log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error()}).Send()
-					return he.NewServerError(pconst.CodeWalletRequestError, "", err)
+					//return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 				} else if initTemporaryTokenResp.CommonResponse.Code != he.Success {
 					log.Error().Fields(map[string]interface{}{"action": "init temporary token error", "error": initTemporaryTokenResp}).Send()
-					return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
+					//return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
+				} else {
+					url = fmt.Sprintf("%s&token=%s", url, initTemporaryTokenResp.Data.Token)
 				}
-				url = fmt.Sprintf("%s&token=%s", url, initTemporaryTokenResp.Data.Token)
+
 			}
 
 			log.Info().Msgf("temporary print url: %s", url)
@@ -218,6 +220,22 @@ func startSendHandler(ctx *tcontext.Context) error {
 			//}
 
 			if _, herr := ctx.Send(ctx.U.SentFrom().ID, walletContent, ikm, true, false); herr != nil {
+				log.Error().Fields(map[string]interface{}{"action": "send wallet content error", "error": herr.Error(), "ctx": ctx}).Send()
+
+				if isCreateUser {
+					req := &controller_pb.ChangeAccountPinCodeReq{
+						Address:    user.DefaultAccountAddr,
+						OldPinCode: pinCode,
+						NewPinCode: pconst.DefaultPinCode,
+					}
+					updateUserResp, err := ctx.CM.ChangeAccountPinCode(ctx.Context, req)
+					if err != nil {
+						log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error(), "req": req}).Send()
+					} else if updateUserResp.CommonResponse.Code != he.Success {
+						log.Error().Fields(map[string]interface{}{"action": "update account pin code error", "error": updateUserResp, "req": req}).Send()
+					}
+				}
+
 				return herr
 			}
 
