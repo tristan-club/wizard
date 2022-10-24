@@ -38,7 +38,6 @@ func init() {
 	Handler = chain.NewChainHandler(cmd.CmdTransfer, transferSendHandler).
 		AddPreHandler(prehandler.BotMustBeAdmin).
 		AddPreHandler(prehandler.ForwardPrivate).
-		AddPreHandler(prehandler.UserMustBeAdmin).
 		AddPreHandler(prehandler.SetFrom).
 		AddPresetNode(presetnode.SelectChainNode, nil).
 		AddPresetNode(presetnode.EnterAssetNode, nil).
