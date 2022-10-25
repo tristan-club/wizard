@@ -86,7 +86,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 					OpenType:      int32(ctx.Requester.RequesterOpenType),
 					IsOpenInit:    true,
 					CreateAccount: false,
-					PinCode:       "",
+					PinCode:       pconst.DefaultPinCode,
 					ChannelId:     channelId,
 					Username:      ctx.GetUserName(),
 					Nickname:      ctx.GetNickname(),

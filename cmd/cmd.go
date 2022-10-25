@@ -26,13 +26,23 @@ const (
 
 	// Mock cmd
 	CmdDeleteAccount = "delete_account"
+
+	CmdTest = "test"
 )
 
 var cmdList = []string{
 	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdOpenEnvelope, CmdAddTokenBalance, CmdIssueToken,
 	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate, CmdDeleteAccount, CmdSubmitMetamask,
 }
-var betaCmdList = []string{}
+var betaCmdList = []string{CmdTest}
+
+func init() {
+	if config.EnvIsDev() {
+		for k, v := range betaDesc {
+			desc[k] = v
+		}
+	}
+}
 
 func GetCmdList() []string {
 	if config.EnvIsDev() {
@@ -76,6 +86,10 @@ var desc = map[string]string{
 	CmdOpenEnvelope: "Open Red Packet shared with the community . Please specify the serial number",
 
 	CmdDeleteAccount: "Erase your account data, this operation cannot be reversed",
+}
+
+var betaDesc = map[string]string{
+	CmdTest: "Test",
 }
 
 func GetCmdDescMap() map[string]string {

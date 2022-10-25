@@ -20,6 +20,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_start"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_submit_metamask"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_swap"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_test"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_transfer"
 )
 
@@ -45,6 +46,7 @@ func init() {
 		cmd.CmdExportPrivate:   cmd_export_key.Handler,
 		cmd.CmdReplacePrivate:  cmd_import_key.Handler,
 		cmd.CmdDeleteAccount:   cmd_delete_account.Handler,
+		cmd.CmdTest:            cmd_test.Handler,
 	}
 }
 

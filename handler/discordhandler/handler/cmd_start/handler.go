@@ -11,7 +11,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	"github.com/tristan-club/wizard/pkg/util"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -51,7 +50,8 @@ func startSendHandler(ctx *dcontext.Context) error {
 	}
 
 	if user == nil {
-		pinCode = util.GenerateUuid(true)[:6]
+		//pinCode = util.GenerateUuid(true)[:6]
+		pinCode = pconst.DefaultPinCode
 		addUserResp, err := ctx.CM.AddUser(ctx.Context, &controller_pb.AddUserReq{
 			OpenId:        ctx.Requester.RequesterOpenId,
 			OpenType:      int32(ctx.Requester.RequesterOpenType),

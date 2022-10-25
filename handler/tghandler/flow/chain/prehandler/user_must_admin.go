@@ -42,6 +42,7 @@ func UserMustBeAdmin(ctx *tcontext.Context) error {
 				return he.NewBusinessError(pconst.CodePermissionRefused, "User needs admin rights to perform this action. ", nil)
 			}
 		}
+
 	}
 	return nil
 }
