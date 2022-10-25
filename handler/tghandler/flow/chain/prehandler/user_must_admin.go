@@ -33,9 +33,11 @@ func UserMustBeAdmin(ctx *tcontext.Context) error {
 			appOwnerResp, err := ctx.CM.GetAppOwner(ctx.Context, &controller_pb.GetAppOwnerReq{UserId: ctx.Requester.RequesterUserNo, AppId: ctx.Requester.RequesterAppId})
 			if err != nil {
 				log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error(), "ctx": ctx}).Send()
+				return he.NewBusinessError(pconst.CodePermissionRefused, "User needs admin rights to perform this action. ", nil)
 			} else if appOwnerResp.CommonResponse.Code != he.Success {
 				log.Error().Fields(map[string]interface{}{"action": "get app owner error", "error": appOwnerResp}).Send()
-			} else if len(appOwnerResp.Data) != 1 && appOwnerResp.Data[0].AppId != ctx.Requester.RequesterUserNo {
+				return he.NewBusinessError(pconst.CodePermissionRefused, "User needs admin rights to perform this action. ", nil)
+			} else if len(appOwnerResp.Data) != 1 || appOwnerResp.Data[0].UserId != ctx.Requester.RequesterUserNo {
 				log.Info().Fields(map[string]interface{}{"action": "user not admin", "chatMember": chatMember}).Send()
 				return he.NewBusinessError(pconst.CodePermissionRefused, "User needs admin rights to perform this action. ", nil)
 			}
