@@ -15,7 +15,6 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/dingding"
 	"github.com/tristan-club/wizard/pkg/tstore"
-	"github.com/tristan-club/wizard/pkg/util"
 	"strings"
 	"time"
 )
@@ -86,7 +85,6 @@ func startSendHandler(ctx *tcontext.Context) error {
 					OpenType:      int32(ctx.Requester.RequesterOpenType),
 					IsOpenInit:    true,
 					CreateAccount: false,
-					PinCode:       pconst.DefaultPinCode,
 					ChannelId:     channelId,
 					Username:      ctx.GetUserName(),
 					Nickname:      ctx.GetNickname(),
@@ -94,7 +92,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 				}
 
 				if !isStartBot {
-					pinCode = util.GenerateUuid(true)[:6]
+					pinCode = pconst.DefaultPinCode
 					addUserReq.PinCode = pinCode
 					addUserReq.CreateAccount = true
 				}
