@@ -165,10 +165,18 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 					labelName[i] = nicknameRune[i]
 				}
 
+				// todo 没有txhash，用address代替
+				var txnUrl string
+				if claim.TxHash != "" {
+					txnUrl = chain_info.GetExplorerTargetUrl(getEnvelopeResp.Data.ChainId, claim.TxHash, chain_info.ExplorerTargetTransaction)
+				} else {
+					txnUrl = chain_info.GetExplorerTargetUrl(getEnvelopeResp.Data.ChainId, claim.ReceiverAddress, chain_info.ExplorerTargetAddress)
+				}
+
 				claimHistory += fmt.Sprintf("%s   %s %s   TXN URL\\: [click to view](%s)\n\n",
 					ctx.GenerateNickName(mdparse.ParseV2(string(labelName)), claim.ReceiverOpenId),
 					mdparse.ParseV2(claim.Amount),
-					mdparse.ParseV2(claim.AssetSymbol), mdparse.ParseV2(chain_info.GetExplorerTargetUrl(getEnvelopeResp.Data.ChainId, claim.TxHash, chain_info.ExplorerTargetTransaction)))
+					mdparse.ParseV2(claim.AssetSymbol), mdparse.ParseV2(txnUrl))
 			}
 			envelopeDetail = envelopeDetail + "\n\n🎊Claim History:\n\n" + claimHistory
 			msgId, _ := strconv.ParseInt(envelopeMsgId, 10, 64)
