@@ -179,7 +179,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			if getEnvelopeResp.Data.RemainQuantity != 0 {
 				openButton = &tgbotapi.InlineKeyboardMarkup{}
 				*openButton = tgbotapi.NewInlineKeyboardMarkup(
-					[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, envelopeNo))},
+					[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%s", cmd.CmdOpenEnvelope, envelopeNo))},
 				)
 			}
 			herr = ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, int(msgId), envelopeDetail, openButton, true, true)
