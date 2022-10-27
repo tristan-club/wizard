@@ -18,7 +18,6 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
-	"strconv"
 	"strings"
 )
 
@@ -179,7 +178,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 
 	log.Debug().Fields(map[string]interface{}{"action": "create envelope success", "envelopeResp": envelopeResp})
 
-	if err = ctx.FollowUpEdit(msg.ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.Id, chain_info.GetExplorerTargetUrl(net.ChainId, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))); err != nil {
+	if err = ctx.FollowUpEdit(msg.ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.EnvelopeNo, chain_info.GetExplorerTargetUrl(net.ChainId, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
@@ -198,7 +197,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 		Content: "",
 		Embeds: []*discordgo.MessageEmbed{
 			{
-				Description: fmt.Sprintf(text.ShareEnvelopeSuccess, ctx.GetNickNameMDV2(), createRedEnvelope.Data.Id, mdparse.ParseV2(payload.AssetSymbol), mdparse.ParseV2(payload.Amount)),
+				Description: fmt.Sprintf(text.ShareEnvelopeSuccess, ctx.GetNickNameMDV2(), createRedEnvelope.Data.EnvelopeNo, mdparse.ParseV2(payload.AssetSymbol), mdparse.ParseV2(payload.Amount)),
 			},
 		},
 		TTS: false,
@@ -206,7 +205,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					&discordgo.Button{
-						CustomID: customid.NewCustomId(pconst.CustomIdOpenEnvelope, strconv.FormatInt(int64(createRedEnvelope.Data.Id), 10), 0).String(),
+						CustomID: customid.NewCustomId(pconst.CustomIdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, 0).String(),
 						Disabled: false,
 						Style:    discordgo.PrimaryButton,
 						Label:    pconst.CustomLabelOpenEnvelope,
@@ -222,7 +221,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	}
 
 	msg, err = ctx.Session.ChannelMessageSendComplex(ctx.GetGroupChannelId(), messageSend)
-	err = tstore.PBSaveString(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.Id), pconst.EnvelopeStorePath, msg.ID)
+	err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePath, msg.ID)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 	}

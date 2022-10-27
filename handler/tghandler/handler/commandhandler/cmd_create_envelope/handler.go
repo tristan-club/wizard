@@ -180,10 +180,10 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	log.Debug().Fields(map[string]interface{}{"action": "create envelope success", "envelopeResp": envelopeResp})
 
 	openButton := tgbotapi.NewInlineKeyboardMarkup(
-		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, createRedEnvelope.Data.Id))},
+		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%s", cmd.CmdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo))},
 	)
 
-	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.Id, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
+	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.EnvelopeNo, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
 		return herr
 	}
 
@@ -191,7 +191,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	if replyMsg, herr := ctx.Send(channelId, shareEnvelopeContent, &openButton, true, false); herr != nil {
 		return herr
 	} else {
-		err = tstore.PBSaveString(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.Id), pconst.EnvelopeStorePath, strconv.FormatInt(int64(replyMsg.MessageID), 10))
+		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePath, strconv.FormatInt(int64(replyMsg.MessageID), 10))
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 		}

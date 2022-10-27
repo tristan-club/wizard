@@ -15,7 +15,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/tstore"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -43,18 +42,13 @@ var OpenEnvelopeHandler = &handler.DiscordCmdHandler{
 }
 
 func openEnvelopeHandler(ctx *dcontext.Context) error {
-	envelopeId, err := strconv.ParseInt(ctx.Cid.GetId(), 10, 64)
-	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "invalid envelopeId", "error": err.Error(), "ctx": ctx}).Send()
-		return he.NewServerError(he.ServerError, "", fmt.Errorf("invalid red envelope id payload %s", err.Error()))
-	}
+	envelopeNo := ctx.Cid.GetId()
 	channelId := ctx.IC.ChannelID
 	//assetSymbol := pconst.GetAssetSymbol(payload.ChainType)
 
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
 		Address:    ctx.Requester.RequesterDefaultAddress,
-		EnvelopeNo: "",
-		EnvelopeId: uint32(envelopeId),
+		EnvelopeNo: envelopeNo,
 		IsWait:     false,
 	})
 	if err != nil {
@@ -71,14 +65,14 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 			}
 
 			if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT {
-				msgId, err := tstore.PBGetStr(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, envelopeId), pconst.EnvelopeStorePath)
+				msgId, err := tstore.PBGetStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, envelopeNo), pconst.EnvelopeStorePath)
 				if err != nil {
-					log.Error().Fields(map[string]interface{}{"action": "get envelope msg error", "error": err.Error(), "id": envelopeId}).Send()
+					log.Error().Fields(map[string]interface{}{"action": "get envelope msg error", "error": err.Error(), "id": envelopeNo}).Send()
 					return nil
 				}
 				err = ctx.Session.ChannelMessageDelete(ctx.GetGroupChannelId(), msgId)
 				if err != nil {
-					log.Error().Fields(map[string]interface{}{"action": "delete red envelope error", "error": err.Error(), "id": envelopeId}).Send()
+					log.Error().Fields(map[string]interface{}{"action": "delete red envelope error", "error": err.Error(), "id": envelopeNo}).Send()
 				}
 			}
 
@@ -98,7 +92,7 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 	net := chain_info.GetNetByChainType(chainType)
 	amountLabel := strings.ReplaceAll(amount, ".", "\\.")
 
-	_, err = ctx.FollowUpReply(fmt.Sprintf(text.OpenEnvelopeTransactionProcessing, ctx.GetNickNameMDV2(), envelopeId, amountLabel, assetSymbol))
+	_, err = ctx.FollowUpReply(fmt.Sprintf(text.OpenEnvelopeTransactionProcessing, ctx.GetNickNameMDV2(), envelopeNo, amountLabel, assetSymbol))
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
@@ -113,9 +107,9 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	log.Info().Msgf("user %s open envelope %d tx hash %s", ctx.GetFromId(), envelopeId, getDataResp.Data.TxHash)
+	log.Info().Msgf("user %s open envelope %d tx hash %s", ctx.GetFromId(), envelopeNo, getDataResp.Data.TxHash)
 
-	if _, err = ctx.Send(channelId, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount),
+	if _, err = ctx.Send(channelId, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeNo, mdparse.ParseV2(amount),
 		mdparse.ParseV2(assetSymbol), chain_info.GetExplorerTargetUrl(net.ChainId, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)

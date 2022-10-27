@@ -60,16 +60,10 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		log.Error().Fields(map[string]interface{}{"action": "invalid envelope params", "payload": ctx.U.CallbackData()}).Send()
 		return he.NewServerError(pconst.CodeInvalidPayload, "", fmt.Errorf("invalid payload"))
 	}
-	envelopeId, err := strconv.ParseInt(params[1], 10, 32)
-	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "invalid envelope id", "error": err.Error()}).Send()
-		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
-	}
-
+	envelopeNo := params[1]
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
 		Address:    ctx.Requester.RequesterDefaultAddress,
-		EnvelopeNo: "",
-		EnvelopeId: uint32(envelopeId),
+		EnvelopeNo: envelopeNo,
 		IsWait:     true,
 		ChannelId:  ctx.Requester.RequesterChannelId,
 		ReceiverNo: ctx.Requester.RequesterUserNo,
@@ -124,7 +118,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	assetSymbol := openEnvelopeResp.Data.AssetSymbol
 	chainType := openEnvelopeResp.Data.ChainType
 	amountLabel := strings.ReplaceAll(amount, ".", "\\.")
-	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeTransactionProcessing, ctx.GetNickNameMDV2(), envelopeId, amountLabel, assetSymbol), nil, true, false)
+	pendingMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeTransactionProcessing, ctx.GetNickNameMDV2(), envelopeNo, amountLabel, assetSymbol), nil, true, false)
 	if herr != nil {
 		return herr
 	}
@@ -139,12 +133,12 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 	ctx.TryDeleteMessage(pendingMsg)
-	envelopeMsgId, err := tstore.PBGetStr(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, envelopeId), pconst.EnvelopeStorePath)
+	envelopeMsgId, err := tstore.PBGetStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, envelopeNo), pconst.EnvelopeStorePath)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "get envelope msg id error", "error": err.Error()}).Send()
 	} else {
 
-		getEnvelopeResp, err := ctx.CM.GetEnvelope(ctx.Context, &controller_pb.GetEnvelopeReq{EnvelopeId: uint32(envelopeId), WithClaimList: true, WaitSuccess: true})
+		getEnvelopeResp, err := ctx.CM.GetEnvelope(ctx.Context, &controller_pb.GetEnvelopeReq{EnvelopeNo: envelopeNo, WithClaimList: true, WaitSuccess: true})
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "call wallet", "error": err.Error()}).Send()
 		} else if getEnvelopeResp.CommonResponse.Code != he.Success {
@@ -185,7 +179,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			if getEnvelopeResp.Data.RemainQuantity != 0 {
 				openButton = &tgbotapi.InlineKeyboardMarkup{}
 				*openButton = tgbotapi.NewInlineKeyboardMarkup(
-					[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, envelopeId))},
+					[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%d", cmd.CmdOpenEnvelope, envelopeNo))},
 				)
 			}
 			herr = ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, int(msgId), envelopeDetail, openButton, true, true)
@@ -198,7 +192,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 
 	log.Info().Msgf("user %s get open envelope tx hash uid %s", ctx.GetUserName(), uid)
 
-	if openMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeId, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, true); herr != nil {
+	if openMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeNo, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, true); herr != nil {
 		return herr
 	} else {
 		ctx.SetDeadlineMsg(openMsg.Chat.ID, openMsg.MessageID, pconst.GroupMentionDeadline)

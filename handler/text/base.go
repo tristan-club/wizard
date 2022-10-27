@@ -56,9 +56,9 @@ const (
 	TransferSuccessNoMarkdown       = "Your transfer to %s asset %s value %s succeed, you can view it on %s"
 
 	WaitForResult                     = "Your transaction is under processing..."
-	CreateEnvelopeSuccess             = "*Your red envelope No\\#%d is created, [click to view](%s)*"
-	ShareEnvelopeSuccess              = "User %s create a red envelope NO\\#%d by %s total value %s\\!"
-	DCShareEnvelopeSuccess            = "User %s create a red envelope NO\\#%d by %s total value %s\\!\nUse the `/open_red_envelope` command to open the red envelope"
+	CreateEnvelopeSuccess             = "*Your red envelope No\\#%s is created, [click to view](%s)*"
+	ShareEnvelopeSuccess              = "User %s create a red envelope NO\\#%s by %s total value %s\\!"
+	DCShareEnvelopeSuccess            = "User %s create a red envelope NO\\#%s by %s total value %s\\!\nUse the `/open_red_envelope` command to open the red envelope"
 	IssueTokenSuccess                 = "*Your token issued successfully*\nThe contract address is `%s`\n[click to view](%s)"
 	AirdropSuccess                    = "*The airdrop operation succeeded*\n*TXN URL*: [click to view](%s)"
 	AirdropSuccessInGroup             = "User %s successfully initiated the %s %s token airdrop operation\\nEveryone in the following list got %s %s :\n%s\n*TXN URL*: [click to view](%s)"
@@ -68,8 +68,8 @@ const (
 	ChangePinCode                     = "CHANGE PIN CODE"
 	SubmitMetamask                    = "SUBMIT METAMASK"
 	ContinueToBridge                  = "continue to bridge"
-	OpenEnvelopeTransactionProcessing = "User %s open red envelope NO\\#%d is processing\\, get %s %s"
-	OpenEnvelopeSuccess               = "User %s open red envelope NO\\#%d succeed \\! get %s %s \\!\n*TXN URL: [click to view](%s)*"
+	OpenEnvelopeTransactionProcessing = "User %s open red envelope NO\\#%s is processing\\, get %s %s"
+	OpenEnvelopeSuccess               = "User %s open red envelope NO\\#%s succeed \\! get %s %s \\!\n*TXN URL: [click to view](%s)*"
 	EnvelopeCreateFailed              = "Red envelope creation failed."
 	ChangePinCodeSuccess              = "Pin code has been updated."
 
