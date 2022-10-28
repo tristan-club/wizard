@@ -170,7 +170,8 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 		} else {
 
-			url := fmt.Sprintf("%s?app_id=%s", pconst.WebAppUrl, ctx.Requester.RequesterAppId)
+			suffix := fmt.Sprintf("?app_id=%s", ctx.Requester.RequesterAppId)
+
 			if config.UseTemporaryToken() {
 
 				initTemporaryTokenResp, err := ctx.CM.InitTemporaryToken(ctx.Context, &controller_pb.InitTemporaryTokenReq{
@@ -184,23 +185,46 @@ func startSendHandler(ctx *tcontext.Context) error {
 					log.Error().Fields(map[string]interface{}{"action": "init temporary token error", "error": initTemporaryTokenResp}).Send()
 					//return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
 				} else {
-					url = fmt.Sprintf("%s&token=%s", url, initTemporaryTokenResp.Data.Token)
+					suffix += fmt.Sprintf("&token=%s", initTemporaryTokenResp.Data.Token)
 				}
 
 			}
 
-			log.Info().Msgf("temporary print url: %s", url)
-			ikm := tgbotapi.NewInlineKeyboardMarkup(
-				[]tgbotapi.InlineKeyboardButton{tgbotapi.InlineKeyboardButton{Text: pconst.WebAppBtName, WebApp: &tgbotapi.WebAppInfo{
-					URL: url,
-				}}, tgbotapi.NewInlineKeyboardButtonData(text.ChangePinCode, cmd.CmdChangePinCode),
-					tgbotapi.NewInlineKeyboardButtonData(text.SubmitMetamask, cmd.CmdSubmitMetamask)},
-			)
+			suffix = strings.ReplaceAll(suffix, " ", "%20")
+
+			log.Debug().Msgf("temporary print url: %s", suffix)
+			//ikm := tgbotapi.NewInlineKeyboardMarkup(
+			//	[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.ButtonHelp, cmd.CmdMenu), tgbotapi.NewInlineKeyboardButtonData(text.ChangePinCode, cmd.CmdChangePinCode),
+			//		tgbotapi.NewInlineKeyboardButtonData(text.SubmitMetamask, cmd.CmdSubmitMetamask)},
+			//)
 			_ = ctx.SetChatMenuButton(&tgbotapi.MenuButton{
 				Type:   "web_app",
 				Text:   "Account",
-				WebApp: &tgbotapi.WebAppInfo{URL: url},
+				WebApp: &tgbotapi.WebAppInfo{URL: fmt.Sprintf("%s%s", pconst.WebAppMenuUrl, suffix)},
 			})
+
+			line1 := []tgbotapi.KeyboardButton{{
+				Text:   text.KBAccount,
+				WebApp: &tgbotapi.WebAppInfo{URL: fmt.Sprintf("%s%s", pconst.WebAppMenuUrl, suffix)},
+			}, {
+				Text:   text.KBProfile,
+				WebApp: &tgbotapi.WebAppInfo{URL: fmt.Sprintf("%s%s", pconst.WebAppProfileUrl, suffix)},
+			}}
+			line2 := []tgbotapi.KeyboardButton{{
+				Text:   text.KBActivity,
+				WebApp: &tgbotapi.WebAppInfo{URL: fmt.Sprintf("%s%s", pconst.WebAppActivityUrl, suffix)},
+			}, {
+				Text: text.KBChangePinCode,
+			}}
+			line3 := []tgbotapi.KeyboardButton{{
+				Text: text.KBBalance,
+			}, {
+				Text: text.KBHelp,
+			}}
+
+			keyboardBt := &tgbotapi.ReplyKeyboardMarkup{
+				Keyboard: [][]tgbotapi.KeyboardButton{line1, line2, line3},
+			}
 
 			walletContent := "⚡️ Wallet\n"
 			if isCreateUser {
@@ -217,24 +241,45 @@ func startSendHandler(ctx *tcontext.Context) error {
 			//	return herr
 			//}
 
-			if _, herr := ctx.Send(ctx.U.SentFrom().ID, walletContent, ikm, true, false); herr != nil {
+			_, herr := ctx.Send(ctx.U.SentFrom().ID, walletContent, keyboardBt, true, false)
+			if herr != nil {
+
 				log.Error().Fields(map[string]interface{}{"action": "send wallet content error", "error": herr.Error(), "ctx": ctx}).Send()
 
-				if isCreateUser {
-					req := &controller_pb.ChangeAccountPinCodeReq{
-						Address:    user.DefaultAccountAddr,
-						OldPinCode: pinCode,
-						NewPinCode: pconst.DefaultPinCode,
-					}
-					updateUserResp, err := ctx.CM.ChangeAccountPinCode(ctx.Context, req)
-					if err != nil {
-						log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error(), "req": req}).Send()
-					} else if updateUserResp.CommonResponse.Code != he.Success {
-						log.Error().Fields(map[string]interface{}{"action": "update account pin code error", "error": updateUserResp, "req": req}).Send()
+				_, herr = ctx.Send(ctx.U.SentFrom().ID, walletContent, nil, true, false)
+				if herr != nil {
+					log.Error().Fields(map[string]interface{}{"action": "register keyboard bt error", "error": herr.Error(), "ikm": keyboardBt}).Send()
+					if isCreateUser {
+						req := &controller_pb.ChangeAccountPinCodeReq{
+							Address:    user.DefaultAccountAddr,
+							OldPinCode: pinCode,
+							NewPinCode: pconst.DefaultPinCode,
+						}
+						updateUserResp, err := ctx.CM.ChangeAccountPinCode(ctx.Context, req)
+						if err != nil {
+							log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error(), "req": req}).Send()
+						} else if updateUserResp.CommonResponse.Code != he.Success {
+							log.Error().Fields(map[string]interface{}{"action": "update account pin code error", "error": updateUserResp, "req": req}).Send()
+						}
 					}
 				}
 
 				return herr
+			}
+
+			if isCreateUser {
+
+				_, herr = ctx.SendPhoto(ctx.U.SentFrom().ID, "", nil, true, pconst.UserGuideImgUrl)
+
+				go func() {
+					time.Sleep(time.Minute * 5)
+					ikm := tgbotapi.NewInlineKeyboardMarkup(
+						[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.ChangePinCode, cmd.CmdChangePinCode)},
+					)
+					if _, herr = ctx.SendPhoto(ctx.U.SentFrom().ID, text.ChangeYourPin, ikm, false, pconst.ChangePinCodeImgUrl); herr != nil {
+						log.Error().Fields(map[string]interface{}{"action": "send change pin img error", "error": herr.Error()}).Send()
+					}
+				}()
 			}
 
 			//if isCreateUser {

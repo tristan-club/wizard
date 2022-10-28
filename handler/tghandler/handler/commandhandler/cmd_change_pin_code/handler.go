@@ -32,6 +32,9 @@ func init() {
 			if u.CallbackData() == cmd.CmdChangePinCode {
 				return cmd.CmdChangePinCode
 			}
+			if u.Message != nil && u.Message.Text == text.KBChangePinCode {
+				return cmd.CmdChangePinCode
+			}
 			return ""
 		}).
 		AddPreHandler(prehandler.ForwardPrivate).

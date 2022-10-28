@@ -2,6 +2,7 @@ package cmd_balance
 
 import (
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -14,7 +15,14 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 )
 
-var Handler = chain.NewChainHandler(cmd.CmdBalance, balanceSendHandler).AddPreHandler(prehandler.ForwardPrivate).AddPresetNode(presetnode.SelectChainNode, nil)
+var Handler = chain.NewChainHandler(cmd.CmdBalance, balanceSendHandler).
+	AddCmdParser(func(u *tgbotapi.Update) string {
+		if u.Message != nil && u.Message.Text == text.KBBalance {
+			return cmd.CmdBalance
+		}
+		return ""
+	}).
+	AddPreHandler(prehandler.ForwardPrivate).AddPresetNode(presetnode.SelectChainNode, nil)
 
 func balanceSendHandler(ctx *tcontext.Context) error {
 

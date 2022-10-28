@@ -107,7 +107,7 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 
-	log.Info().Msgf("user %s open envelope %d tx hash %s", ctx.GetFromId(), envelopeNo, getDataResp.Data.TxHash)
+	log.Info().Msgf("user %s open envelope %s tx hash %s", ctx.GetFromId(), envelopeNo, getDataResp.Data.TxHash)
 
 	if _, err = ctx.Send(channelId, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeNo, mdparse.ParseV2(amount),
 		mdparse.ParseV2(assetSymbol), chain_info.GetExplorerTargetUrl(net.ChainId, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))); err != nil {

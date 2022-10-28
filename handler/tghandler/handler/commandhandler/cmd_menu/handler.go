@@ -2,13 +2,23 @@ package cmd_menu
 
 import (
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 )
 
-var Handler = chain.NewChainHandler(cmd.CmdMenu, menuSendHandler)
+var Handler = chain.NewChainHandler(cmd.CmdMenu, menuSendHandler).
+	AddCmdParser(func(u *tgbotapi.Update) string {
+		if u.CallbackData() == cmd.CmdMenu {
+			return cmd.CmdMenu
+		}
+		if u.Message != nil && u.Message.Text == text.KBHelp {
+			return cmd.CmdMenu
+		}
+		return ""
+	})
 
 func menuSendHandler(ctx *tcontext.Context) error {
 

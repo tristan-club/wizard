@@ -87,6 +87,7 @@ const (
 	ButtonForwardPrivateChat = "FORWARD TO CONTINUE"
 	ButtonForwardCreate      = "FORWARD TO CREATE"
 	ButtonJoin               = "JOIN"
+	ButtonHelp               = "HELP"
 
 	DepositAsset = "Please Deposit Some %s To Your %s Chain Address"
 
@@ -103,6 +104,10 @@ const (
 	BindMetamaskAddressSuccess = "Operation Success\\!\nThe MetaMask address currently associate with your account is `%s`"
 
 	OpenWebApp = "Please open web app"
+
+	ChangeYourPin = "Please change your Pincode for your asset security!"
+
+	InitKeyboardButtonSuccess = "Init keyboard button success!"
 )
 
 const (
@@ -111,4 +116,15 @@ const (
 
 const (
 	StartBotDefaultText = "Hi %s\\, click the button below and join the group to help your friend complete the task\\!"
+)
+
+const (
+	KBAccount       = "💎 My Account"
+	KBProfile       = "🏅 Social Profile"
+	KBActivity      = "🔥 Trending Activity"
+	KBLastActivity  = "🕘 Last Activity"
+	KBBalance       = "💰 Balance"
+	KBHelp          = "❓️ Guide & Help"
+	KBChangePinCode = "ℹ️ Change Pincode"
+	KBTransfer      = "♻ Transfer"
 )

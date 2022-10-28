@@ -3,6 +3,7 @@ package cmd_transfer
 import (
 	"context"
 	"fmt"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/tristan-club/kit/chain_info"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/mdparse"
@@ -36,6 +37,12 @@ func init() {
 	enterTransferAmountHandler = new(chain.Node)
 	*enterTransferAmountHandler = *presetnode.EnterAmountNode
 	Handler = chain.NewChainHandler(cmd.CmdTransfer, transferSendHandler).
+		AddCmdParser(func(u *tgbotapi.Update) string {
+			if u.Message != nil && u.Message.Text == text.KBTransfer {
+				return cmd.CmdTransfer
+			}
+			return ""
+		}).
 		AddPreHandler(prehandler.BotMustBeAdmin).
 		AddPreHandler(prehandler.ForwardPrivate).
 		AddPreHandler(prehandler.SetFrom).

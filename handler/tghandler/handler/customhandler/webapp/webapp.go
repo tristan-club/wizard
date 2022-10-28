@@ -36,9 +36,9 @@ func webAppSendHandler(ctx *tcontext.Context) error {
 		return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
 	}
 
-	url := fmt.Sprintf("%s?temporary_token=%s", pconst.WebAppUrl, initTemporaryTokenResp.Data.Token)
+	url := fmt.Sprintf("%s?temporary_token=%s", pconst.WebAppMenuUrl, initTemporaryTokenResp.Data.Token)
 	ikm := &tgbotapi.InlineKeyboardMarkup{
-		InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{{{Text: pconst.WebAppBtName, WebApp: &tgbotapi.WebAppInfo{
+		InlineKeyboard: [][]tgbotapi.InlineKeyboardButton{{{Text: pconst.WebAppMenuBtName, WebApp: &tgbotapi.WebAppInfo{
 			URL: url,
 		}}}},
 	}

@@ -438,9 +438,22 @@ func (t *TGMgr) CheckShouldHandle(update *tgbotapi.Update) (pcr *PreCheckResult,
 			//}
 
 		} else {
-			if us.CurrentCommand != "" && us.CurrentCommand != userstate.CmdNone {
-				cmdId = us.CurrentCommand
+
+			for _, fn := range t.cmdParser {
+				if parsedCmdId := fn(update); parsedCmdId != "" {
+					cmdId = parsedCmdId
+					isCmd = true
+					break
+				}
 			}
+
+			if !isCmd {
+
+				if us.CurrentCommand != "" && us.CurrentCommand != userstate.CmdNone {
+					cmdId = us.CurrentCommand
+				}
+			}
+
 		}
 	} else if update.CallbackQuery != nil {
 		for _, fn := range t.cmdParser {
