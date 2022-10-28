@@ -233,9 +233,9 @@ func startSendHandler(ctx *tcontext.Context) error {
 				walletContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
 			}
 
-			if text.CustomStartMenu != "" {
-				walletContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, walletContent)
-			}
+			//if text.CustomStartMenu != "" {
+			//	walletContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, walletContent)
+			//}
 
 			//if _, herr := ctx.Send(ctx.U.SentFrom().ID, content, nil, false); herr != nil {
 			//	return herr
