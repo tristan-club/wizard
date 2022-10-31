@@ -27,6 +27,9 @@ type Context struct {
 	Payload      interface{}
 	CmdParam     []string
 	Msg          *tgbotapi.Message
+
+	Param  interface{}
+	Result interface{}
 }
 
 func DefaultContext(u *tgbotapi.Update, api *tgbotapi.BotAPI) *Context {

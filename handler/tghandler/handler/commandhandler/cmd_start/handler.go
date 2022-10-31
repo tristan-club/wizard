@@ -15,11 +15,19 @@ import (
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/dingding"
 	"github.com/tristan-club/wizard/pkg/tstore"
+	"github.com/tristan-club/wizard/pkg/util"
 	"strings"
 	"time"
 )
 
-type OpenEnvelopePayload struct {
+type StartParam struct {
+	IgnoreGetAccountMsg bool `json:"ignore_get_account_msg"`
+}
+
+type StartResult struct {
+	UserId         string `json:"user_id"`
+	Address        string `json:"address"`
+	TemporaryToken string `json:"temporary_token"`
 }
 
 var Handler = chain.NewChainHandler(cmd.CmdStart, startSendHandler)
@@ -35,6 +43,15 @@ func startSendHandler(ctx *tcontext.Context) error {
 	var activityId string
 	var inviteeId string
 	var inviteGroupId string
+	var temporaryToken string
+
+	param := &StartParam{}
+	if !util.IsNil(ctx.Param) {
+		if _param, ok := ctx.Param.(*StartParam); ok {
+			log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.Param}).Send()
+			param = _param
+		}
+	}
 
 	if len(ctx.CmdParam) != 0 {
 		log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.CmdParam}).Send()
@@ -185,7 +202,14 @@ func startSendHandler(ctx *tcontext.Context) error {
 					log.Error().Fields(map[string]interface{}{"action": "init temporary token error", "error": initTemporaryTokenResp}).Send()
 					//return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
 				} else {
+					temporaryToken = initTemporaryTokenResp.Data.Token
 					suffix += fmt.Sprintf("&token=%s", initTemporaryTokenResp.Data.Token)
+				}
+
+				ctx.Result = &StartResult{
+					UserId:         user.UserNo,
+					Address:        user.DefaultAccountAddr,
+					TemporaryToken: temporaryToken,
 				}
 
 			}
@@ -240,8 +264,10 @@ func startSendHandler(ctx *tcontext.Context) error {
 			//if _, herr := ctx.Send(ctx.U.SentFrom().ID, content, nil, false); herr != nil {
 			//	return herr
 			//}
-
-			_, herr := ctx.Send(ctx.U.SentFrom().ID, walletContent, keyboardBt, true, false)
+			var herr he.Error
+			if isCreateUser || !param.IgnoreGetAccountMsg {
+				_, herr = ctx.Send(ctx.U.SentFrom().ID, walletContent, keyboardBt, true, false)
+			}
 			if herr != nil {
 
 				log.Error().Fields(map[string]interface{}{"action": "send wallet content error", "error": herr.Error(), "ctx": ctx}).Send()
