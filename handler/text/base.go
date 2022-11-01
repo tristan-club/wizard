@@ -115,7 +115,8 @@ const (
 )
 
 const (
-	StartBotDefaultText = "Hi %s\\, click the button below and join the group to help your friend complete the task\\!"
+	StartBotDefaultText = "Hi %s\\, %s invites you to join the group\nAn incentive event is being held there\\. You are welcome to participate together\\."
+	StartBotSimpleText  = "An incentive event is being held there\\. You are welcome to participate together\\."
 )
 
 const (

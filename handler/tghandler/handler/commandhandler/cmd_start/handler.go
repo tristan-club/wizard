@@ -5,6 +5,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
+	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -168,7 +169,23 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 			inviteContent := text.StartInviteText
 			if inviteContent == "" {
-				inviteContent = fmt.Sprintf(text.StartBotDefaultText, ctx.GetNickNameMDV2())
+
+				inviteeResp, err := ctx.CM.GetUser(ctx.Context, &controller_pb.GetUserReq{UserNo: inviteeId})
+				if err != nil {
+					log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error(), "ctx": ctx}).Send()
+				} else if inviteeResp.CommonResponse.Code != he.Success {
+					log.Error().Fields(map[string]interface{}{"action": "get invitee error", "error": err.Error()}).Send()
+				} else {
+					label := inviteeResp.Data.OpenUsername
+					if label == "" {
+						label = inviteeResp.Data.OpenNickname
+					}
+					inviteContent = fmt.Sprintf(text.StartBotDefaultText, ctx.GetNickNameMDV2(), fmt.Sprintf("@%s", mdparse.ParseV2(label)))
+				}
+
+				if inviteContent == "" {
+					inviteContent = fmt.Sprintf(text.StartBotSimpleText)
+				}
 			}
 
 			if err = tstore.PBSaveString(fmt.Sprintf("task-%s", inviteGroupId), ctx.OpenId(), fmt.Sprintf("%s_%s", activityId, inviteeId)); err != nil {
