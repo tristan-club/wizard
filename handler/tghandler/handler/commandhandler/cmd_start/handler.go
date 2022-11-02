@@ -56,6 +56,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 	}
 
 	if len(ctx.CmdParam) != 0 {
+		param.IgnoreGuideMsg = true
 		log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.CmdParam}).Send()
 	}
 
