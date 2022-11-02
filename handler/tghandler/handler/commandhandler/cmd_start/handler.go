@@ -23,6 +23,7 @@ import (
 
 type StartParam struct {
 	IgnoreGetAccountMsg bool `json:"ignore_get_account_msg"`
+	IgnoreGuideMsg      bool `json:"ignore_guide_msg"`
 }
 
 type StartResult struct {
@@ -312,7 +313,9 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 			if isCreateUser {
 
-				_, herr = ctx.SendPhoto(ctx.U.SentFrom().ID, "", nil, true, pconst.UserGuideImgUrl)
+				if !param.IgnoreGuideMsg {
+					_, herr = ctx.SendPhoto(ctx.U.SentFrom().ID, "", nil, true, pconst.UserGuideImgUrl)
+				}
 
 				go func() {
 					time.Sleep(time.Minute * 5)
