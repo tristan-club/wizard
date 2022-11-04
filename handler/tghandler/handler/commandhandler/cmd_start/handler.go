@@ -176,7 +176,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 				if err != nil {
 					log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error(), "ctx": ctx}).Send()
 				} else if inviteeResp.CommonResponse.Code != he.Success {
-					log.Error().Fields(map[string]interface{}{"action": "get invitee error", "error": err.Error()}).Send()
+					log.Error().Fields(map[string]interface{}{"action": "get invitee error", "error": err}).Send()
 				} else {
 					label := inviteeResp.Data.OpenUsername
 					if label == "" {
