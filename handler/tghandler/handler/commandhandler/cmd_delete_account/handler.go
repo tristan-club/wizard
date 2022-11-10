@@ -37,7 +37,7 @@ func DeleteAccountSendHandler(ctx *tcontext.Context) error {
 		return herr
 	}
 
-	resp, err := ctx.CM.DeleteUser(ctx.Context, &controller_pb.DeleteUserReq{
+	resp, err := ctx.CM.DeleteAccount(ctx.Context, &controller_pb.DeleteAccountReq{
 		UserNo:  payload.UserNo,
 		PinCode: payload.PinCode,
 	})

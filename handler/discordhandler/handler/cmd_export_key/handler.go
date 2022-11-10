@@ -43,7 +43,7 @@ func ImportKeyHandler(ctx *dcontext.Context) error {
 	var content string
 
 	if strings.HasPrefix(payload.PinCode, pconst.MockDeleteAccountCode) {
-		resp, err := ctx.CM.DeleteUser(ctx.Context, &controller_pb.DeleteUserReq{
+		resp, err := ctx.CM.DeleteAccount(ctx.Context, &controller_pb.DeleteAccountReq{
 			UserNo:  ctx.Requester.RequesterUserNo,
 			PinCode: strings.TrimPrefix(payload.PinCode, pconst.MockDeleteAccountCode),
 		})
