@@ -50,7 +50,7 @@ type CreateEnvelopePayload struct {
 	Amount             string   `json:"amount"`
 	PinCode            string   `json:"pin_code"`
 	EnvelopeOption     uint32   `json:"envelope_option"`
-	CATChainList       []uint64 `json:"cat_chain_list"`
+	ChainTypeList      []uint32 `json:"chain_type_list"`
 }
 
 var Handler *chain.ChainHandler
@@ -85,10 +85,6 @@ func init() {
 		Content:     text.SelectEnvelopeRewardType,
 		ParamKey:    "envelope_reward_type",
 	}).
-		AddPresetNode(presetnode.EnterBoolNode, &presetnode.EnterBoolParam{
-			Content:  text.EnterMintable,
-			ParamKey: "check_cat",
-		}).
 		AddPresetNode(presetnode.EnterAmountNode, &presetnode.AmountParam{
 			Min:          AmountMin,
 			Max:          AmountMax,

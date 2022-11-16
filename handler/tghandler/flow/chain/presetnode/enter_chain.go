@@ -13,9 +13,10 @@ import (
 	"strconv"
 )
 
-var SelectChainNode = chain.NewNode(askForChain, prechecker.MustBeCallback, enterChain)
+var SelectChainNode = chain.NewNode(askForChain, prechecker.MustBeCallback, EnterChain)
 
 func askForChain(ctx *tcontext.Context, node *chain.Node) error {
+
 	thisMsg, herr := ctx.Send(ctx.U.SentFrom().ID, text.SelectChain, inline_keybord.GetChainKeyBoard(ctx.Requester.RequesterAppId), false, false)
 	if herr != nil {
 		return herr
@@ -26,7 +27,7 @@ func askForChain(ctx *tcontext.Context, node *chain.Node) error {
 	return nil
 }
 
-func enterChain(ctx *tcontext.Context, node *chain.Node) error {
+func EnterChain(ctx *tcontext.Context, node *chain.Node) error {
 	chainValue := ctx.U.CallbackData()
 	chainValueInt, _ := strconv.ParseInt(chainValue, 10, 64)
 	userstate.SetParam(ctx.OpenId(), "chain_type", chainValueInt)
