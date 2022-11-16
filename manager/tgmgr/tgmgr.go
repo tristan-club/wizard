@@ -321,7 +321,7 @@ func (t *TGMgr) handleTGUpdate(update *tgbotapi.Update, preCheckResult *PreCheck
 					content = fmt.Sprintf("unknown error %d", herr.Code())
 				}
 			} else {
-				content = fmt.Sprintf("code: %d; error: %s; detail: %s", herr.Code(), herr.Msg(), herr.Error())
+				content = fmt.Sprintf("Code: %d\n Error: %s\n Detail: %s", herr.Code(), herr.Msg(), herr.Error())
 			}
 
 		} else {

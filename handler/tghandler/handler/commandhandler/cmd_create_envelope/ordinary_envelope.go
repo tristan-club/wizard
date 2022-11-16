@@ -190,7 +190,11 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		return herr
 	}
 
-	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetail, ctx.GetNickNameMDV2(), mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
+	title := text.EnvelopeTitleOrdinary
+	if payload.EnvelopeOption == uint32(controller_pb.ENVELOPE_OPTION_HAS_CAT) {
+		title = text.EnvelopeTitleCAT
+	}
+	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetail, title, ctx.GetNickNameMDV2(), mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
 	if replyMsg, herr := ctx.Send(channelId, shareEnvelopeContent, &openButton, true, false); herr != nil {
 		return herr
 	} else {

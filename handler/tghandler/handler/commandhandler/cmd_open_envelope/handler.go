@@ -115,7 +115,11 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			// todo
 			return tcontext.RespToError(openEnvelopeResp.CommonResponse)
 		} else {
-			return tcontext.RespToError(openEnvelopeResp.CommonResponse)
+			t := openEnvelopeResp.CommonResponse.Inner
+			if t == "" {
+				t = openEnvelopeResp.CommonResponse.Message
+			}
+			return he.NewBusinessError(he.ServerError, fmt.Sprintf("Operation Failed\n%s", t), nil)
 		}
 
 	}
@@ -150,8 +154,12 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		} else if getEnvelopeResp.CommonResponse.Code != he.Success {
 			log.Error().Fields(map[string]interface{}{"action": "get envelope", "error": getEnvelopeResp.CommonResponse}).Send()
 		} else {
-
+			title := text.EnvelopeTitleOrdinary
+			if option == int64(controller_pb.ENVELOPE_OPTION_HAS_CAT) {
+				title = text.EnvelopeTitleCAT
+			}
 			envelopeDetail := fmt.Sprintf(text.EnvelopeDetail,
+				title,
 				ctx.GenerateNickName(mdparse.ParseV2(getEnvelopeResp.Data.CreatorName), strconv.FormatInt(getEnvelopeResp.Data.CreatorOpenId, 10)),
 				mdparse.ParseV2(bignum.CutDecimal(new(big.Int).SetUint64(getEnvelopeResp.Data.RemainAmount), 4, 4)), mdparse.ParseV2(getEnvelopeResp.Data.AssetSymbol),
 				getEnvelopeResp.Data.Quantity-getEnvelopeResp.Data.RemainQuantity, getEnvelopeResp.Data.Quantity)
