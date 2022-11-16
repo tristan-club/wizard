@@ -59,17 +59,14 @@ func AddAppChain(appId string, chainTypeList []uint32) {
 	appAvailableChainKeyboardMap[appId] = kb
 }
 
-func init() {
+func GenerateKeyBoardByChainTypeList(chainTypeList []uint32) tgbotapi.InlineKeyboardMarkup {
+	res := tgbotapi.InlineKeyboardMarkup{}
 	ikb := []tgbotapi.InlineKeyboardButton{}
-	chainTypeList := pconst.ChainTypeList
-	if config.EnvIsDev() {
-		chainTypeList = pconst.DebugChainTypeList
-	}
 	for _, chainType := range chainTypeList {
 		ikb = append(ikb, tgbotapi.NewInlineKeyboardButtonData(pconst.GetChainName(uint32(chainType)), strconv.Itoa(int(chainType))))
 	}
 	if len(ikb) <= 3 {
-		ChainKeyboard = tgbotapi.NewInlineKeyboardMarkup(ikb)
+		res = tgbotapi.NewInlineKeyboardMarkup(ikb)
 	} else {
 		ikbArray := make([][]tgbotapi.InlineKeyboardButton, 0)
 		for len(ikb) > 3 {
@@ -77,8 +74,17 @@ func init() {
 			ikb = ikb[3:]
 		}
 		ikbArray = append(ikbArray, ikb)
-		ChainKeyboard = tgbotapi.NewInlineKeyboardMarkup(ikbArray...)
+		res = tgbotapi.NewInlineKeyboardMarkup(ikbArray...)
 	}
+	return res
+}
+
+func init() {
+	chainTypeList := pconst.ChainTypeList
+	if config.EnvIsDev() {
+		chainTypeList = pconst.DebugChainTypeList
+	}
+	ChainKeyboard = GenerateKeyBoardByChainTypeList(chainTypeList)
 
 }
 

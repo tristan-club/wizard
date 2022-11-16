@@ -45,6 +45,7 @@ const (
 	CodePinCodeInputInvalid     = 30030
 	CodeGetDefaultBotFailed     = 30031
 	CodePermissionRefused       = 30032
+	CodeCATNotConfigure         = 30033
 )
 
 var errMap = map[int]string{
@@ -88,4 +89,5 @@ var errMap = map[int]string{
 	CodePinCodeInputInvalid:     "get pin code failed",
 	CodeGetDefaultBotFailed:     "default bot unavailable",
 	CodePermissionRefused:       "permission refused",
+	CodeCATNotConfigure:         "The current app does not configure CAT. ",
 }

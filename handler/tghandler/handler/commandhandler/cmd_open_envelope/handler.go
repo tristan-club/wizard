@@ -56,17 +56,23 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 
 	log.Info().Msgf("user %s start opening envelope, uid %s", ctx.GetUserName(), uid)
 	params := strings.Split(ctx.U.CallbackData(), "/")
-	if len(params) != 2 {
+	if len(params) != 3 {
 		log.Error().Fields(map[string]interface{}{"action": "invalid envelope params", "payload": ctx.U.CallbackData()}).Send()
 		return he.NewServerError(pconst.CodeInvalidPayload, "", fmt.Errorf("invalid payload"))
 	}
 	envelopeNo := params[1]
+	option, err := strconv.ParseInt(params[2], 10, 64)
+	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "option error", "error": err.Error(), "param": params, "ctx": ctx}).Send()
+		return he.NewServerError(he.ServerError, "", err)
+	}
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
-		Address:    ctx.Requester.RequesterDefaultAddress,
-		EnvelopeNo: envelopeNo,
-		IsWait:     true,
-		ChannelId:  ctx.Requester.RequesterChannelId,
-		ReceiverNo: ctx.Requester.RequesterUserNo,
+		Address:        ctx.Requester.RequesterDefaultAddress,
+		EnvelopeNo:     envelopeNo,
+		IsWait:         true,
+		ChannelId:      ctx.Requester.RequesterChannelId,
+		ReceiverNo:     ctx.Requester.RequesterUserNo,
+		EnvelopeOption: controller_pb.ENVELOPE_OPTION(option),
 	})
 	if err != nil {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)

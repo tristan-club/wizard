@@ -25,6 +25,7 @@ const (
 	EnterInitialSupply       = "✳️ Enter token initial supply.\n The initial amount is the number of tokens to be generated, the minimum amount is %d, and the maximum is %d"
 	EnterBool                = "✳️ Select"
 	EnterMintable            = "✳️ Choose whether your tokens can be mint later "
+	EnterEnvelopeOption      = "✳️ Choose whether your tokens can be mint later "
 	EnterBridgeAsset         = "✳️ *Choose an asset on BNB to swap for METIS*"
 	EnterPrivateWithDelete   = "✳️ Enter your private\n\n*Note*:\nTo keep your private key safe\nWe recommend that you delete the private key message after the operation is complete"
 	EnterPinCodeToDelete     = "✳️ Enter the pincode to clear the account\nNote that this operation will erase all your data and cannot be recovered"

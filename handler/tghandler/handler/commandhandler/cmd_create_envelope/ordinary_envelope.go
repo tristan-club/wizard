@@ -38,17 +38,19 @@ var envelopeTypeText = []string{"Ordinary Red Envelope", "Task Red Envelopee"}
 var envelopeTypeValue = []int64{pconst.EnvelopeTypeOrdinary, pconst.EnvelopeTypeTask}
 
 type CreateEnvelopePayload struct {
-	UserNo             string `json:"user_no"`
-	From               string `json:"from"`
-	ChainType          uint32 `json:"chain_type"`
-	Asset              string `json:"asset"`
-	AssetSymbol        string `json:"asset_symbol"`
-	EnvelopeRewardType uint32 `json:"envelope_reward_type"`
-	EnvelopeType       uint32 `json:"envelope_type"`
-	ChannelId          string `json:"channel_id"`
-	Quantity           uint64 `json:"quantity"`
-	Amount             string `json:"amount"`
-	PinCode            string `json:"pin_code"`
+	UserNo             string   `json:"user_no"`
+	From               string   `json:"from"`
+	ChainType          uint32   `json:"chain_type"`
+	Asset              string   `json:"asset"`
+	AssetSymbol        string   `json:"asset_symbol"`
+	EnvelopeRewardType uint32   `json:"envelope_reward_type"`
+	EnvelopeType       uint32   `json:"envelope_type"`
+	ChannelId          string   `json:"channel_id"`
+	Quantity           uint64   `json:"quantity"`
+	Amount             string   `json:"amount"`
+	PinCode            string   `json:"pin_code"`
+	EnvelopeOption     uint32   `json:"envelope_option"`
+	CATChainList       []uint64 `json:"cat_chain_list"`
 }
 
 var Handler *chain.ChainHandler
@@ -83,6 +85,10 @@ func init() {
 		Content:     text.SelectEnvelopeRewardType,
 		ParamKey:    "envelope_reward_type",
 	}).
+		AddPresetNode(presetnode.EnterBoolNode, &presetnode.EnterBoolParam{
+			Content:  text.EnterMintable,
+			ParamKey: "check_cat",
+		}).
 		AddPresetNode(presetnode.EnterAmountNode, &presetnode.AmountParam{
 			Min:          AmountMin,
 			Max:          AmountMax,
@@ -140,6 +146,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		Blessing:           "",
 		PinCode:            payload.PinCode,
 		IsWait:             false,
+		EnvelopeOption:     controller_pb.ENVELOPE_OPTION(payload.EnvelopeOption),
 	}
 
 	createRedEnvelope, err := ctx.CM.AddEnvelope(ctx.Context, createEnvelopeReq)
@@ -180,7 +187,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	log.Debug().Fields(map[string]interface{}{"action": "create envelope success", "envelopeResp": envelopeResp})
 
 	openButton := tgbotapi.NewInlineKeyboardMarkup(
-		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%s", cmd.CmdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo))},
+		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%s/%d", cmd.CmdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, payload.EnvelopeOption))},
 	)
 
 	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.EnvelopeNo, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {

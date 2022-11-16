@@ -3,12 +3,13 @@ package cmd
 import "github.com/tristan-club/wizard/config"
 
 const (
-	CmdStart          = "start"
-	CmdChangePinCode  = "change_pin_code"
-	CmdGetAccount     = "get_wallet_address"
-	CmdBalance        = "balance"
-	CmdTransfer       = "transfer"
-	CmdCreateEnvelope = "send_red_envelope"
+	CmdStart             = "start"
+	CmdChangePinCode     = "change_pin_code"
+	CmdGetAccount        = "get_wallet_address"
+	CmdBalance           = "balance"
+	CmdTransfer          = "transfer"
+	CmdCreateEnvelope    = "send_red_envelope"
+	CmdCreateCATEnvelope = "send_cat_red_envelope"
 
 	CmdAddTokenBalance = "add_token_balance"
 	CmdIssueToken      = "issue_token"
@@ -31,7 +32,7 @@ const (
 )
 
 var cmdList = []string{
-	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdOpenEnvelope, CmdAddTokenBalance, CmdIssueToken,
+	CmdMenu, CmdStart, CmdChangePinCode, CmdGetAccount, CmdBalance, CmdTransfer, CmdCreateEnvelope, CmdCreateCATEnvelope, CmdOpenEnvelope, CmdAddTokenBalance, CmdIssueToken,
 	CmdAirdrop, CmdSwap, CmdBridge, CmdMyWallet, CmdExportPrivate, CmdReplacePrivate, CmdDeleteAccount, CmdSubmitMetamask,
 }
 var betaCmdList = []string{CmdTest}
@@ -65,12 +66,13 @@ func SetUseWizardCmdList(cmdList []string) {
 }
 
 var desc = map[string]string{
-	CmdStart:          "Create your MetaWallet and get the user guide.",
-	CmdChangePinCode:  "Change pin code of your MetaWallet address.",
-	CmdGetAccount:     "Check your MetaWallet address.",
-	CmdBalance:        "Get details of your MetaWallet balance for following assets: Crypto and NFTs",
-	CmdCreateEnvelope: "Create Red Envelopes to share with your community\n\U0001F9E7People who clicks open button can open the Red Envelope and receive tokens.",
-	CmdTransfer:       "Transfer assets to certain address.",
+	CmdStart:             "Create your MetaWallet and get the user guide.",
+	CmdChangePinCode:     "Change pin code of your MetaWallet address.",
+	CmdGetAccount:        "Check your MetaWallet address.",
+	CmdBalance:           "Get details of your MetaWallet balance for following assets: Crypto and NFTs",
+	CmdCreateEnvelope:    "Create Red Envelopes to share with your community\n\U0001F9E7People who clicks open button can open the Red Envelope and receive tokens.",
+	CmdCreateCATEnvelope: "Create Red Envelopes to share with your community, only CAT holders can claim it",
+	CmdTransfer:          "Transfer assets to certain address.",
 
 	CmdAddTokenBalance: "Add specific token to display under \"/balance\" command",
 	CmdIssueToken:      "Issue token with MetaWallet.",
