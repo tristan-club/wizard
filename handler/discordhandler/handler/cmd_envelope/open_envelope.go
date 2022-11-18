@@ -65,7 +65,7 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 			}
 
 			if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT {
-				msgId, err := tstore.PBGetStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, envelopeNo), pconst.EnvelopeStorePath)
+				msgId, err := tstore.PBGetStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, envelopeNo), pconst.EnvelopeStorePathMsgId)
 				if err != nil {
 					log.Error().Fields(map[string]interface{}{"action": "get envelope msg error", "error": err.Error(), "id": envelopeNo}).Send()
 					return nil

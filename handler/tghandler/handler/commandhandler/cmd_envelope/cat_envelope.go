@@ -1,4 +1,4 @@
-package cmd_create_envelope
+package cmd_envelope
 
 import (
 	"context"

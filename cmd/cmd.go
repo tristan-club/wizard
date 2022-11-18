@@ -23,10 +23,12 @@ const (
 	CmdSubmitMetamask  = "submit_metamask"
 
 	// Button cmd
-	CmdOpenEnvelope = "open_red_envelope"
 
 	// Mock cmd
 	CmdDeleteAccount = "delete_account"
+
+	// custom handler
+	CmdOpenEnvelope = "open_red_envelope"
 
 	CmdTest = "test"
 )

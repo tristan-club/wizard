@@ -13,6 +13,7 @@ import (
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_envelope"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmdhandler"
 	"github.com/tristan-club/wizard/handler/tghandler/inline_keybord"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
@@ -97,6 +98,7 @@ func NewTGMgr(controllerSvc, tStoreSvc string, presetCmdIdList []string, appId s
 		cmdParser:      make([]func(u *tgbotapi.Update) string, 0),
 		appId:          appId,
 		availableChain: make([]uint32, 0),
+		startHandler:   []flow.TGFlowHandler{cmd_envelope.OpenEnvelopeHandler},
 	}
 
 	for _, cmdId := range presetCmdIdList {
@@ -617,6 +619,11 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 				var heErr he.Error
 
 				if cmdId != cmd.CmdStart && !(cmdId == cmd.CmdStart && len(preCheckResult.cmdParam) == 1 && preCheckResult.cmdParam[0] == pconst.DefaultDeepLinkStart) {
+
+					if cmdId == cmd.CmdOpenEnvelope {
+						return cmd_envelope.NoAddressUserHandler(ctx)
+					}
+
 					if ctx.U.FromChat().IsPrivate() {
 						_, heErr = ctx.Reply(ctx.U.SentFrom().ID, fmt.Sprintf(text.UserNoInitInPrivate, ctx.GetNickNameMDV2()), nil, true)
 

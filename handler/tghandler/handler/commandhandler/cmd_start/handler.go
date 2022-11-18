@@ -30,6 +30,7 @@ type StartResult struct {
 	UserId         string `json:"user_id"`
 	Address        string `json:"address"`
 	TemporaryToken string `json:"temporary_token"`
+	CreateAddress  bool   `json:"create_address"`
 }
 
 var Handler = chain.NewChainHandler(cmd.CmdStart, startSendHandler)
@@ -48,6 +49,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 	var temporaryToken string
 
 	param := &StartParam{}
+	result := StartResult{}
 	if !util.IsNil(ctx.Param) {
 		if _param, ok := ctx.Param.(*StartParam); ok {
 			log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.Param}).Send()
@@ -94,6 +96,8 @@ func startSendHandler(ctx *tcontext.Context) error {
 	if getUserResp.CommonResponse.Code != he.Success {
 		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST || getUserResp.Data.DefaultAccountAddr == "" {
 			if ctx.U.FromChat().IsPrivate() {
+
+				result.CreateAddress = true
 
 				channelId := ctx.Requester.GetRequesterChannelId()
 				if channelId == "" {
@@ -147,6 +151,9 @@ func startSendHandler(ctx *tcontext.Context) error {
 	} else {
 		user = getUserResp.Data
 	}
+
+	result.UserId = user.UserNo
+	result.Address = user.DefaultAccountAddr
 
 	if ctx.U.Message.Chat.IsPrivate() {
 
@@ -225,11 +232,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 					suffix += fmt.Sprintf("&token=%s", initTemporaryTokenResp.Data.Token)
 				}
 
-				ctx.Result = &StartResult{
-					UserId:         user.UserNo,
-					Address:        user.DefaultAccountAddr,
-					TemporaryToken: temporaryToken,
-				}
+				result.TemporaryToken = temporaryToken
 
 			}
 

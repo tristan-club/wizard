@@ -13,6 +13,7 @@ func SetFrom(ctx *tcontext.Context) error {
 
 	if !ctx.U.FromChat().IsPrivate() {
 		fromParams["channel_id"] = ctx.Requester.RequesterChannelId
+		fromParams["channel_username"] = ctx.U.FromChat().UserName
 	}
 
 	userstate.BatchSaveParam(ctx.OpenId(), fromParams)

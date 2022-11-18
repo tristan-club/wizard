@@ -1,9 +1,10 @@
-package cmd_create_envelope
+package cmd_envelope
 
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/tristan-club/kit/chain_info"
+	"github.com/tristan-club/kit/customid"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
@@ -46,6 +47,7 @@ type CreateEnvelopePayload struct {
 	EnvelopeRewardType uint32   `json:"envelope_reward_type"`
 	EnvelopeType       uint32   `json:"envelope_type"`
 	ChannelId          string   `json:"channel_id"`
+	ChannelUsername    string   `json:"channel_username"`
 	Quantity           uint64   `json:"quantity"`
 	Amount             string   `json:"amount"`
 	PinCode            string   `json:"pin_code"`
@@ -53,7 +55,7 @@ type CreateEnvelopePayload struct {
 	ChainTypeList      []uint32 `json:"chain_type_list"`
 }
 
-var Handler *chain.ChainHandler
+var CreateOrdinaryEnvelopeHandler *chain.ChainHandler
 
 var enterEnvelopeTypeNode *chain.Node
 
@@ -63,7 +65,7 @@ func init() {
 
 	enterEnvelopeQuantityNode := chain.NewNode(presetnode.AskForQuantity, prechecker.MustBeMessage, presetnode.EnterQuantity)
 
-	Handler = chain.NewChainHandler(cmd.CmdCreateEnvelope, createEnvelopeSendHandler).
+	CreateOrdinaryEnvelopeHandler = chain.NewChainHandler(cmd.CmdCreateEnvelope, createEnvelopeSendHandler).
 		AddPreHandler(prehandler.OnlyPublic).
 		AddPreHandler(prehandler.ForwardPrivate).
 		AddPreHandler(prehandler.SetFrom).
@@ -71,7 +73,7 @@ func init() {
 		AddPresetNode(presetnode.EnterAssetNode, nil)
 
 	if config.EnableTaskEnvelope() {
-		Handler.AddPresetNode(enterEnvelopeTypeNode, &presetnode.EnterTypeParam{
+		CreateOrdinaryEnvelopeHandler.AddPresetNode(enterEnvelopeTypeNode, &presetnode.EnterTypeParam{
 			ChoiceText:  envelopeTypeText,
 			ChoiceValue: envelopeTypeValue,
 			Content:     text.SelectEnvelopeType,
@@ -79,7 +81,7 @@ func init() {
 		})
 	}
 
-	Handler.AddPresetNode(enterEnvelopeTypeNode, &presetnode.EnterTypeParam{
+	CreateOrdinaryEnvelopeHandler.AddPresetNode(enterEnvelopeTypeNode, &presetnode.EnterTypeParam{
 		ChoiceText:  envelopeRewardTypeText,
 		ChoiceValue: envelopeRewardTypeValue,
 		Content:     text.SelectEnvelopeRewardType,
@@ -182,8 +184,9 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 
 	log.Debug().Fields(map[string]interface{}{"action": "create envelope success", "envelopeResp": envelopeResp})
 
+	cid := customid.NewCustomId(pconst.CustomIdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, int32(payload.EnvelopeOption))
 	openButton := tgbotapi.NewInlineKeyboardMarkup(
-		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%s/%d", cmd.CmdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, payload.EnvelopeOption))},
+		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, cid.String())},
 	)
 
 	if _, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.CreateEnvelopeSuccess, createRedEnvelope.Data.EnvelopeNo, mdparse.ParseV2(pconst.GetExplore(payload.ChainType, createRedEnvelope.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, false); herr != nil {
@@ -194,14 +197,21 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	if payload.EnvelopeOption == uint32(controller_pb.ENVELOPE_OPTION_HAS_CAT) {
 		title = text.EnvelopeTitleCAT
 	}
+
 	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetail, title, ctx.GetNickNameMDV2(), mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
 	if replyMsg, herr := ctx.Send(channelId, shareEnvelopeContent, &openButton, true, false); herr != nil {
 		return herr
 	} else {
-		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePath, strconv.FormatInt(int64(replyMsg.MessageID), 10))
+		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, strconv.FormatInt(int64(replyMsg.MessageID), 10))
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 		}
+
+		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathChannelId, fmt.Sprintf("%s/%s", payload.ChannelId, payload.ChannelUsername))
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope channel id error", "error": err.Error()}).Send()
+		}
+
 	}
 
 	return nil

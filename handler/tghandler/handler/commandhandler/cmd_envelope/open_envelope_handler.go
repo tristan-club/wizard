@@ -1,4 +1,4 @@
-package cmd_open_envelope
+package cmd_envelope
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/tristan-club/kit/bignum"
 	"github.com/tristan-club/kit/chain_info"
+	"github.com/tristan-club/kit/customid"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
@@ -14,6 +15,7 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/prehandler"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_start"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/tstore"
@@ -31,50 +33,112 @@ type OpenEnvelopePayload struct {
 	AssetSymbol string `json:"asset_symbol"`
 }
 
-var Handler = chain.NewChainHandler(cmd.CmdOpenEnvelope, openEnvelopeHandler).
+func NoAddressUserHandler(ctx *tcontext.Context) error {
+
+	if ctx.U.CallbackData() == "" {
+		log.Error().Fields(map[string]interface{}{"action": "invalid envelope config", "ctx": ctx}).Send()
+		return he.NewServerError(he.ServerError, "", fmt.Errorf("invlaid envelope config"))
+	}
+
+	cid, _ := customid.ParseCustomId(ctx.U.CallbackData())
+
+	openButton := tgbotapi.NewInlineKeyboardMarkup(
+		[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonURL(text.ClaimAndStart, ctx.GenerateDeepLink(cid))},
+	)
+
+	if replyMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.NoAddressEnvelopeUser, ctx.GetMentionName()), &openButton, false, true); herr != nil {
+		log.Error().Fields(map[string]interface{}{"action": "send msg error", "error": herr}).Send()
+		return herr
+	} else {
+		ctx.SetDeadlineMsg(replyMsg.Chat.ID, replyMsg.MessageID, pconst.COMMON_MSG_DEADLINE)
+	}
+	return nil
+}
+
+var OpenEnvelopeHandler = chain.NewChainHandler(cmd.CmdOpenEnvelope, openEnvelopeHandler).
 	AddCmdParser(func(u *tgbotapi.Update) string {
-		if strings.HasPrefix(u.CallbackData(), cmd.CmdOpenEnvelope) {
-			return cmd.CmdOpenEnvelope
+		// 有钱包用户通过按钮领取
+		var cid *customid.CustomId
+		var ok bool
+		if u.Message != nil {
+			if u.Message.IsCommand() && u.Message.Command() == cmd.CmdStart {
+				cid, ok = customid.ParseCustomId(u.Message.CommandArguments())
+			}
+			// 没钱包的用户通过deeplink跳转，创建钱包并领取
+		} else if u.CallbackData() != "" {
+			cid, ok = customid.ParseCustomId(u.CallbackData())
 		}
-		return ""
+
+		if !ok || cid == nil || cid.GetCustomType() != pconst.CustomIdOpenEnvelope {
+			return ""
+		}
+
+		return cmd.CmdOpenEnvelope
 	}).
-	AddPreHandler(prehandler.OnlyPublic).
 	AddPreHandler(prehandler.SetFrom)
-
-func IsOpenEnvelopeCmd(text string) bool {
-	return strings.HasPrefix(text, cmd.CmdOpenEnvelope)
-}
-
-func IsBridgeCmd(text string) bool {
-	return strings.HasPrefix(text, cmd.CmdBridge)
-}
 
 // todo 检查为啥红包发出来两个人名一样
 func openEnvelopeHandler(ctx *tcontext.Context) error {
 
-	uid := util.GenerateUuid(true)
+	var userHasAddress bool
+	var envelopeNo string
+	var option controller_pb.ENVELOPE_OPTION
+	var channelId int64
+	var channelUsername string
 
+	var cid *customid.CustomId
+
+	if ctx.U.Message != nil {
+		cid, _ = customid.ParseCustomId(ctx.U.Message.CommandArguments())
+	} else if cbd := ctx.U.CallbackData(); cbd != "" {
+		cid, _ = customid.ParseCustomId(ctx.U.CallbackData())
+		userHasAddress = true
+		channelId = ctx.U.FromChat().ID
+		channelUsername = ctx.U.FromChat().UserName
+	} else {
+		log.Error().Fields(map[string]interface{}{"action": "invalid envelope parser", "ctx": ctx}).Send()
+		return fmt.Errorf("invalid envelope parser")
+	}
+
+	envelopeNo = cid.GetId()
+	option = controller_pb.ENVELOPE_OPTION(cid.GetCallbackType())
+	if channelId == 0 {
+		chId, err := tstore.PBGetStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, envelopeNo), pconst.EnvelopeStorePathChannelId)
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "get envelope ch id error", "error": err.Error(), "ctx": ctx}).Send()
+			return he.NewServerError(he.ServerError, "parse envelope info error", err)
+		}
+		a := strings.Split(chId, "/")
+		if len(a) != 2 {
+			log.Error().Fields(map[string]interface{}{"action": "invalid envelope payload", "ctx": ctx}).Send()
+			return he.NewServerError(he.ServerError, "", fmt.Errorf("invalid envelope payload"))
+		}
+		channelId, _ = strconv.ParseInt(a[0], 10, 64)
+		channelUsername = a[1]
+	}
+
+	if !userHasAddress {
+		ctx.Payload = cmd_start.StartParam{IgnoreGuideMsg: true}
+		ctx.CmdParam = []string{pconst.DefaultDeepLinkStart}
+		err := cmd_start.Handler.Handle(ctx)
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "handle start error", "error": err.Error(), "ctx": ctx}).Send()
+			return err
+		}
+	}
+
+	uid := util.GenerateUuid(true)
 	log.Info().Msgf("user %s start opening envelope, uid %s", ctx.GetUserName(), uid)
-	params := strings.Split(ctx.U.CallbackData(), "/")
-	if len(params) != 3 {
-		log.Error().Fields(map[string]interface{}{"action": "invalid envelope params", "payload": ctx.U.CallbackData()}).Send()
-		return he.NewServerError(pconst.CodeInvalidPayload, "", fmt.Errorf("invalid payload"))
-	}
-	envelopeNo := params[1]
-	option, err := strconv.ParseInt(params[2], 10, 64)
-	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "option error", "error": err.Error(), "param": params, "ctx": ctx}).Send()
-		return he.NewServerError(he.ServerError, "", err)
-	}
+
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
 		Address:        ctx.Requester.RequesterDefaultAddress,
 		EnvelopeNo:     envelopeNo,
 		IsWait:         true,
-		ChannelId:      ctx.Requester.RequesterChannelId,
 		ReceiverNo:     ctx.Requester.RequesterUserNo,
 		EnvelopeOption: controller_pb.ENVELOPE_OPTION(option),
 	})
 	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "open envelope error", "error": err.Error(), "ctx": ctx}).Send()
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	}
 
@@ -143,7 +207,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		return tcontext.RespToError(getDataResp.CommonResponse)
 	}
 	ctx.TryDeleteMessage(pendingMsg)
-	envelopeMsgId, err := tstore.PBGetStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, envelopeNo), pconst.EnvelopeStorePath)
+	envelopeMsgId, err := tstore.PBGetStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, envelopeNo), pconst.EnvelopeStorePathMsgId)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "get envelope msg id error", "error": err.Error()}).Send()
 	} else {
@@ -155,7 +219,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			log.Error().Fields(map[string]interface{}{"action": "get envelope", "error": getEnvelopeResp.CommonResponse}).Send()
 		} else {
 			title := text.EnvelopeTitleOrdinary
-			if option == int64(controller_pb.ENVELOPE_OPTION_HAS_CAT) {
+			if controller_pb.ENVELOPE_OPTION(option) == controller_pb.ENVELOPE_OPTION_HAS_CAT {
 				title = text.EnvelopeTitleCAT
 			}
 			envelopeDetail := fmt.Sprintf(text.EnvelopeDetail,
@@ -193,10 +257,10 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			if getEnvelopeResp.Data.RemainQuantity != 0 {
 				openButton = &tgbotapi.InlineKeyboardMarkup{}
 				*openButton = tgbotapi.NewInlineKeyboardMarkup(
-					[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, fmt.Sprintf("%s/%s/%d", cmd.CmdOpenEnvelope, envelopeNo, option))},
+					[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonData(text.OpenEnvelope, cid.String())},
 				)
 			}
-			herr = ctx.EditMessageAndKeyboard(ctx.U.FromChat().ID, int(msgId), envelopeDetail, openButton, true, true)
+			herr = ctx.EditMessageAndKeyboard(channelId, int(msgId), envelopeDetail, openButton, true, true)
 			if herr != nil {
 				log.Error().Fields(map[string]interface{}{"action": "edit red envelope error", "error": herr.Error()}).Send()
 			}
@@ -206,11 +270,23 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 
 	log.Info().Msgf("user %s get open envelope tx hash uid %s", ctx.GetUserName(), uid)
 
-	if openMsg, herr := ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeNo, mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction))), nil, true, true); herr != nil {
-		return herr
-	} else {
-		ctx.SetDeadlineMsg(openMsg.Chat.ID, openMsg.MessageID, pconst.GroupMentionDeadline)
+	if ctx.U.FromChat().IsPrivate() {
+		if _, herr = ctx.Send(ctx.U.FromChat().ID, fmt.Sprintf(text.OpenEnvelopeSuccess, ctx.GetNickNameMDV2(), envelopeNo,
+			mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction)),
+		), nil, true, true); herr != nil {
+			return herr
+		}
 	}
+
+	if _, herr = ctx.Send(channelId, fmt.Sprintf(text.OpenEnvelopeSuccessGroupMsg, ctx.GetNickNameMDV2(), envelopeNo,
+		mdparse.ParseV2(amount), mdparse.ParseV2(assetSymbol), mdparse.ParseV2(pconst.GetExplore(chainType, getDataResp.Data.TxHash, chain_info.ExplorerTargetTransaction)),
+		fmt.Sprintf("%s/%s/%s", pconst.TGLink, channelUsername, envelopeMsgId)), nil, true, true); herr != nil {
+		return herr
+	}
+
+	//if sendGuideMsg {
+	//	_, herr = ctx.SendPhoto(ctx.U.SentFrom().ID, "", nil, true, pconst.UserGuideImgUrl)
+	//}
 
 	return nil
 }

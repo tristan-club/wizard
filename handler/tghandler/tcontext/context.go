@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/tristan-club/kit/customid"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -61,6 +62,10 @@ func (ctx *Context) GetMentionName() string {
 		name = ctx.U.SentFrom().FirstName + " " + ctx.U.SentFrom().LastName
 	}
 	return "@" + name
+}
+
+func (ctx *Context) GenerateDeepLink(cid *customid.CustomId) string {
+	return fmt.Sprintf("https://t.me/%s?start=%s", ctx.BotName, cid.String())
 }
 
 func (ctx *Context) GetNickNameMDV2() string {

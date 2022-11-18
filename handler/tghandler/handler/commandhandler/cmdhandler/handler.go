@@ -8,15 +8,14 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_balance"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_bridge"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_change_pin_code"
-	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_create_envelope"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_delete_account"
+	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_envelope"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_export_key"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_get_account"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_import_key"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_issue_token"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_menu"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_my_wallet"
-	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_open_envelope"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_start"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_submit_metamask"
 	"github.com/tristan-club/wizard/handler/tghandler/handler/commandhandler/cmd_swap"
@@ -35,9 +34,9 @@ func init() {
 		cmd.CmdSubmitMetamask:    cmd_submit_metamask.Handler,
 		cmd.CmdBalance:           cmd_balance.Handler,
 		cmd.CmdTransfer:          cmd_transfer.Handler,
-		cmd.CmdCreateEnvelope:    cmd_create_envelope.Handler,
-		cmd.CmdCreateCATEnvelope: cmd_create_envelope.CATEnvelopeHandler,
-		cmd.CmdOpenEnvelope:      cmd_open_envelope.Handler,
+		cmd.CmdCreateEnvelope:    cmd_envelope.CreateOrdinaryEnvelopeHandler,
+		cmd.CmdCreateCATEnvelope: cmd_envelope.CATEnvelopeHandler,
+		cmd.CmdOpenEnvelope:      cmd_envelope.OpenEnvelopeHandler,
 		cmd.CmdAddTokenBalance:   cmd_add_token.Handler,
 		cmd.CmdIssueToken:        cmd_issue_token.Handler,
 		cmd.CmdAirdrop:           cmd_airdrop.Handler,

@@ -221,7 +221,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	}
 
 	msg, err = ctx.Session.ChannelMessageSendComplex(ctx.GetGroupChannelId(), messageSend)
-	err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePath, msg.ID)
+	err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, msg.ID)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 	}
