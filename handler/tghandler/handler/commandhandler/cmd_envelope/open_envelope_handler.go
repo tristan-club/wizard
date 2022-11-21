@@ -141,6 +141,11 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	uid := util.GenerateUuid(true)
 	log.Info().Msgf("user %s start opening envelope, uid %s", ctx.GetUserName(), uid)
 
+	if checkEnvelopeClaim(envelopeNo, fromId) {
+		log.Debug().Fields(map[string]interface{}{"action": "dup claim", "userId": fromId}).Send()
+		return nil
+	}
+
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
 		Address:        address,
 		EnvelopeNo:     envelopeNo,

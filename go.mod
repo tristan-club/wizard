@@ -10,6 +10,7 @@ require (
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/rs/zerolog v1.27.0
 	github.com/shopspring/decimal v1.2.0
