@@ -49,7 +49,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 	var temporaryToken string
 
 	param := &StartParam{}
-	result := StartResult{}
+	result := &StartResult{}
 	if !util.IsNil(ctx.Param) {
 		if _param, ok := ctx.Param.(*StartParam); ok {
 			log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.Param}).Send()
@@ -154,6 +154,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 	result.UserId = user.UserNo
 	result.Address = user.DefaultAccountAddr
+	ctx.Result = result
 
 	if ctx.U.Message.Chat.IsPrivate() {
 
@@ -233,7 +234,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 				}
 
 				result.TemporaryToken = temporaryToken
-
+				ctx.Result = result
 			}
 
 			suffix = strings.ReplaceAll(suffix, " ", "%20")

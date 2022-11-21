@@ -6,6 +6,7 @@ import (
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/wizard/handler/text"
+	"github.com/tristan-club/wizard/handler/tghandler/rate"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/util"
 	"io"
@@ -14,7 +15,7 @@ import (
 )
 
 func (ctx *Context) Send(chatId int64, content string, ikm interface{}, markdownContent bool, disablePreview bool) (*tgbotapi.Message, he.Error) {
-
+	rate.CheckLimit(chatId)
 	var message *tgbotapi.Message
 	var thisMSg tgbotapi.Message
 	if ctx.U.Message != nil {
@@ -52,6 +53,7 @@ func (ctx *Context) Send(chatId int64, content string, ikm interface{}, markdown
 	return &thisMSg, nil
 }
 func (ctx *Context) Reply(chatId int64, content string, ikm *tgbotapi.InlineKeyboardMarkup, markdownContent bool) (tgbotapi.Message, he.Error) {
+	rate.CheckLimit(chatId)
 	var message *tgbotapi.Message
 	var thisMsg tgbotapi.Message
 	if ctx.U.Message != nil {
@@ -140,6 +142,7 @@ func (ctx *Context) EditMessageAndKeyboard(chatId int64, messageId int, content 
 }
 
 func (ctx *Context) ReplyDmWithGroupForward(content string, ikm *tgbotapi.InlineKeyboardMarkup) he.Error {
+	rate.CheckLimit(ctx.U.SentFrom().ID)
 	var message *tgbotapi.Message
 	if ctx.U.Message != nil {
 		message = ctx.U.Message
@@ -166,6 +169,7 @@ func (ctx *Context) ReplyDmWithGroupForward(content string, ikm *tgbotapi.Inline
 }
 
 func (ctx *Context) SetChatMenuButton(menuButton *tgbotapi.MenuButton) error {
+	rate.CheckLimit(ctx.U.SentFrom().ID)
 	req := tgbotapi.SetChatMenuButtonConfig{
 		ChatID:          ctx.U.SentFrom().ID,
 		ChannelUsername: "",
@@ -184,7 +188,7 @@ func (ctx *Context) SetChatMenuButton(menuButton *tgbotapi.MenuButton) error {
 }
 
 func (ctx *Context) SendPhoto(chatId int64, content string, ikm interface{}, markdownContent bool, photoUrl string) (*tgbotapi.Message, he.Error) {
-
+	rate.CheckLimit(chatId)
 	photoConfig := tgbotapi.NewPhoto(chatId, tgbotapi.FileURL(photoUrl))
 	photoConfig.Caption = content
 	photoConfig.ReplyMarkup = ikm

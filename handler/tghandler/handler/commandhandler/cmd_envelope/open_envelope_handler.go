@@ -50,7 +50,7 @@ func NoAddressUserHandler(ctx *tcontext.Context) error {
 		log.Error().Fields(map[string]interface{}{"action": "send msg error", "error": herr}).Send()
 		return herr
 	} else {
-		ctx.SetDeadlineMsg(replyMsg.Chat.ID, replyMsg.MessageID, pconst.COMMON_MSG_DEADLINE)
+		ctx.SetDeadlineMsg(replyMsg.Chat.ID, replyMsg.MessageID, pconst.GroupMentionDeadline)
 	}
 	return nil
 }
@@ -85,6 +85,8 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	var option controller_pb.ENVELOPE_OPTION
 	var channelId int64
 	var channelUsername string
+	var fromId string
+	var address string
 
 	var cid *customid.CustomId
 
@@ -95,6 +97,8 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 		userHasAddress = true
 		channelId = ctx.U.FromChat().ID
 		channelUsername = ctx.U.FromChat().UserName
+		fromId = ctx.Requester.RequesterUserNo
+		address = ctx.Requester.RequesterDefaultAddress
 	} else {
 		log.Error().Fields(map[string]interface{}{"action": "invalid envelope parser", "ctx": ctx}).Send()
 		return fmt.Errorf("invalid envelope parser")
@@ -125,16 +129,23 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			log.Error().Fields(map[string]interface{}{"action": "handle start error", "error": err.Error(), "ctx": ctx}).Send()
 			return err
 		}
+		result, ok := ctx.Result.(*cmd_start.StartResult)
+		if !ok {
+			log.Error().Fields(map[string]interface{}{"action": "invalid start result", "ctx": ctx}).Send()
+			return he.NewServerError(he.ServerError, "", fmt.Errorf("envelope config error"))
+		}
+		fromId = result.UserId
+		address = result.Address
 	}
 
 	uid := util.GenerateUuid(true)
 	log.Info().Msgf("user %s start opening envelope, uid %s", ctx.GetUserName(), uid)
 
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
-		Address:        ctx.Requester.RequesterDefaultAddress,
+		Address:        address,
 		EnvelopeNo:     envelopeNo,
 		IsWait:         true,
-		ReceiverNo:     ctx.Requester.RequesterUserNo,
+		ReceiverNo:     fromId,
 		EnvelopeOption: controller_pb.ENVELOPE_OPTION(option),
 	})
 	if err != nil {
@@ -147,21 +158,6 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	defer func() {
 
 		if openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOPE_SOLD_OUT || openEnvelopeResp.CommonResponse.Code == pconst.CODE_ENVELOP_STATE_INVALID {
-			//messageIdStr, err := tstore.PBGetStr(fmt.Sprintf("%s%d", pconst.EnvelopeStorePrefix, envelopeId), pconst.EnvelopeStorePath)
-			//if err != nil {
-			//	log.Error().Fields(map[string]interface{}{"action": "get envelope message error", "error": err.Error()}).Send()
-			//	return
-			//}
-			//messageId, err := strconv.ParseInt(messageIdStr, 10, 64)
-			//if err != nil {
-			//	log.Error().Fields(map[string]interface{}{"action": "parse message id error", "error": err.Error(), "raw": messageIdStr}).Send()
-			//	return
-			//}
-			//
-			//msg, err := ctx.BotApi.GetMe()
-			//
-			//ctx.DeleteMessage(ctx.U.FromChat().ID, int(messageId))
-
 		}
 	}()
 
