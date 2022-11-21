@@ -10,6 +10,7 @@ import (
 	"github.com/tristan-club/wizard/handler/userstate/expiremessage_state"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/util"
+	"strings"
 )
 
 type AddressParam struct {
@@ -43,6 +44,7 @@ func askForAddress(ctx *tcontext.Context, node *chain.Node) error {
 func EnterAddress(ctx *tcontext.Context, node *chain.Node) error {
 	address := ctx.U.Message.Text
 
+	address = strings.ReplaceAll(address, " ", "")
 	addressChecked, err := util.EIP55Checksum(address)
 	if err != nil {
 		return he.NewServerError(pconst.CodeAddressParamInvalid, "", err)
