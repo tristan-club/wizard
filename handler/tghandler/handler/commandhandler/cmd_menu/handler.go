@@ -7,6 +7,7 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
+	"github.com/tristan-club/wizard/pconst"
 )
 
 var Handler = chain.NewChainHandler(cmd.CmdMenu, menuSendHandler).
@@ -39,9 +40,14 @@ func menuSendHandler(ctx *tcontext.Context) error {
 		content += "\n"
 	}
 
-	if _, herr := ctx.Send(ctx.U.FromChat().ID, content, nil, true, false); herr != nil {
+	if msg, herr := ctx.Send(ctx.U.FromChat().ID, content, nil, true, false); herr != nil {
 		return herr
+	} else {
+		if !ctx.U.FromChat().IsPrivate() {
+			ctx.SetDeadlineMsg(msg.Chat.ID, msg.MessageID, pconst.COMMON_MSG_DEADLINE)
+		}
 	}
+
 	return nil
 
 }
