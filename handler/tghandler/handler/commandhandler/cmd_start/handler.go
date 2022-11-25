@@ -198,10 +198,16 @@ func startSendHandler(ctx *tcontext.Context) error {
 				}
 			}
 
-			if err = tstore.PBSaveString(fmt.Sprintf("task-%s", inviteGroupId), ctx.OpenId(), fmt.Sprintf("%s_%s", activityId, inviteeId)); err != nil {
+			uid := fmt.Sprintf("task-%s", inviteGroupId)
+			path := ctx.OpenId()
+			value := fmt.Sprintf("%s_%s", activityId, inviteeId)
+
+			if err = tstore.PBSaveString(uid, path, value); err != nil {
 				log.Error().Fields(map[string]interface{}{"action": "save task invite error", "error": err.Error(), "ctx": ctx}).Send()
 				return he.NewServerError(he.ServerError, "", err)
 			}
+
+			log.Info().Fields(map[string]interface{}{"action": "save invite info ", "uid": uid, "path": path, "value": value}).Send()
 
 			forwardIkm := tgbotapi.NewInlineKeyboardMarkup(
 				[]tgbotapi.InlineKeyboardButton{tgbotapi.NewInlineKeyboardButtonURL(text.ButtonJoin, inviteLink)})
