@@ -22,16 +22,19 @@ import (
 )
 
 type CreateEnvelopePayload struct {
-	UserNo       string `json:"user_no"`
-	From         string `json:"from"`
-	ChainType    uint32 `json:"chain_type"`
-	Asset        string `json:"token_address"`
-	AssetSymbol  string `json:"asset_symbol"`
-	EnvelopeType uint32 `json:"envelope_type"`
-	ChannelId    string `json:"channel_id"`
-	Quantity     uint64 `json:"quantity"`
-	Amount       string `json:"amount"`
-	PinCode      string `json:"pin_code"`
+	UserNo             string `json:"user_no"`
+	From               string `json:"from"`
+	ChainType          uint32 `json:"chain_type"`
+	Asset              string `json:"token_address"`
+	AssetSymbol        string `json:"asset_symbol"`
+	EnvelopeType       uint32 `json:"envelope_type"`
+	EnvelopeRewardType uint32 `json:"envelope_reward_type"`
+	ChannelId          string `json:"channel_id"`
+	Quantity           uint64 `json:"quantity"`
+	Amount             string `json:"amount"`
+	EnvelopeNo         string `json:"envelope_no"`
+	EnvelopeOption     uint32 `json:"envelope_option"`
+	PinCode            string `json:"pin_code"`
 }
 
 var dmPermissionFalse = false
@@ -45,7 +48,7 @@ var CreateEnvelopeHandler = &handler.DiscordCmdHandler{
 			presetnode.GetChainOption(),
 			{
 				Type:        discordgo.ApplicationCommandOptionInteger,
-				Name:        "envelope_type",
+				Name:        "envelope_reward_type",
 				Description: "Select red envelope type",
 				Required:    true,
 				Choices: []*discordgo.ApplicationCommandOptionChoice{
@@ -125,19 +128,22 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	}
 
 	createEnvelopeReq := &controller_pb.AddEnvelopeReq{
-		FromId:          ctx.Requester.RequesterUserNo,
-		ChainType:       payload.ChainType,
-		ChannelId:       ctx.GetGroupChannelId(),
-		ChainId:         net.ChainId,
-		TokenType:       uint32(tokenType),
-		Address:         ctx.Requester.RequesterDefaultAddress,
-		ContractAddress: payload.Asset,
-		Amount:          payload.Amount,
-		Quantity:        payload.Quantity,
-		EnvelopeType:    payload.EnvelopeType,
-		Blessing:        "",
-		PinCode:         payload.PinCode,
-		IsWait:          false,
+		FromId:             ctx.Requester.RequesterUserNo,
+		ChainType:          payload.ChainType,
+		EnvelopeNo:         payload.EnvelopeNo,
+		ChannelId:          ctx.GetGroupChannelId(),
+		ChainId:            net.ChainId,
+		TokenType:          uint32(tokenType),
+		Address:            ctx.Requester.RequesterDefaultAddress,
+		ContractAddress:    payload.Asset,
+		Amount:             payload.Amount,
+		Quantity:           payload.Quantity,
+		EnvelopeType:       payload.EnvelopeType,
+		EnvelopeRewardType: payload.EnvelopeRewardType,
+		EnvelopeOption:     controller_pb.ENVELOPE_OPTION(payload.EnvelopeOption),
+		Blessing:           "",
+		PinCode:            payload.PinCode,
+		IsWait:             false,
 	}
 
 	createRedEnvelope, err := ctx.CM.AddEnvelope(ctx.Context, createEnvelopeReq)
@@ -183,21 +189,21 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}
 
-	//messageSend := discordgo.MessageSend{
-	//	Content:         fmt.Sprintf(text.ShareEnvelopeSuccess, ctx.GetNickNameMDV2(), createRedEnvelope.Data.Id, mdparse.ParseV2(payload.AssetSymbol), mdparse.ParseV2(payload.Amount)),
-	//	Components:      nil,
-	//	Files:           nil,
-	//	AllowedMentions: nil,
-	//	Reference:       nil,
-	//	File:            nil,
-	//	Embed:           nil,
-	//}
+	title := text.EnvelopeTitleOrdinary
+	if payload.EnvelopeOption == uint32(controller_pb.ENVELOPE_OPTION_HAS_CAT) {
+		title = text.EnvelopeTitleCAT
+	}
+
+	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetailWithoutTitle, mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
+
+	cid := customid.NewCustomId(pconst.CustomIdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, int32(payload.EnvelopeOption))
 
 	messageSend := &discordgo.MessageSend{
 		Content: "",
 		Embeds: []*discordgo.MessageEmbed{
 			{
-				Description: fmt.Sprintf(text.ShareEnvelopeSuccess, ctx.GetNickNameMDV2(), createRedEnvelope.Data.EnvelopeNo, mdparse.ParseV2(payload.AssetSymbol), mdparse.ParseV2(payload.Amount)),
+				Title:       title,
+				Description: shareEnvelopeContent,
 			},
 		},
 		TTS: false,
@@ -205,10 +211,10 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 			discordgo.ActionsRow{
 				Components: []discordgo.MessageComponent{
 					&discordgo.Button{
-						CustomID: customid.NewCustomId(pconst.CustomIdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, 0).String(),
+						CustomID: cid.String(),
 						Disabled: false,
 						Style:    discordgo.PrimaryButton,
-						Label:    pconst.CustomLabelOpenEnvelope,
+						Label:    text.OpenEnvelope,
 					},
 				},
 			},
@@ -220,10 +226,20 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 		Embed:           nil,
 	}
 
-	msg, err = ctx.Session.ChannelMessageSendComplex(ctx.GetGroupChannelId(), messageSend)
-	err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, msg.ID)
+	msg, err = ctx.SendComplex(ctx.GetGroupChannelId(), messageSend)
 	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
+		log.Error().Fields(map[string]interface{}{"action": "send envelope msg error", "error": err.Error(), "ms": messageSend, "ctx": ctx}).Send()
+	} else {
+		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, msg.ID)
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
+		}
+
+		// todo 弄到channel name
+		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathChannelId, fmt.Sprintf("%s/%s", payload.ChannelId, ctx.IC.ChannelID))
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope channel id error", "error": err.Error()}).Send()
+		}
 	}
 
 	return nil

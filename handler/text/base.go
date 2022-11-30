@@ -64,6 +64,7 @@ const (
 	AirdropSuccess                    = "*The airdrop operation succeeded*\n*TXN URL*: [click to view](%s)"
 	AirdropSuccessInGroup             = "User %s successfully initiated the %s %s token airdrop operation\\nEveryone in the following list got %s %s :\n%s\n*TXN URL*: [click to view](%s)"
 	EnvelopeDetail                    = "\U0001F9E7%s Created by %s\n\n💰Remaining Amount\\: %s %s\n\n🎁Claimed: %d\\/%d"
+	EnvelopeDetailWithoutTitle        = "Remaining Amount\\: %s %s\n\n🎁Claimed: %d\\/%d"
 	EnvelopeTitleOrdinary             = "Red Envelope"
 	EnvelopeTitleCAT                  = "CAT Holder Exclusive Red Envelope "
 	NoAddressEnvelopeUser             = "%s, You don't have MetaWallet yet\nClick the button below to create MetaWallet and receive the red envelope. "

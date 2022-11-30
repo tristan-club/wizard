@@ -2,10 +2,13 @@ package dcontext
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/tristan-club/wizard/handler/discordhandler/rate"
 	"github.com/tristan-club/wizard/handler/text"
 )
 
 func (ctx *Context) DM(content string) error {
+
+	rate.CheckLimit(ctx.GetChatId())
 
 	channel, err := ctx.Session.UserChannelCreate(ctx.GetFromId())
 	if err != nil {
@@ -17,6 +20,9 @@ func (ctx *Context) DM(content string) error {
 }
 
 func (ctx *Context) AckMsg(ephemeralMsgInPrivate bool) error {
+
+	rate.CheckLimit(ctx.IC.Interaction.ChannelID)
+
 	resp := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -38,11 +44,15 @@ func (ctx *Context) AckMsg(ephemeralMsgInPrivate bool) error {
 
 func (ctx *Context) FollowUpReply(content string) (*discordgo.Message, error) {
 
-	resp := &discordgo.WebhookParams{
-		Content: content,
-	}
+	wp := &discordgo.WebhookParams{Content: content}
+	return ctx.FollowUpReplyComplex(wp)
+}
 
-	msg, err := ctx.Session.FollowupMessageCreate(ctx.IC.Interaction, true, resp)
+func (ctx *Context) FollowUpReplyComplex(wp *discordgo.WebhookParams) (*discordgo.Message, error) {
+
+	rate.CheckLimit(ctx.IC.Interaction.ChannelID)
+
+	msg, err := ctx.Session.FollowupMessageCreate(ctx.IC.Interaction, true, wp)
 	if err != nil {
 		return nil, err
 	}
@@ -52,11 +62,18 @@ func (ctx *Context) FollowUpReply(content string) (*discordgo.Message, error) {
 
 func (ctx *Context) FollowUpEdit(messageId string, content string) error {
 
-	resp := &discordgo.WebhookEdit{
+	wp := &discordgo.WebhookEdit{
 		Content: &content,
 	}
 
-	_, err := ctx.Session.FollowupMessageEdit(ctx.IC.Interaction, messageId, resp)
+	return ctx.FollowUpEditComplex(messageId, wp)
+}
+
+func (ctx *Context) FollowUpEditComplex(messageId string, wp *discordgo.WebhookEdit) error {
+
+	rate.CheckLimit(ctx.IC.Interaction.ChannelID)
+
+	_, err := ctx.Session.FollowupMessageEdit(ctx.IC.Interaction, messageId, wp)
 	if err != nil {
 		return err
 	}
@@ -65,6 +82,8 @@ func (ctx *Context) FollowUpEdit(messageId string, content string) error {
 }
 
 func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
+
+	rate.CheckLimit(ctx.IC.Interaction.ChannelID)
 
 	var icRespType uint8
 	if icRespType == 0 {
@@ -91,6 +110,9 @@ func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
 }
 
 func (ctx *Context) EditReply(content string) (*discordgo.Message, error) {
+
+	rate.CheckLimit(ctx.IC.Interaction.ChannelID)
+
 	return ctx.Session.InteractionResponseEdit(ctx.IC.Interaction, &discordgo.WebhookEdit{
 		Content:         &content,
 		Components:      nil,
@@ -110,6 +132,8 @@ func (ctx *Context) ReplyDmWithGroupForward(groupChannelId, userId, content stri
 	if groupChannelId == "" {
 		groupChannelId = ctx.IC.ChannelID
 	}
+
+	rate.CheckLimit("")
 
 	err := ctx.Session.InteractionRespond(ctx.IC.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -138,10 +162,14 @@ func (ctx *Context) ReplyDmWithGroupForward(groupChannelId, userId, content stri
 
 func (ctx *Context) Send(chatId string, content string) (*discordgo.Message, error) {
 
-	if chatId == "" {
-		chatId = ctx.IC.ChannelID
-	}
+	msg := &discordgo.MessageSend{Content: content}
+	return ctx.SendComplex(chatId, msg)
 
-	return ctx.Session.ChannelMessageSend(chatId, content)
+}
 
+func (ctx *Context) SendComplex(chatId string, message *discordgo.MessageSend) (*discordgo.Message, error) {
+
+	rate.CheckLimit(chatId)
+
+	return ctx.Session.ChannelMessageSendComplex(chatId, message)
 }
