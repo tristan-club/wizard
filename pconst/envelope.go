@@ -17,6 +17,7 @@ const (
 const (
 	EnvelopeStorePrefix        = "ENVELOPE_"
 	EnvelopeStorePathMsgId     = "ENVELOPE_MSG_ID"
+	EnvelopeStorePathTitle     = "ENVELOPE_MSG_TITLE"
 	EnvelopeStorePathChannelId = "ENVELOPE_CH_ID"
 )
 

@@ -121,6 +121,10 @@ func (ctx *Context) GetNickNameMDV2() string {
 	return fmt.Sprintf("<@%s>", ctx.GetFromId())
 }
 
+func (ctx *Context) GenerateNickName(openId string) string {
+	return fmt.Sprintf("<@%s>", openId)
+}
+
 func (ctx *Context) CopyRequester() (context.Context, context.CancelFunc, he.Error) {
 	c, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	b, err := proto.Marshal(ctx.Requester)

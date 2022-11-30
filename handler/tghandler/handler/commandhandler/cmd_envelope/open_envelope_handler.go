@@ -224,11 +224,13 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 			if controller_pb.ENVELOPE_OPTION(option) == controller_pb.ENVELOPE_OPTION_HAS_CAT {
 				title = text.EnvelopeTitleCAT
 			}
+			title = fmt.Sprintf(title, envelopeNo, ctx.GenerateNickName(getEnvelopeResp.Data.CreatorName, strconv.FormatInt(getEnvelopeResp.Data.CreatorOpenId, 10)))
+			title += "\n\n"
 			envelopeDetail := fmt.Sprintf(text.EnvelopeDetail,
-				title,
-				ctx.GenerateNickName(mdparse.ParseV2(getEnvelopeResp.Data.CreatorName), strconv.FormatInt(getEnvelopeResp.Data.CreatorOpenId, 10)),
 				mdparse.ParseV2(bignum.CutDecimal(new(big.Int).SetUint64(getEnvelopeResp.Data.RemainAmount), 4, 4)), mdparse.ParseV2(getEnvelopeResp.Data.AssetSymbol),
 				getEnvelopeResp.Data.Quantity-getEnvelopeResp.Data.RemainQuantity, getEnvelopeResp.Data.Quantity)
+
+			envelopeDetail += title
 
 			var claimHistory string
 			for _, claim := range getEnvelopeResp.Data.ClaimList {

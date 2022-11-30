@@ -89,6 +89,61 @@ var CreateEnvelopeHandler = &handler.DiscordCmdHandler{
 
 func envelopeSendHandler(ctx *dcontext.Context) error {
 
+	//ms := &discordgo.MessageSend{
+	//	Content: "",
+	//	Embeds: []*discordgo.MessageEmbed{
+	//		{
+	//			Description: "TEST TEST TEST TEST TEST TEST TEST\n" +
+	//				"TEST  TEST TEST TEST",
+	//		},
+	//	},
+	//	TTS: false,
+	//	Components: []discordgo.MessageComponent{
+	//		discordgo.ActionsRow{
+	//			Components: []discordgo.MessageComponent{
+	//				&discordgo.Button{
+	//					CustomID: "JKLJAL",
+	//					Disabled: false,
+	//					Style:    discordgo.PrimaryButton,
+	//					Label:    text.OpenEnvelope,
+	//				},
+	//				&discordgo.Button{
+	//					CustomID: "JKLJAL2",
+	//					Disabled: false,
+	//					Style:    discordgo.PrimaryButton,
+	//					Label:    "fdskfjsdklfjklsdfjlksjdfldsjlf",
+	//				},
+	//				&discordgo.Button{
+	//					CustomID: "JKLJAL3",
+	//					Disabled: false,
+	//					Style:    discordgo.SecondaryButton,
+	//					Label:    text.OpenEnvelope,
+	//				},
+	//				&discordgo.Button{
+	//					CustomID: "JKLJAL4",
+	//					Disabled: false,
+	//					Style:    discordgo.SuccessButton,
+	//					Label:    text.OpenEnvelope,
+	//				},
+	//				&discordgo.Button{
+	//					CustomID: "JKLJAL5",
+	//					Disabled: false,
+	//					Style:    discordgo.DangerButton,
+	//					Label:    text.OpenEnvelope,
+	//				},
+	//			},
+	//		},
+	//	},
+	//	Files:           nil,
+	//	AllowedMentions: nil,
+	//	Reference:       nil,
+	//	File:            nil,
+	//	Embed:           nil,
+	//}
+	//
+	//ctx.SendComplex(ctx.GetGroupChannelId(), ms)
+	//return nil
+
 	var payload = &CreateEnvelopePayload{}
 
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
@@ -128,7 +183,8 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	}
 
 	createEnvelopeReq := &controller_pb.AddEnvelopeReq{
-		FromId:             ctx.Requester.RequesterUserNo,
+		FromId: ctx.Requester.RequesterUserNo,
+
 		ChainType:          payload.ChainType,
 		EnvelopeNo:         payload.EnvelopeNo,
 		ChannelId:          ctx.GetGroupChannelId(),
@@ -194,7 +250,9 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 		title = text.EnvelopeTitleCAT
 	}
 
-	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetailWithoutTitle, mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
+	title = fmt.Sprintf(title, createRedEnvelope.Data.EnvelopeNo, ctx.Requester.RequesterOpenUserName)
+
+	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetail, mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
 
 	cid := customid.NewCustomId(pconst.CustomIdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, int32(payload.EnvelopeOption))
 
@@ -235,11 +293,6 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 		}
 
-		// todo 弄到 channel name
-		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathChannelId, fmt.Sprintf("%s/%s", payload.ChannelId, ctx.IC.ChannelID))
-		if err != nil {
-			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope channel id error", "error": err.Error()}).Send()
-		}
 	}
 
 	return nil
