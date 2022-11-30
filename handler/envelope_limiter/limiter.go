@@ -1,4 +1,4 @@
-package cmd_envelope
+package envelope_limiter
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 var cacheMgr = cache.New(time.Second*3, time.Second*5)
 
-func checkEnvelopeClaim(envelopeNo, userId string) bool {
+func CheckEnvelopeClaim(envelopeNo, userId string) bool {
 	if _, ok := cacheMgr.Get(string(util.HashStr(fmt.Sprintf("%s_%s", envelopeNo, userId)))); ok {
 		return true
 	}

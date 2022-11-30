@@ -1,9 +1,9 @@
 package pconst
 
 const (
-	WebAppMenuUrl    = "https://tristan.land/tg-webapp/my"
 	WebAppMenuBtName = "WEB APP"
 
+	WebAppMenuUrl     = "https://tristan.land/tg-webapp/my"
 	WebAppProfileUrl  = "https://tristan.land/tg-webapp/profile"
 	WebAppActivityUrl = "https://tristan.land/tg-webapp/activity"
 )

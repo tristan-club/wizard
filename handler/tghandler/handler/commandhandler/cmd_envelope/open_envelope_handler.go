@@ -12,6 +12,7 @@ import (
 	"github.com/tristan-club/kit/mdparse"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/envelope_limiter"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain"
 	"github.com/tristan-club/wizard/handler/tghandler/flow/chain/prehandler"
@@ -141,7 +142,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	uid := util.GenerateUuid(true)
 	log.Info().Msgf("user %s start opening envelope, uid %s", ctx.GetUserName(), uid)
 
-	if checkEnvelopeClaim(envelopeNo, fromId) {
+	if envelope_limiter.CheckEnvelopeClaim(envelopeNo, fromId) {
 		log.Debug().Fields(map[string]interface{}{"action": "dup claim", "userId": fromId}).Send()
 		return nil
 	}
