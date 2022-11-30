@@ -235,7 +235,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 		}
 
-		// todo 弄到channel name
+		// todo 弄到 channel name
 		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathChannelId, fmt.Sprintf("%s/%s", payload.ChannelId, ctx.IC.ChannelID))
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope channel id error", "error": err.Error()}).Send()
