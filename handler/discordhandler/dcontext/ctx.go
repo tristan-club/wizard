@@ -8,6 +8,7 @@ import (
 	"github.com/tristan-club/kit/customid"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
+	"github.com/tristan-club/wizard/handler/discordhandler/rate"
 	"github.com/tristan-club/wizard/pconst"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -136,4 +137,9 @@ func (ctx *Context) CopyRequester() (context.Context, context.CancelFunc, he.Err
 	md := metadata.Pairs("requester", requestStr)
 	c = metadata.NewOutgoingContext(c, md)
 	return c, cancel, nil
+}
+
+func (ctx *Context) RatedSession() *discordgo.Session {
+	rate.CheckLimit("")
+	return ctx.Session
 }
