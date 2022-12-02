@@ -8,6 +8,7 @@ import (
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
+	"github.com/tristan-club/kit/tstore"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/flow/presetnode"
@@ -16,7 +17,6 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
-	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
 	"strings"
 )
@@ -288,7 +288,7 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send envelope msg error", "error": err.Error(), "ms": messageSend, "ctx": ctx}).Send()
 	} else {
-		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, msg.ID)
+		err = tstore.PBSaveStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, msg.ID)
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 		}

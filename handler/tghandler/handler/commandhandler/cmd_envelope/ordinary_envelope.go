@@ -8,6 +8,7 @@ import (
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
+	"github.com/tristan-club/kit/tstore"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -19,7 +20,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
-	"github.com/tristan-club/wizard/pkg/tstore"
 	"strconv"
 	"strings"
 )
@@ -206,12 +206,12 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	if replyMsg, herr := ctx.Send(channelId, shareEnvelopeContent, &openButton, true, false); herr != nil {
 		return herr
 	} else {
-		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, strconv.FormatInt(int64(replyMsg.MessageID), 10))
+		err = tstore.PBSaveStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, strconv.FormatInt(int64(replyMsg.MessageID), 10))
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
 		}
 
-		err = tstore.PBSaveString(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathChannelId, fmt.Sprintf("%s/%s", payload.ChannelId, payload.ChannelUsername))
+		err = tstore.PBSaveStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathChannelId, fmt.Sprintf("%s/%s", payload.ChannelId, payload.ChannelUsername))
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope channel id error", "error": err.Error()}).Send()
 		}

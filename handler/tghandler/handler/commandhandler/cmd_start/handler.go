@@ -6,6 +6,7 @@ import (
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
+	"github.com/tristan-club/kit/tstore"
 	"github.com/tristan-club/wizard/cmd"
 	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
@@ -15,7 +16,6 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/dingding"
-	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
 	"strings"
 	"time"
@@ -202,7 +202,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 			path := ctx.OpenId()
 			value := fmt.Sprintf("%s_%s", activityId, inviteeId)
 
-			if err = tstore.PBSaveString(uid, path, value); err != nil {
+			if err = tstore.PBSaveStr(uid, path, value); err != nil {
 				log.Error().Fields(map[string]interface{}{"action": "save task invite error", "error": err.Error(), "ctx": ctx}).Send()
 				return he.NewServerError(he.ServerError, "", err)
 			}

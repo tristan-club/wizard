@@ -5,8 +5,8 @@ import (
 	"fmt"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
+	"github.com/tristan-club/kit/tstore"
 	"github.com/tristan-club/wizard/pconst"
-	"github.com/tristan-club/wizard/pkg/tstore"
 	"github.com/tristan-club/wizard/pkg/util"
 )
 
@@ -58,7 +58,7 @@ func SetState(openId string, state int, currentCmd, currentService string, paylo
 		log.Error().Fields(map[string]interface{}{"action": "marshal user state", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
-	if err := tstore.PBSaveString(openId, PathUserState, string(usByte)); err != nil {
+	if err := tstore.PBSaveStr(openId, PathUserState, string(usByte)); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "tstore save", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeCallTStoreError, "", err)
 	}
@@ -86,7 +86,7 @@ func InitState(openId, cmd, userId, defaultAddress string) he.Error {
 		log.Error().Fields(map[string]interface{}{"action": "marshal user state", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
-	if err := tstore.PBSaveString(openId, PathUserState, string(usByte)); err != nil {
+	if err := tstore.PBSaveStr(openId, PathUserState, string(usByte)); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "tstore save", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeMarshalError, "", err)
 	}
