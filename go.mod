@@ -15,7 +15,7 @@ require (
 	github.com/rs/zerolog v1.27.0
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.7.0
-	github.com/tristan-club/kit v0.1.11
+	github.com/tristan-club/kit v0.1.13
 	github.com/trustwallet/go-primitives v0.0.55
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e
