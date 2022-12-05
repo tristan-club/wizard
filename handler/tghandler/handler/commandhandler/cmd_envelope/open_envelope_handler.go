@@ -230,7 +230,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 				mdparse.ParseV2(bignum.CutDecimal(new(big.Int).SetUint64(getEnvelopeResp.Data.RemainAmount), 4, 4)), mdparse.ParseV2(getEnvelopeResp.Data.AssetSymbol),
 				getEnvelopeResp.Data.Quantity-getEnvelopeResp.Data.RemainQuantity, getEnvelopeResp.Data.Quantity)
 
-			envelopeDetail += title
+			envelopeDetail = title + envelopeDetail
 
 			var claimHistory string
 			for _, claim := range getEnvelopeResp.Data.ClaimList {
