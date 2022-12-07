@@ -35,6 +35,12 @@ type CreateEnvelopePayload struct {
 	EnvelopeNo         string `json:"envelope_no"`
 	EnvelopeOption     uint32 `json:"envelope_option"`
 	PinCode            string `json:"pin_code"`
+	InviteeNum         int32  `json:"invitee_num"`
+}
+
+type StartParam struct {
+	CustomType int32
+	Photo      string
 }
 
 var dmPermissionFalse = false
@@ -84,72 +90,24 @@ var CreateEnvelopeHandler = &handler.DiscordCmdHandler{
 		},
 		Version: "1",
 	},
-	Handler: envelopeSendHandler,
+	Handler: CreateEnvelopeSendHandler,
 }
 
-func envelopeSendHandler(ctx *dcontext.Context) error {
-
-	//ms := &discordgo.MessageSend{
-	//	Content: "",
-	//	Embeds: []*discordgo.MessageEmbed{
-	//		{
-	//			Description: "TEST TEST TEST TEST TEST TEST TEST\n" +
-	//				"TEST  TEST TEST TEST",
-	//		},
-	//	},
-	//	TTS: false,
-	//	Components: []discordgo.MessageComponent{
-	//		discordgo.ActionsRow{
-	//			Components: []discordgo.MessageComponent{
-	//				&discordgo.Button{
-	//					CustomID: "JKLJAL",
-	//					Disabled: false,
-	//					Style:    discordgo.PrimaryButton,
-	//					Label:    text.OpenEnvelope,
-	//				},
-	//				&discordgo.Button{
-	//					CustomID: "JKLJAL2",
-	//					Disabled: false,
-	//					Style:    discordgo.PrimaryButton,
-	//					Label:    "fdskfjsdklfjklsdfjlksjdfldsjlf",
-	//				},
-	//				&discordgo.Button{
-	//					CustomID: "JKLJAL3",
-	//					Disabled: false,
-	//					Style:    discordgo.SecondaryButton,
-	//					Label:    text.OpenEnvelope,
-	//				},
-	//				&discordgo.Button{
-	//					CustomID: "JKLJAL4",
-	//					Disabled: false,
-	//					Style:    discordgo.SuccessButton,
-	//					Label:    text.OpenEnvelope,
-	//				},
-	//				&discordgo.Button{
-	//					CustomID: "JKLJAL5",
-	//					Disabled: false,
-	//					Style:    discordgo.DangerButton,
-	//					Label:    text.OpenEnvelope,
-	//				},
-	//			},
-	//		},
-	//	},
-	//	Files:           nil,
-	//	AllowedMentions: nil,
-	//	Reference:       nil,
-	//	File:            nil,
-	//	Embed:           nil,
-	//}
-	//
-	//ctx.SendComplex(ctx.GetGroupChannelId(), ms)
-	//return nil
+func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 
 	var payload = &CreateEnvelopePayload{}
-
 	err := parser.ParseOption(ctx.IC.Interaction, payload)
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "parse param", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
+	}
+
+	param := &StartParam{}
+	if !util.IsNil(ctx.Param) {
+		if _param, ok := ctx.Param.(*StartParam); ok {
+			log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.Param}).Send()
+			param = _param
+		}
 	}
 
 	net := chain_info.GetNetByChainType(payload.ChainType)
@@ -254,15 +212,23 @@ func envelopeSendHandler(ctx *dcontext.Context) error {
 
 	shareEnvelopeContent := fmt.Sprintf(text.EnvelopeDetail, mdparse.ParseV2(payload.Amount), mdparse.ParseV2(payload.AssetSymbol), 0, payload.Quantity)
 
-	cid := customid.NewCustomId(pconst.CustomIdOpenEnvelope, createRedEnvelope.Data.EnvelopeNo, int32(payload.EnvelopeOption))
+	ct := int32(pconst.CustomIdOpenEnvelope)
+	if param.CustomType != 0 {
+		ct = param.CustomType
+	}
+	cid := customid.NewCustomId(ct, createRedEnvelope.Data.EnvelopeNo, int32(payload.EnvelopeOption))
+	e := &discordgo.MessageEmbed{
+		Title:       title,
+		Description: shareEnvelopeContent,
+	}
+	if param.Photo != "" {
+		e.Image = &discordgo.MessageEmbedImage{URL: param.Photo}
+	}
 
 	messageSend := &discordgo.MessageSend{
 		Content: "",
 		Embeds: []*discordgo.MessageEmbed{
-			{
-				Title:       title,
-				Description: shareEnvelopeContent,
-			},
+			e,
 		},
 		TTS: false,
 		Components: []discordgo.MessageComponent{
