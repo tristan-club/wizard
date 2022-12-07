@@ -38,10 +38,16 @@ type Context struct {
 	BotName   string
 	Requester *controller_pb.Requester
 	Payload   interface{}
+	Param     interface{}
+	Result    interface{}
 }
 
 func DefaultContext(s *discordgo.Session, i *discordgo.InteractionCreate) *Context {
-	return &Context{Session: s, IC: i}
+	return &Context{Session: s, IC: i, Context: context.Background()}
+}
+
+func NewContext(req *Context) *Context {
+	return req
 }
 
 // GetContext todo not support user_no and default_address

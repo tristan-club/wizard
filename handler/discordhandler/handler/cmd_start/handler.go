@@ -5,12 +5,14 @@ import (
 	"github.com/bwmarrin/discordgo"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
+	"github.com/tristan-club/wizard/config"
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
+	"github.com/tristan-club/wizard/pkg/util"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -20,6 +22,20 @@ var Handler = &handler.DiscordCmdHandler{
 		Version:       "1",
 	},
 	Handler: startSendHandler,
+}
+
+type StartParam struct {
+	IgnoreGetAccountMsg bool `json:"ignore_get_account_msg"`
+	IgnoreGuideMsg      bool `json:"ignore_guide_msg"`
+}
+
+type StartResult struct {
+	UserId         string             `json:"user_id"`
+	Address        string             `json:"address"`
+	TemporaryToken string             `json:"temporary_token"`
+	CreateAddress  bool               `json:"create_address"`
+	StartContent   string             `json:"start_content"`
+	StartMsg       *discordgo.Message `json:"start_msg"`
 }
 
 func startSendHandler(ctx *dcontext.Context) error {
@@ -48,6 +64,14 @@ func startSendHandler(ctx *dcontext.Context) error {
 	} else {
 		user = getUserResp.Data
 	}
+	param := &StartParam{}
+	if !util.IsNil(ctx.Param) {
+		if _param, ok := ctx.Param.(*StartParam); ok {
+			log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.Param}).Send()
+			param = _param
+		}
+	}
+	result := &StartResult{}
 
 	if user == nil {
 		//pinCode = util.GenerateUuid(true)[:6]
@@ -80,6 +104,29 @@ func startSendHandler(ctx *dcontext.Context) error {
 		}
 	}
 
+	result.UserId = user.UserNo
+	result.Address = user.DefaultAccountAddr
+	result.CreateAddress = isCreateAccount
+
+	if config.UseTemporaryToken() {
+		var temporaryToken string
+		initTemporaryTokenResp, err := ctx.CM.InitTemporaryToken(ctx.Context, &controller_pb.InitTemporaryTokenReq{
+			UserId: user.UserNo,
+			AppId:  ctx.Requester.RequesterAppId,
+		})
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "request controller svc error", "error": err.Error()}).Send()
+			//return he.NewServerError(pconst.CodeWalletRequestError, "", err)
+		} else if initTemporaryTokenResp.CommonResponse.Code != he.Success {
+			log.Error().Fields(map[string]interface{}{"action": "init temporary token error", "error": initTemporaryTokenResp}).Send()
+			//return he.NewServerError(int(initTemporaryTokenResp.CommonResponse.Code), "", fmt.Errorf(initTemporaryTokenResp.CommonResponse.Message))
+		} else {
+			temporaryToken = initTemporaryTokenResp.Data.Token
+		}
+
+		result.TemporaryToken = temporaryToken
+	}
+
 	var dmContent string
 	respContent := "⚡️ Wallet\n"
 	if isCreateAccount {
@@ -98,10 +145,14 @@ func startSendHandler(ctx *dcontext.Context) error {
 		respContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, respContent)
 	}
 
-	_, err = ctx.FollowUpReply(respContent)
-	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
-		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
+	result.StartContent = respContent
+
+	if !param.IgnoreGuideMsg {
+		result.StartMsg, err = ctx.FollowUpReply(respContent)
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
+			return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
+		}
 	}
 
 	if dmContent != "" {
@@ -110,6 +161,8 @@ func startSendHandler(ctx *dcontext.Context) error {
 			log.Error().Fields(map[string]interface{}{"action": "bot send msg error", "error": err.Error()}).Send()
 		}
 	}
+
+	ctx.Result = result
 
 	return nil
 
