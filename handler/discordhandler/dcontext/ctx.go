@@ -82,6 +82,22 @@ func (ctx *Context) GetFromId() string {
 	return ctx.IC.User.ID
 }
 
+func (ctx *Context) GetAvatarUrl() string {
+	if ctx.IC == nil {
+		return ""
+	}
+	var user *discordgo.User
+	if ctx.IC.User != nil {
+		user = ctx.IC.User
+	} else {
+		user = ctx.IC.Member.User
+	}
+
+	return user.AvatarURL("128")
+
+	//return ctx.IC.User.ID
+}
+
 //func (ctx *Context) GetGroupId() string {
 //	return ctx.IC.ChannelID
 //}
