@@ -220,7 +220,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 
 		} else {
 
-			suffix := fmt.Sprintf("?app_id=%s", ctx.Requester.RequesterAppId)
+			suffix := fmt.Sprintf("?app_id=%s&bot_type=%d", ctx.Requester.RequesterAppId, pconst.PlatformTg)
 
 			if config.UseTemporaryToken() {
 
