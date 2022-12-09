@@ -134,6 +134,10 @@ func (t *Manager) RegisterCustomHandler(cid *customid.CustomId, h *handler.Disco
 	t.customHandler[cid.GetCustomType()] = h
 }
 
+func (t *Manager) SetCustomHandler(customType int32, h *handler.DiscordCmdHandler) {
+	t.customHandler[customType] = h
+}
+
 func (t *Manager) InjectBotApi(botApi *discordgo.Session, botName string) error {
 	if botApi == nil || botName == "" {
 		return fmt.Errorf("invalid bot api inject")

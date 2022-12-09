@@ -29,17 +29,17 @@ func NewWalletBot(walletConn *grpc.ClientConn) (*WalletBot, error) {
 }
 
 type Context struct {
-	CmdId     string
-	Cid       *customid.CustomId
-	Context   context.Context
-	IC        *discordgo.InteractionCreate
-	CM        controller_pb.ControllerServiceClient
-	Session   *discordgo.Session
-	BotName   string
-	Requester *controller_pb.Requester
-	Payload   interface{}
-	Param     interface{}
-	Result    interface{}
+	CmdId     string                                `json:"cmdId"`
+	Cid       *customid.CustomId                    `json:"cid"`
+	Context   context.Context                       `json:"context"`
+	IC        *discordgo.InteractionCreate          `json:"-"`
+	CM        controller_pb.ControllerServiceClient `json:"-"`
+	Session   *discordgo.Session                    `json:"-"`
+	BotName   string                                `json:"botName"`
+	Requester *controller_pb.Requester              `json:"requester"`
+	Payload   interface{}                           `json:"payload"`
+	Param     interface{}                           `json:"param"`
+	Result    interface{}                           `json:"result"`
 }
 
 func DefaultContext(s *discordgo.Session, i *discordgo.InteractionCreate) *Context {

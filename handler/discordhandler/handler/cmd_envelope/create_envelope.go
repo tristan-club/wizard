@@ -41,6 +41,8 @@ type CreateEnvelopePayload struct {
 type StartParam struct {
 	CustomType int32
 	Photo      string
+	Label      string
+	EnvelopeNo string
 }
 
 var dmPermissionFalse = false
@@ -140,11 +142,15 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 		payload.AssetSymbol = net.Symbol
 	}
 
+	if param.EnvelopeNo == "" {
+		param.EnvelopeNo = payload.EnvelopeNo
+	}
+
 	createEnvelopeReq := &controller_pb.AddEnvelopeReq{
 		FromId: ctx.Requester.RequesterUserNo,
 
 		ChainType:          payload.ChainType,
-		EnvelopeNo:         payload.EnvelopeNo,
+		EnvelopeNo:         param.EnvelopeNo,
 		ChannelId:          ctx.GetGroupChannelId(),
 		ChainId:            net.ChainId,
 		TokenType:          uint32(tokenType),
@@ -225,6 +231,11 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 		e.Image = &discordgo.MessageEmbedImage{URL: param.Photo}
 	}
 
+	label := text.OpenEnvelope
+	if param.Label != "" {
+		label = param.Label
+	}
+
 	messageSend := &discordgo.MessageSend{
 		Content: "",
 		Embeds: []*discordgo.MessageEmbed{
@@ -238,7 +249,7 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 						CustomID: cid.String(),
 						Disabled: false,
 						Style:    discordgo.PrimaryButton,
-						Label:    text.OpenEnvelope,
+						Label:    label,
 					},
 				},
 			},
