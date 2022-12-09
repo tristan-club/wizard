@@ -251,8 +251,8 @@ github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/tristan-club/kit v0.1.13 h1:jjss2pSJG5Wk1GHJAq1HfOPbp7PShMkT/ZuNQ9rj03c=
-github.com/tristan-club/kit v0.1.13/go.mod h1:jjs8CTcyZj7V93Vbq46TBXT4+8fi5qLQEBBZfc6dc8E=
+github.com/tristan-club/kit v0.1.14 h1:8Md8JQCvTp5DashO+h6Hv0e2pqUbrlyEDB5XAuNPcic=
+github.com/tristan-club/kit v0.1.14/go.mod h1:jjs8CTcyZj7V93Vbq46TBXT4+8fi5qLQEBBZfc6dc8E=
 github.com/trustwallet/go-primitives v0.0.55 h1:cFvpvTIGnm8X4yuGsJb1oapHcUgeUDC9HWH4gvnQybg=
 github.com/trustwallet/go-primitives v0.0.55/go.mod h1:4IujMVfxa0uJS267wFszPDYd7vVjQY+/uOREZclnfU0=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
