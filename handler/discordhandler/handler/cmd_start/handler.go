@@ -59,6 +59,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 
 		} else {
+			log.Error().Fields(map[string]interface{}{"action": "get user error", "error": getUserResp}).Send()
 			return tcontext.RespToError(getUserResp.CommonResponse)
 		}
 	} else {
@@ -95,6 +96,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 			}).Send()
 			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 		} else if addUserResp.CommonResponse.Code != he.Success {
+			log.Error().Fields(map[string]interface{}{"action": "add user error", "error": addUserResp}).Send()
 			return tcontext.RespToError(addUserResp.CommonResponse)
 		} else {
 			log.Debug().Fields(map[string]interface{}{"action": "init user", "userNo": addUserResp.Data.UserNo, "username": ctx.GetAvailableName(), "address": addUserResp.Data.DefaultAccountAddr, "pinCode": pinCode}).Send()
@@ -141,9 +143,9 @@ func startSendHandler(ctx *dcontext.Context) error {
 		respContent += fmt.Sprintf(text.GetAccountSuccess, user.DefaultAccountAddr)
 	}
 
-	if text.CustomStartMenu != "" {
-		respContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, respContent)
-	}
+	//if text.CustomStartMenu != "" {
+	//	respContent = fmt.Sprintf("%s\n%s", text.CustomStartMenu, respContent)
+	//}
 
 	result.StartContent = respContent
 

@@ -339,10 +339,17 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 
 			if cmdId != cmd.CmdStart {
-				err = ctx.ReplyDmWithGroupForward("", "", "You do not have an account yet, use start command to create account")
-				if err != nil {
-					return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
+				// todo: This is a temporary check, it  will be refactor further
+				if cid := ctx.Cid; cid != nil && cid.GetCustomType() == 91501 {
+
+				} else {
+					_, err = ctx.FollowUpReply("You do not have an account yet, use start command to create account")
+					if err != nil {
+						return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
+					}
+					return nil
 				}
+
 			}
 
 		} else {
