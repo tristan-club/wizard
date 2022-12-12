@@ -194,8 +194,10 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 				)
 			}
 
-			wp := &discordgo.WebhookEdit{
-				Embeds: &[]*discordgo.MessageEmbed{
+			me := &discordgo.MessageEdit{
+				Channel: channelId,
+				ID:      envelopeMsgId,
+				Embeds: []*discordgo.MessageEmbed{
 					{
 						Type:        "rich",
 						Title:       title,
@@ -204,24 +206,27 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 				},
 			}
 
-			if getEnvelopeResp.Data.RemainAmount != 0 {
-				wp.Components = &[]discordgo.MessageComponent{
-					discordgo.ActionsRow{
-						Components: []discordgo.MessageComponent{
-							&discordgo.Button{
-								Label:    text.OpenEnvelope,
-								Style:    discordgo.PrimaryButton,
-								Disabled: false,
-								CustomID: ctx.Cid.String(),
-							},
-						},
-					},
-				}
+			bt := &discordgo.Button{
+				Label:    text.OpenEnvelope,
+				Style:    discordgo.PrimaryButton,
+				Disabled: false,
+				CustomID: ctx.Cid.String(),
 			}
 
-			err = ctx.FollowUpEditComplex(envelopeMsgId, wp)
+			if getEnvelopeResp.Data.RemainAmount == 0 {
+				bt.Disabled = true
+			}
+			me.Components = []discordgo.MessageComponent{
+				discordgo.ActionsRow{
+					Components: []discordgo.MessageComponent{
+						bt,
+					},
+				},
+			}
+
+			_, err = ctx.RatedSession().ChannelMessageEditComplex(me)
 			if err != nil {
-				log.Error().Fields(map[string]interface{}{"action": "edit envelope error", "error": err.Error(), "wp": wp}).Send()
+				log.Error().Fields(map[string]interface{}{"action": "edit envelope error", "error": err.Error(), "wp": me, "msgId": envelopeMsgId}).Send()
 			}
 
 		}

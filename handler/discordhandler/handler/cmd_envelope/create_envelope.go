@@ -265,9 +265,12 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 	if err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "send envelope msg error", "error": err.Error(), "ms": messageSend, "ctx": ctx}).Send()
 	} else {
-		err = tstore.PBSaveStr(fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo), pconst.EnvelopeStorePathMsgId, msg.ID)
+		prefix := fmt.Sprintf("%s%s", pconst.EnvelopeStorePrefix, createRedEnvelope.Data.EnvelopeNo)
+		err = tstore.PBSaveStr(prefix, pconst.EnvelopeStorePathMsgId, msg.ID)
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "TStore save envelope message error", "error": err.Error()}).Send()
+		} else {
+			log.Info().Fields(map[string]interface{}{"action": "save envelope msg", "prefix": prefix, "msgID": msg.ID}).Send()
 		}
 
 	}

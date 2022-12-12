@@ -116,15 +116,23 @@ func (ctx *Context) Reply(content string, ephemeralMsg bool) error {
 
 func (ctx *Context) EditReply(content string) (*discordgo.Message, error) {
 
-	rate.CheckLimit(ctx.IC.Interaction.ChannelID)
-
-	return ctx.Session.InteractionResponseEdit(ctx.IC.Interaction, &discordgo.WebhookEdit{
+	we := &discordgo.WebhookEdit{
 		Content:         &content,
 		Components:      nil,
 		Embeds:          nil,
 		Files:           nil,
 		AllowedMentions: nil,
-	})
+	}
+
+	return ctx.EditReplyComplex(we)
+	//return msg, er
+}
+
+func (ctx *Context) EditReplyComplex(we *discordgo.WebhookEdit) (*discordgo.Message, error) {
+
+	rate.CheckLimit(ctx.IC.Interaction.ChannelID)
+
+	return ctx.Session.InteractionResponseEdit(ctx.IC.Interaction, we)
 	//return msg, er
 }
 
