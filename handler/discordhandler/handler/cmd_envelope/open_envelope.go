@@ -7,6 +7,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/tristan-club/kit/bignum"
 	"github.com/tristan-club/kit/chain_info"
+	"github.com/tristan-club/kit/customid"
 	he "github.com/tristan-club/kit/error"
 	"github.com/tristan-club/kit/log"
 	"github.com/tristan-club/kit/mdparse"
@@ -17,6 +18,7 @@ import (
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
+	"github.com/tristan-club/wizard/pkg/util"
 	"math/big"
 	"strings"
 	"time"
@@ -63,9 +65,18 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 	//	return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	//}
 	//return nil
+
 	envelopeNo := ctx.Cid.GetId()
 	channelId := ctx.IC.ChannelID
 	//assetSymbol := pconst.GetAssetSymbol(payload.ChainType)
+
+	param := &StartParam{}
+	if !util.IsNil(ctx.Param) {
+		if _param, ok := ctx.Param.(*StartParam); ok {
+			log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.Param}).Send()
+			param = _param
+		}
+	}
 
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
 		Address:        ctx.Requester.RequesterDefaultAddress,
@@ -206,11 +217,16 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 				},
 			}
 
+			cid := ctx.Cid
+			if param.CustomType != 0 {
+				cid = customid.NewCustomId(param.CustomType, envelopeNo, param.Option)
+			}
+
 			bt := &discordgo.Button{
 				Label:    text.OpenEnvelope,
 				Style:    discordgo.PrimaryButton,
 				Disabled: false,
-				CustomID: ctx.Cid.String(),
+				CustomID: cid.String(),
 			}
 
 			if getEnvelopeResp.Data.RemainAmount == 0 {

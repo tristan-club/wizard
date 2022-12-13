@@ -43,6 +43,7 @@ type StartParam struct {
 	Photo      string
 	Label      string
 	EnvelopeNo string
+	Option     int32
 }
 
 var dmPermissionFalse = false
