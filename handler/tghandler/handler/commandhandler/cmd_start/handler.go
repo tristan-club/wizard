@@ -260,8 +260,8 @@ func startSendHandler(ctx *tcontext.Context) error {
 				Text:   text.KBAccount,
 				WebApp: &tgbotapi.WebAppInfo{URL: fmt.Sprintf("%s%s", pconst.WebAppMenuUrl, suffix)},
 			}, {
-				Text:   text.KBProfile,
-				WebApp: &tgbotapi.WebAppInfo{URL: fmt.Sprintf("%s%s", pconst.WebAppProfileUrl, suffix)},
+				Text:   text.KBCAT,
+				WebApp: &tgbotapi.WebAppInfo{URL: fmt.Sprintf("%s%s", pconst.WebAppCAT, suffix)},
 			}}
 			line2 := []tgbotapi.KeyboardButton{{
 				Text:   text.KBActivity,

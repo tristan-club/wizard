@@ -128,6 +128,7 @@ const (
 const (
 	KBAccount       = "💎 My Account"
 	KBProfile       = "🏅 Social Profile"
+	KBCAT           = "🏅 My CAT"
 	KBActivity      = "🔥 Trending Activity"
 	KBLastActivity  = "🕘 Last Activity"
 	KBBalance       = "💰 Balance"

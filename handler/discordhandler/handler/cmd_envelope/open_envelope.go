@@ -89,6 +89,8 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	}
 
+	log.Info().Fields(map[string]interface{}{"action": "open envelope", "resp": openEnvelopeResp, "err": err}).Send()
+
 	if err != nil {
 		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
 	} else if openEnvelopeResp.CommonResponse.Code != he.Success {
