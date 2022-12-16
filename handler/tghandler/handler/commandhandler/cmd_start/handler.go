@@ -94,7 +94,7 @@ func startSendHandler(ctx *tcontext.Context) error {
 	}
 
 	if getUserResp.CommonResponse.Code != he.Success {
-		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST || getUserResp.Data.DefaultAccountAddr == "" {
+		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 			if ctx.U.FromChat().IsPrivate() {
 
 				result.CreateAddress = true
@@ -144,8 +144,10 @@ func startSendHandler(ctx *tcontext.Context) error {
 				// ignore send remind message error for create account
 				if _, herr := ctx.Send(ctx.U.SentFrom().ID, text.ClickStart, nil, false, false); herr != nil {
 				}
+				return nil
 			}
 		} else {
+			log.Error().Fields(map[string]interface{}{"action": "get user error", "error": getUserResp}).Send()
 			return tcontext.RespToError(getUserResp.CommonResponse)
 		}
 	} else {

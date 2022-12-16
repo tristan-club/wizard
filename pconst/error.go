@@ -89,5 +89,5 @@ var errMap = map[int]string{
 	CodePinCodeInputInvalid:     "get pin code failed",
 	CodeGetDefaultBotFailed:     "default bot unavailable",
 	CodePermissionRefused:       "permission refused",
-	CodeCATNotConfigure:         "The current app does not configure CAT. ",
+	CodeCATNotConfigure:         "The current app does not configure CAT on the specified chain. ",
 }

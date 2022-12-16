@@ -13,6 +13,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
 	"github.com/tristan-club/wizard/pkg/util"
+	"strings"
 )
 
 var Handler = &handler.DiscordCmdHandler{
@@ -110,6 +111,8 @@ func startSendHandler(ctx *dcontext.Context) error {
 	result.Address = user.DefaultAccountAddr
 	result.CreateAddress = isCreateAccount
 
+	var components []discordgo.MessageComponent
+
 	if config.UseTemporaryToken() {
 		var temporaryToken string
 		initTemporaryTokenResp, err := ctx.CM.InitTemporaryToken(ctx.Context, &controller_pb.InitTemporaryTokenReq{
@@ -126,7 +129,34 @@ func startSendHandler(ctx *dcontext.Context) error {
 			temporaryToken = initTemporaryTokenResp.Data.Token
 		}
 
+		suffix := fmt.Sprintf("?app_id=%s&bot_type=%d&temporary_token=%s", ctx.Requester.RequesterAppId, pconst.PlatformDiscord, temporaryToken)
+		suffix = strings.ReplaceAll(suffix, " ", "%20")
+
 		result.TemporaryToken = temporaryToken
+
+		components = []discordgo.MessageComponent{
+			&discordgo.Button{
+				Label:    text.KBAccount,
+				Style:    discordgo.LinkButton,
+				Disabled: false,
+				Emoji:    discordgo.ComponentEmoji{},
+				URL:      fmt.Sprintf("%s%s", pconst.WebAppMenuUrl, suffix),
+			},
+			&discordgo.Button{
+				Label:    text.KBActivity,
+				Style:    discordgo.LinkButton,
+				Disabled: false,
+				Emoji:    discordgo.ComponentEmoji{},
+				URL:      fmt.Sprintf("%s%s", pconst.WebAppActivityUrl, suffix),
+			},
+			&discordgo.Button{
+				Label:    text.KBCAT,
+				Style:    discordgo.LinkButton,
+				Disabled: false,
+				Emoji:    discordgo.ComponentEmoji{},
+				URL:      fmt.Sprintf("%s%s", pconst.WebAppCAT, suffix),
+			},
+		}
 	}
 
 	var dmContent string
@@ -150,7 +180,13 @@ func startSendHandler(ctx *dcontext.Context) error {
 	result.StartContent = respContent
 
 	if !param.IgnoreGuideMsg {
-		result.StartMsg, err = ctx.FollowUpReply(respContent)
+
+		wp := &discordgo.WebhookParams{Embeds: []*discordgo.MessageEmbed{{Description: respContent}}}
+		if len(components) > 0 {
+			wp.Components = []discordgo.MessageComponent{discordgo.ActionsRow{Components: components}}
+		}
+
+		result.StartMsg, err = ctx.FollowUpReplyComplex(wp)
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 			return he.NewServerError(pconst.CodeBotSendMsgError, "", err)

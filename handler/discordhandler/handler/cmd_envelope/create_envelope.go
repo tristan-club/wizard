@@ -36,6 +36,7 @@ type CreateEnvelopePayload struct {
 	EnvelopeOption     uint32 `json:"envelope_option"`
 	PinCode            string `json:"pin_code"`
 	InviteeNum         int32  `json:"invitee_num"`
+	CheckCAT           bool   `json:"check_cat"`
 }
 
 type StartParam struct {
@@ -85,6 +86,11 @@ var CreateEnvelopeHandler = &handler.DiscordCmdHandler{
 			},
 
 			presetnode.GetPinCodeOption("", ""),
+			{
+				Type:        discordgo.ApplicationCommandOptionBoolean,
+				Name:        "check_cat",
+				Description: "Whether only CAT holders can claim",
+			},
 			//presetnode.GetAddressOption(&presetnode.OptionAddressPayload{
 			//	Name:        "token_address",
 			//	Description: "If you enter this option, it will be regarded as using an added ERC20 token to send the red envelope",
@@ -111,6 +117,14 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 			log.Info().Fields(map[string]interface{}{"action": "get start param", "param": ctx.Param}).Send()
 			param = _param
 		}
+	}
+
+	if payload.CheckCAT {
+		if err = catChecker(ctx); err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "cat check error", "error": err.Error()}).Send()
+			return err
+		}
+		payload.EnvelopeOption = uint32(controller_pb.ENVELOPE_OPTION_HAS_CAT)
 	}
 
 	net := chain_info.GetNetByChainType(payload.ChainType)
