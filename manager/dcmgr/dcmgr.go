@@ -382,5 +382,12 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 		}
 	}
 	log.Info().Msgf("user %s begin %s cmd", ctx.Requester.RequesterOpenId, ctx.CmdId)
+
+	defer func() {
+		if panicErr := recover(); panicErr != nil {
+			log.Error().Fields(map[string]interface{}{"action": "get panic error", "error": panicErr, "pcr": pcr, "ctx": ctx}).Send()
+		}
+	}()
+
 	return pcr.handler.Handler(ctx)
 }

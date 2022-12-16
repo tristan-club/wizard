@@ -689,6 +689,12 @@ func (t *TGMgr) handle(update *tgbotapi.Update, preCheckResult *PreCheckResult) 
 	md := metadata.Pairs("requester", requestStr)
 	ctx.Context = metadata.NewOutgoingContext(c, md)
 
+	defer func() {
+		if panicErr := recover(); panicErr != nil {
+			log.Error().Fields(map[string]interface{}{"action": "get panic error", "error": panicErr, "pcr": preCheckResult, "ctx": ctx}).Send()
+		}
+	}()
+
 	return cmdHandler.Handle(ctx)
 
 }
