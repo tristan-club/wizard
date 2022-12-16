@@ -129,7 +129,7 @@ func startSendHandler(ctx *dcontext.Context) error {
 			temporaryToken = initTemporaryTokenResp.Data.Token
 		}
 
-		suffix := fmt.Sprintf("?app_id=%s&bot_type=%d&temporary_token=%s", ctx.Requester.RequesterAppId, pconst.PlatformDiscord, temporaryToken)
+		suffix := fmt.Sprintf("?app_id=%s&bot_type=%d&token=%s", ctx.Requester.RequesterAppId, pconst.PlatformDiscord, temporaryToken)
 		suffix = strings.ReplaceAll(suffix, " ", "%20")
 
 		result.TemporaryToken = temporaryToken
