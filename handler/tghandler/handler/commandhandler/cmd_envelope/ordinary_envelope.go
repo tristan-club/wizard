@@ -130,6 +130,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 	}
 
 	createEnvelopeReq := &controller_pb.AddEnvelopeReq{
+		AppId:              ctx.Requester.RequesterAppId,
 		FromId:             payload.UserNo,
 		ChainType:          payload.ChainType,
 		ChannelId:          payload.ChannelId,

@@ -162,8 +162,8 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 	}
 
 	createEnvelopeReq := &controller_pb.AddEnvelopeReq{
-		FromId: ctx.Requester.RequesterUserNo,
-
+		FromId:             ctx.Requester.RequesterUserNo,
+		AppId:              ctx.Requester.RequesterAppId,
 		ChainType:          payload.ChainType,
 		EnvelopeNo:         param.EnvelopeNo,
 		ChannelId:          ctx.GetGroupChannelId(),

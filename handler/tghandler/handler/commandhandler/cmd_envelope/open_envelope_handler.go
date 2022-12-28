@@ -148,6 +148,7 @@ func openEnvelopeHandler(ctx *tcontext.Context) error {
 	}
 
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
+		AppId:          ctx.Requester.RequesterAppId,
 		Address:        address,
 		EnvelopeNo:     envelopeNo,
 		IsWait:         true,
