@@ -129,6 +129,10 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		tokenType = pconst.TokenTypeErc20
 	}
 
+	if payload.EnvelopeType == 0 {
+		payload.EnvelopeType = 1
+	}
+
 	createEnvelopeReq := &controller_pb.AddEnvelopeReq{
 		AppId:              ctx.Requester.RequesterAppId,
 		FromId:             payload.UserNo,
@@ -140,7 +144,7 @@ func createEnvelopeSendHandler(ctx *tcontext.Context) error {
 		ContractAddress:    payload.Asset,
 		Amount:             payload.Amount,
 		Quantity:           payload.Quantity,
-		EnvelopeType:       payload.EnvelopeRewardType,
+		EnvelopeType:       payload.EnvelopeType,
 		EnvelopeRewardType: payload.EnvelopeRewardType,
 		Blessing:           "",
 		PinCode:            payload.PinCode,

@@ -173,7 +173,7 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 		ContractAddress:    payload.Asset,
 		Amount:             payload.Amount,
 		Quantity:           payload.Quantity,
-		EnvelopeType:       payload.EnvelopeType,
+		EnvelopeType:       1,
 		EnvelopeRewardType: payload.EnvelopeRewardType,
 		EnvelopeOption:     controller_pb.ENVELOPE_OPTION(payload.EnvelopeOption),
 		Blessing:           "",
