@@ -40,11 +40,12 @@ type CreateEnvelopePayload struct {
 }
 
 type StartParam struct {
-	CustomType int32
-	Photo      string
-	Label      string
-	EnvelopeNo string
-	Option     int32
+	CustomType   int32
+	Photo        string
+	Label        string
+	EnvelopeNo   string
+	Option       int32
+	EnvelopeType uint32
 }
 
 var dmPermissionFalse = false
@@ -129,6 +130,11 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 
 	net := chain_info.GetNetByChainType(payload.ChainType)
 
+	envelopeType := param.EnvelopeType
+	if envelopeType == 0 {
+		envelopeType = 1
+	}
+
 	tokenType := pconst.TokenTypeInternal
 	if payload.Asset != "" && payload.Asset != "INTERNAL" && strings.HasPrefix(payload.Asset, "0x") {
 		addressChecked, err := util.EIP55Checksum(payload.Asset)
@@ -173,7 +179,7 @@ func CreateEnvelopeSendHandler(ctx *dcontext.Context) error {
 		ContractAddress:    payload.Asset,
 		Amount:             payload.Amount,
 		Quantity:           payload.Quantity,
-		EnvelopeType:       1,
+		EnvelopeType:       uint32(envelopeType),
 		EnvelopeRewardType: payload.EnvelopeRewardType,
 		EnvelopeOption:     controller_pb.ENVELOPE_OPTION(payload.EnvelopeOption),
 		Blessing:           "",
