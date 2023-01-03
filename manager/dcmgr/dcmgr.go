@@ -362,7 +362,7 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 
 		avatarUrl := ctx.GetAvatarUrl()
 
-		if getUserResp.Data.OpenUsername != ctx.GetUserName() || (getUserResp.Data.AppId == "" && requester.RequesterAppId != "") || getUserResp.Data.AvatarUrl != avatarUrl {
+		if getUserResp.Data.OpenUsername != ctx.GetUserName() || (getUserResp.Data.AppId == "" && requester.RequesterAppId != "") || getUserResp.Data.AvatarUrl != avatarUrl || getUserResp.Data.Code == "" {
 			updateUserReq := &controller_pb.UpdateUserReq{
 				UserNo:     getUserResp.Data.UserNo,
 				OpenId:     ctx.GetFromId(),
@@ -372,6 +372,7 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 				Nickname:   "",
 				AppId:      requester.RequesterAppId,
 				AvatarUrl:  avatarUrl,
+				Code:       ctx.GetUser().Discriminator,
 			}
 			updateUserResp, err := t.controllerMgr.UpdateUser(ctx.Context, updateUserReq)
 			if err != nil {
