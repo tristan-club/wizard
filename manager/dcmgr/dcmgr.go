@@ -338,9 +338,9 @@ func (t *Manager) handle(i *discordgo.InteractionCreate, pcr *PreCheckResult) (e
 	} else if getUserResp.CommonResponse.Code != he.Success {
 		if getUserResp.CommonResponse.Code == pconst.CODE_USER_NOT_EXIST {
 
-			if cmdId != cmd.CmdStart {
-				// todo: This is a temporary check, it  will be refactor further
-				if cid := ctx.Cid; cid != nil && cid.GetCustomType() == 91501 {
+			if cmdId != cmd.CmdStart && cmdId != cmd.CmdOpenEnvelope {
+				// todo This is a temporary check, it  will be refactor further
+				if cid := ctx.Cid; cid != nil && (cid.GetCustomType() == 91501 || cid.GetCustomType() == pconst.CustomIdOpenEnvelope) {
 
 				} else {
 					_, err = ctx.FollowUpReply("You do not have an account yet, use start command to create account")

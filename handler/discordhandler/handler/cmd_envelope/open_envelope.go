@@ -15,6 +15,7 @@ import (
 	"github.com/tristan-club/wizard/entity/entity_pb/controller_pb"
 	"github.com/tristan-club/wizard/handler/discordhandler/dcontext"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_start"
 	"github.com/tristan-club/wizard/handler/text"
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/pconst"
@@ -70,6 +71,23 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 	channelId := ctx.IC.ChannelID
 	//assetSymbol := pconst.GetAssetSymbol(payload.ChainType)
 
+	userId := ctx.Requester.RequesterUserNo
+	address := ctx.Requester.RequesterDefaultAddress
+
+	if userId == "" || address == "" {
+		if err := cmd_start.Handler.Handler(ctx); err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "handle start error", "error": err.Error()}).Send()
+			return err
+		}
+		result, ok := ctx.Result.(*cmd_start.StartResult)
+		if !ok {
+			log.Error().Fields(map[string]interface{}{"action": "invalid start result", "result": ctx.Result}).Send()
+			return fmt.Errorf("invalid server config")
+		}
+		userId = result.UserId
+		address = result.Address
+	}
+
 	param := &StartParam{}
 	if !util.IsNil(ctx.Param) {
 		if _param, ok := ctx.Param.(*StartParam); ok {
@@ -80,10 +98,10 @@ func openEnvelopeHandler(ctx *dcontext.Context) error {
 
 	openEnvelopeResp, err := ctx.CM.OpenEnvelope(ctx.Context, &controller_pb.OpenEnvelopeReq{
 		AppId:          ctx.Requester.RequesterAppId,
-		Address:        ctx.Requester.RequesterDefaultAddress,
+		Address:        address,
 		EnvelopeNo:     envelopeNo,
 		IsWait:         false,
-		ReceiverNo:     ctx.Requester.RequesterUserNo,
+		ReceiverNo:     userId,
 		EnvelopeOption: controller_pb.ENVELOPE_OPTION(ctx.Cid.GetCallbackType()),
 	})
 	if err != nil {
