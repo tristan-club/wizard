@@ -1,6 +1,7 @@
 package cmd_start
 
 import (
+	"context"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	he "github.com/tristan-club/kit/error"
@@ -37,6 +38,57 @@ type StartResult struct {
 	CreateAddress  bool               `json:"create_address"`
 	StartContent   string             `json:"start_content"`
 	StartMsg       *discordgo.Message `json:"start_msg"`
+}
+
+func UpdateUser(cuser *controller_pb.User, ctx *dcontext.Context) error {
+
+	ic := ctx.IC
+	cm := ctx.CM
+
+	if cuser == nil || ic == nil || cm == nil {
+		log.Error().Fields(map[string]interface{}{"action": "invalid config", "cu": cuser, "ic": ic, "cm": cm}).Send()
+		return fmt.Errorf("invalid config")
+	}
+
+	updateUserReq := &controller_pb.UpdateUserReq{
+		UserNo: cuser.UserNo,
+	}
+
+	var duser *discordgo.User
+	if ic.User != nil {
+		duser = ic.User
+	} else {
+		duser = ic.Member.User
+	}
+	var shouldUpdate bool
+
+	if duser.Username != cuser.OpenUsername {
+		updateUserReq.Username = duser.Username
+		shouldUpdate = true
+	}
+
+	if cuser.AvatarUrl != duser.AvatarURL("128") {
+		updateUserReq.AvatarUrl = duser.AvatarURL("128")
+		shouldUpdate = true
+	}
+
+	if cuser.Code != duser.Discriminator {
+		updateUserReq.Code = duser.Discriminator
+		shouldUpdate = true
+	}
+
+	if shouldUpdate {
+		updateUserResp, err := cm.UpdateUser(context.Background(), updateUserReq)
+		if err != nil {
+			log.Error().Fields(map[string]interface{}{"action": "call controller error", "error": err.Error(), "req": updateUserReq}).Send()
+			return err
+		} else if updateUserResp.CommonResponse.Code != he.Success {
+			log.Error().Fields(map[string]interface{}{"action": "update user error", "error": updateUserResp, "req": updateUserReq}).Send()
+			return fmt.Errorf(updateUserResp.CommonResponse.Inner)
+		}
+	}
+
+	return nil
 }
 
 func startSendHandler(ctx *dcontext.Context) error {
@@ -105,6 +157,10 @@ func startSendHandler(ctx *dcontext.Context) error {
 			isCreateAccount = true
 			user = addUserResp.Data
 		}
+	}
+
+	if err = UpdateUser(user, ctx); err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "update user error", "error": err.Error()}).Send()
 	}
 
 	result.UserId = user.UserNo
