@@ -42,11 +42,11 @@ func addTokenSendHandler(ctx *dcontext.Context) error {
 		return he.NewServerError(pconst.CodeInvalidPayload, "", err)
 	}
 
-	_, err = ctx.FollowUpReply(text.OperationProcessing)
-	if err != nil {
-		log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
-		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
-	}
+	//_, err = ctx.FollowUpReply(text.OperationProcessing)
+	//if err != nil {
+	//	log.Error().Fields(map[string]interface{}{"action": "send msg", "error": err.Error()}).Send()
+	//	return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
+	//}
 
 	req := &controller_pb.AddAssetReq{
 		ChainType:       payload.ChainType,

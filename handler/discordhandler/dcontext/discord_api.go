@@ -44,12 +44,15 @@ func (ctx *Context) AckMsg(ephemeralMsgInPrivate bool) error {
 
 func (ctx *Context) FollowUpReply(content string) (*discordgo.Message, error) {
 
-	wp := &discordgo.WebhookParams{Embeds: []*discordgo.MessageEmbed{
-		{
-			Type:        "rich",
-			Description: content,
+	wp := &discordgo.WebhookParams{
+		Embeds: []*discordgo.MessageEmbed{
+			{
+				Type:        "rich",
+				Description: content,
+			},
 		},
-	}}
+		//Flags: discordgo.MessageFlagsEphemeral,
+	}
 	return ctx.FollowUpReplyComplex(wp)
 }
 
