@@ -15,6 +15,7 @@ import (
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_my_wallet"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_start"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_submit_metamask"
+	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_test"
 	"github.com/tristan-club/wizard/handler/discordhandler/handler/cmd_transfer"
 )
 
@@ -39,6 +40,7 @@ func init() {
 		cmd.CmdSubmitMetamask: cmd_submit_metamask.Handler,
 		cmd.CmdReplacePrivate: cmd_import_key.Handler,
 		cmd.CmdExportPrivate:  cmd_export_key.Handler,
+		cmd.CmdTest:           cmd_test.Handler,
 	}
 
 	for k, _ := range handlerMap {
