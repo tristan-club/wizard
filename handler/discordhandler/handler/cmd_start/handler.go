@@ -215,13 +215,11 @@ func startSendHandler(ctx *dcontext.Context) error {
 		}
 	}
 
-	var dmContent string
 	respContent := "⚡️ Wallet\n"
 	if isCreateAccount {
 		respContent += fmt.Sprintf(text.CreateAccountSuccess, user.DefaultAccountAddr, pinCode)
 
 		if !ctx.IsPrivate() {
-			dmContent = respContent
 			respContent = fmt.Sprintf("%s\n%s", respContent, text.MessageDisappearSoon)
 		}
 
@@ -246,13 +244,6 @@ func startSendHandler(ctx *dcontext.Context) error {
 		if err != nil {
 			log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 			return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
-		}
-	}
-
-	if dmContent != "" {
-		err = ctx.DM(dmContent)
-		if err != nil {
-			log.Error().Fields(map[string]interface{}{"action": "bot send msg error", "error": err.Error()}).Send()
 		}
 	}
 

@@ -102,7 +102,7 @@ func transferSendHandler(ctx *dcontext.Context) error {
 	content := fmt.Sprintf(text.TransferSuccess, payload.To, mdparse.ParseV2(payload.AssetSymbol),
 		mdparse.ParseV2(payload.Amount), pconst.GetExplore(payload.ChainType, transferResp.Data.TxHash, chain_info.ExplorerTargetTransaction))
 
-	if err := ctx.DM(content); err != nil {
+	if _, err = ctx.FollowUpReply(content); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)
 	}

@@ -51,7 +51,7 @@ func (ctx *Context) FollowUpReply(content string) (*discordgo.Message, error) {
 				Description: content,
 			},
 		},
-		//Flags: discordgo.MessageFlagsEphemeral,
+		Flags: discordgo.MessageFlagsEphemeral,
 	}
 	return ctx.FollowUpReplyComplex(wp)
 }
