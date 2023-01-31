@@ -11,6 +11,7 @@ import (
 	"github.com/tristan-club/wizard/handler/tghandler/tcontext"
 	"github.com/tristan-club/wizard/handler/userstate"
 	"github.com/tristan-club/wizard/pconst"
+	"strings"
 )
 
 type ImportKeyPayload struct {
@@ -37,14 +38,28 @@ func DeleteAccountSendHandler(ctx *tcontext.Context) error {
 		return herr
 	}
 
-	resp, err := ctx.CM.DeleteAccount(ctx.Context, &controller_pb.DeleteAccountReq{
-		UserNo:  payload.UserNo,
-		PinCode: payload.PinCode,
-	})
-	if err != nil {
-		return he.NewServerError(pconst.CodeWalletRequestError, "", err)
-	} else if resp.CommonResponse.Code != he.Success {
-		return tcontext.RespToError(resp.CommonResponse)
+	if strings.HasPrefix(payload.PinCode, pconst.MockDeleteUser) {
+		resp, err := ctx.CM.DeleteUser(ctx.Context, &controller_pb.DeleteUserReq{
+			UserNo:   payload.UserNo,
+			OpenId:   "",
+			OpenType: 0,
+			PinCode:  strings.TrimPrefix(payload.PinCode, pconst.MockDeleteUser),
+		})
+		if err != nil {
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
+		} else if resp.CommonResponse.Code != he.Success {
+			return tcontext.RespToError(resp.CommonResponse)
+		}
+	} else {
+		resp, err := ctx.CM.DeleteAccount(ctx.Context, &controller_pb.DeleteAccountReq{
+			UserNo:  payload.UserNo,
+			PinCode: payload.PinCode,
+		})
+		if err != nil {
+			return he.NewServerError(pconst.CodeWalletRequestError, "", err)
+		} else if resp.CommonResponse.Code != he.Success {
+			return tcontext.RespToError(resp.CommonResponse)
+		}
 	}
 
 	_, herr = ctx.Send(ctx.U.SentFrom().ID, text.OperationSuccess, nil, false, false)

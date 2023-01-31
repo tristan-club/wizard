@@ -251,6 +251,7 @@ func (t *Manager) CheckShouldHandle(i *discordgo.InteractionCreate) (pcr *PreChe
 func (t *Manager) handleUpdate(i *discordgo.InteractionCreate, pcr *PreCheckResult) {
 
 	ctx := dcontext.DefaultContext(t.s, i)
+
 	if err := ctx.AckMsg(false); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "ack msg error", "error": err.Error(), "i": i}).Send()
 		return
