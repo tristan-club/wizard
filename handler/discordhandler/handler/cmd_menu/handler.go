@@ -22,22 +22,30 @@ var Handler = &handler.DiscordCmdHandler{
 }
 
 func menuSendHandler(ctx *dcontext.Context) error {
-	cmdDesc := "⚙️ Commands\n"
 
-	cmdList := cmd.GetUseWizardCmdList()
-	if len(cmdList) == 0 {
-		cmdList = cmd.GetCmdList()
-	}
-	for _, v := range cmdList {
-		cmdDesc += fmt.Sprintf("/%s %s\n", v, cmd.GetCmdDesc(v))
-	}
-	content := "ℹ️ User Guide\n"
-	content += text.Introduce
+	var content string
 
-	content += "\n"
-	content += "\n"
-	content += cmdDesc
-	content += "\n"
+	if text.CustomStartMenu != "" {
+		content = text.CustomStartMenu
+	} else {
+		cmdDesc := "⚙️ Commands\n"
+
+		cmdList := cmd.GetUseWizardCmdList()
+		if len(cmdList) == 0 {
+			cmdList = cmd.GetCmdList()
+		}
+		for _, v := range cmdList {
+			cmdDesc += fmt.Sprintf("/%s %s\n", v, cmd.GetCmdDesc(v))
+		}
+		content = "ℹ️ User Guide\n"
+		content += text.Introduce
+
+		content += "\n"
+		content += "\n"
+		content += cmdDesc
+		content += "\n"
+	}
+
 	if _, err := ctx.FollowUpReply(content); err != nil {
 		log.Error().Fields(map[string]interface{}{"action": "bot send msg", "error": err.Error()}).Send()
 		return he.NewServerError(pconst.CodeBotSendMsgError, "", err)

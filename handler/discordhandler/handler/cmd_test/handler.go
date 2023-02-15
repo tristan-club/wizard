@@ -14,7 +14,7 @@ var Handler = &handler.DiscordCmdHandler{
 		Options:       nil,
 		Version:       "1",
 	},
-	Handler: getWalletAddressSendHandler,
+	Handler: testHandler,
 }
 
 var content = `ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN
@@ -54,7 +54,18 @@ ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDEFGHIJKLMN ABCDE
 `
 var isProcessed bool
 
-func getWalletAddressSendHandler(ctx *dcontext.Context) error {
+// 编辑机器人头像的示例
+func updateBotIconExample(ctx *dcontext.Context) error {
+	u, err := ctx.Session.UserUpdate("wizard-local-my", "data:image/png;base64,iVBORw0KGgoAAA\nANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4\n//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU\n5ErkJggg==")
+	if err != nil {
+		log.Error().Fields(map[string]interface{}{"action": "error", "error": err.Error()}).Send()
+	} else {
+		log.Info().Fields(map[string]interface{}{"action": "u", "u": u}).Send()
+	}
+	return nil
+}
+
+func testHandler(ctx *dcontext.Context) error {
 
 	err := ctx.Session.InteractionRespond(ctx.IC.Interaction,
 		&discordgo.InteractionResponse{
