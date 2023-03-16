@@ -142,6 +142,28 @@ func (t *TGMgr) RegisterCmd(cmdId, desc string, handler flow.TGFlowHandler) erro
 	return nil
 }
 
+func (t *TGMgr) DeleteCmd(cmdId string) error {
+	if cmdId == "" {
+		return fmt.Errorf("invalid cmd config, cmdId %s", cmdId)
+	}
+
+	var key = -1
+	for i, cmdStr := range t.cmdList {
+		if cmdStr == cmdId {
+			key = i
+			break
+		}
+	}
+	if key < 0 {
+		// not existed cmdId
+		return nil
+	}
+	t.cmdList = append(t.cmdList[:key], t.cmdList[key:]...)
+	delete(t.cmdDesc, cmdId)
+	delete(t.cmdHandler, cmdId)
+	return nil
+}
+
 func (t *TGMgr) RegisterCustomHandler(cid *customid.CustomId, h flow.TGFlowHandler) {
 	t.customHandler[cid.GetCustomType()] = h
 }

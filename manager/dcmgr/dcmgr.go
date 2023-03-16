@@ -104,6 +104,28 @@ func (t *Manager) SetCmd(handler *handler.DiscordCmdHandler) {
 
 }
 
+func (t *Manager) DeleteCmd(cmdId string) {
+	if cmdId == "" {
+		return
+	}
+
+	var key = -1
+	for i, cmdStr := range t.cmdList {
+		if cmdStr == cmdId {
+			key = i
+			break
+		}
+	}
+	if key < 0 {
+		// not existed cmdId
+		return
+	}
+
+	t.cmdList = append(t.cmdList[:key], t.cmdList[key:]...)
+	delete(t.cmdDesc, cmdId)
+	delete(t.cmdHandler, cmdId)
+}
+
 func (t *Manager) GetCmdList() []*discordgo.ApplicationCommand {
 	if t.cmdHandler == nil {
 		return nil
